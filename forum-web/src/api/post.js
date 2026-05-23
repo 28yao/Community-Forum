@@ -29,7 +29,5 @@ export function deletePost(id) {
 export function uploadPostImage(file) {
   const formData = new FormData();
   formData.append('file', file);
-  return request.post('/upload/image', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  });
+  return request.post('/upload/image', formData);
 }

@@ -39,7 +39,7 @@ public class LocalFileStorage implements FileStorage {
         try {
             Files.createDirectories(dir);
             Path target = dir.resolve(fileName);
-            file.transferTo(target.toFile());
+            file.transferTo(target);
         } catch (IOException e) {
             log.error("文件存储失败", e);
             throw new BizException(ErrorCode.SYSTEM_ERROR, "文件上传失败");

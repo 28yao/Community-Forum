@@ -14,7 +14,5 @@ export function updateProfile(data) {
 export function uploadAvatar(file) {
   const formData = new FormData();
   formData.append('file', file);
-  return request.post('/users/avatar', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  });
+  return request.post('/users/avatar', formData);
 }
