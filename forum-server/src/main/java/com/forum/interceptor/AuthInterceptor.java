@@ -30,6 +30,9 @@ public class AuthInterceptor implements HandlerInterceptor {
     /** GET /api/users/{id} 是公开接口，路径中的 id 为纯数字 */
     private static final Pattern PUBLIC_USER_GET = Pattern.compile("^/api/users/\\d+$");
 
+    /** GET /api/posts 与 GET /api/posts/{id} 公开 */
+    private static final Pattern PUBLIC_POST_GET = Pattern.compile("^/api/posts(/\\d+)?$");
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // OPTIONS 预检请求放行
@@ -40,6 +43,11 @@ public class AuthInterceptor implements HandlerInterceptor {
         // GET /api/users/{id} 公开访问
         if ("GET".equalsIgnoreCase(request.getMethod())
                 && PUBLIC_USER_GET.matcher(request.getRequestURI()).matches()) {
+            return true;
+        }
+        // GET /api/posts、GET /api/posts/{id} 公开
+        if ("GET".equalsIgnoreCase(request.getMethod())
+                && PUBLIC_POST_GET.matcher(request.getRequestURI()).matches()) {
             return true;
         }
 

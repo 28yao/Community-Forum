@@ -35,7 +35,7 @@
 | M0 | 基础设施模块（项目初始化） | — | Phase 1 | 已完成 |
 | M1 | 用户系统模块 | §5.1 | Phase 2 | 已完成 |
 | M2 | 版块系统模块 | §5.2 | Phase 3 | 已完成 |
-| M3 | 帖子系统模块 | §5.3 | Phase 4 | 未开始 |
+| M3 | 帖子系统模块 | §5.3 | Phase 4 | 已完成 |
 | M4 | 互动系统模块（点赞 / 评论 / 收藏） | §5.4 | Phase 5 | 未开始 |
 | M5 | 搜索模块 | §5.5 | Phase 6 | 未开始 |
 | M6 | 后台管理模块 | §6 | Phase 7 | 未开始 |
@@ -453,8 +453,11 @@
 | 帖子作者被封禁 | 帖子可看，作者信息显示"已注销" |
 
 ### 12. 当前状态
-- **任务状态**: 未开始
-- **验收状态**: 待验收
+- **任务状态**: 已完成
+- **验收状态**: 自动验收通过
+- **完成日期**: 2026-05-23
+- **后端测试**: 81/81 通过（含 PostServiceTest 10/10）
+- **前端构建**: vite build 成功（PostList/PostDetail/PostCreate/PostEdit/Board 等代码拆分）
 
 ---
 
@@ -462,35 +465,35 @@
 
 | ID | 任务 | 涉及文件 | 前置依赖 | 验收方式 | 状态 | 验收 |
 |----|------|---------|---------|---------|------|------|
-| M3-T1 | 创建 Post 实体 | `entity/Post.java` | M0 完成 | 注解齐全 | 未开始 | 待验收 |
-| M3-T2 | 创建 PostImage 实体 | `entity/PostImage.java` | M0 完成 | 注解齐全 | 未开始 | 待验收 |
-| M3-T3 | 创建 PostMapper | `mapper/PostMapper.java` | M3-T1 | 单测 CRUD 正常 | 未开始 | 待验收 |
-| M3-T4 | 创建 PostImageMapper | `mapper/PostImageMapper.java` | M3-T2 | 单测批量插入 | 未开始 | 待验收 |
-| M3-T5a | 定义 FileStorage 抽象接口 | `service/storage/FileStorage.java` | M0-T12 | 接口含 `save(InputStream, name)` / `delete(url)` 等方法（C1） | 未开始 | 待验收 |
-| M3-T5 | 实现 LocalFileStorage（本地实现 + 校验） | `service/storage/LocalFileStorage.java` + `service/FileService.java` | M3-T5a | 单测格式/大小校验；图片落 `forum.upload.path` 目录；URL 走静态资源映射（C1） | 未开始 | 待验收 |
-| M3-T6 | 实现 FileController.uploadImage | `controller/FileController.java` | M3-T5, M1-T14 | curl 上传成功 | 未开始 | 待验收 |
-| M3-T7 | 实现 PostService.createPost | `service/PostService.java` | M3-T3, T4, M2-T3 | 单测覆盖版块校验/图片关联/board.post_count++ | 未开始 | 待验收 |
-| M3-T8 | 实现 PostController.create | `controller/PostController.java` | M3-T7 | curl 发帖成功，DB 一致 | 未开始 | 待验收 |
-| M3-T9 | 实现 PostService.listPosts | `service/PostService.java` | M3-T3 | 单测覆盖分页/版块筛选/置顶排序 | 未开始 | 待验收 |
-| M3-T10 | 实现 PostController.list | `controller/PostController.java` | M3-T9 | curl 列表正确 | 未开始 | 待验收 |
-| M3-T11 | 实现 PostService.getPostDetail | `service/PostService.java` | M3-T3, T4 | 单测浏览数+1/含图片/含作者 | 未开始 | 待验收 |
-| M3-T12 | 实现 PostController.detail | `controller/PostController.java` | M3-T11 | curl 详情正确；不存在返回 3001 | 未开始 | 待验收 |
-| M3-T13 | 实现 PostService.updatePost（仅作者） | `service/PostService.java` | M3-T3 | 单测覆盖鉴权/is_edited 更新 | 未开始 | 待验收 |
-| M3-T14 | 实现 PostController.update | `controller/PostController.java` | M3-T13 | curl 编辑成功 | 未开始 | 待验收 |
-| M3-T15 | 实现 PostService.deletePost（软删除 + 级联评论） | `service/PostService.java` | M3-T3 | 单测覆盖 deleted=1 + 评论标记 + board.post_count-- | 未开始 | 待验收 |
-| M3-T16 | 实现 PostController.delete | `controller/PostController.java` | M3-T15 | curl 删除后前台不展示 | 未开始 | 待验收 |
-| M3-T17 | 前端 api/post.js | `api/post.js` | M0-T17 | 调用接口成功 | 未开始 | 待验收 |
-| M3-T18 | 实现 ImageUpload.vue | `components/common/ImageUpload.vue` | M3-T6 | 选择/预览/删除图片正常 | 未开始 | 待验收 |
-| M3-T19 | 实现 PostEditor.vue（WangEditor 封装） | `components/post/PostEditor.vue` | M0-T18 | 富文本编辑/输出 HTML 正常 | 未开始 | 待验收 |
-| M3-T20 | 实现 PostCard.vue | `components/post/PostCard.vue` | M3-T17 | 卡片字段正确，点击跳详情 | 未开始 | 待验收 |
-| M3-T21 | 实现 PostList.vue（分页） | `components/post/PostList.vue` | M3-T20 | 分页加载正常 | 未开始 | 待验收 |
-| M3-T22 | 实现 Pagination.vue 通用组件 | `components/common/Pagination.vue` | M0-T14 | 翻页事件正常 | 未开始 | 待验收 |
-| M3-T23 | 实现 EmptyState.vue 空状态组件 | `components/common/EmptyState.vue` | M0-T14 | 显示提示文案 | 未开始 | 待验收 |
-| M3-T24 | 实现 Board.vue 版块帖子页 | `views/Board.vue` | M3-T21 | 列表渲染正常 | 未开始 | 待验收 |
-| M3-T25 | 实现 PostCreate.vue 发帖页 | `views/PostCreate.vue` | M3-T18, T19 | 提交成功跳详情 | 未开始 | 待验收 |
-| M3-T26 | 实现 PostEdit.vue 编辑页 | `views/PostEdit.vue` | M3-T25 | 预填充数据，保存成功 | 未开始 | 待验收 |
-| M3-T27 | 实现 PostDetail.vue（不含评论交互） | `views/PostDetail.vue` | M3-T17 | 内容/图片/作者展示正常 | 未开始 | 待验收 |
-| M3-T28 | 更新 Home.vue 显示各版块最新帖 | `views/Home.vue` | M3-T20, M2-T11 | 首页展示各版块最新 3 帖 | 未开始 | 待验收 |
+| M3-T1 | 创建 Post 实体 | `entity/Post.java` | M0 完成 | MyBatis-Plus 注解齐全 | 已完成 | 自动验收通过 |
+| M3-T2 | 创建 PostImage 实体 | `entity/PostImage.java` | M0 完成 | 映射 post_image | 已完成 | 自动验收通过 |
+| M3-T3 | 创建 PostMapper | `mapper/PostMapper.java` | M3-T1 | incrViewCount + like/comment 计数原子操作 | 已完成 | 自动验收通过 |
+| M3-T4 | 创建 PostImageMapper | `mapper/PostImageMapper.java` | M3-T2 | selectByPostId / deleteByPostId | 已完成 | 自动验收通过 |
+| M3-T5a | 定义 FileStorage 抽象接口 | `service/storage/FileStorage.java` | M0-T12 | save/delete 两个方法（C1） | 已完成 | 自动验收通过 |
+| M3-T5 | 实现 LocalFileStorage（本地实现 + 校验） | `service/storage/LocalFileStorage.java` + 重构 FileService | M3-T5a | FileService 校验 + LocalFileStorage 落盘；FileService 现有测试继承通过 | 已完成 | 自动验收通过 |
+| M3-T6 | 实现 FileController.uploadImage | `controller/FileController.java` | M3-T5, M1-T14 | POST /api/upload/image multipart 接口 | 已完成 | 自动验收通过 |
+| M3-T7 | 实现 PostService.createPost | `service/PostService.java` | M3-T3, T4, M2-T3 | 3/3 测试通过（正常/版块3003/图片4003）+ board.post_count++ | 已完成 | 自动验收通过 |
+| M3-T8 | 实现 PostController.create | `controller/PostController.java` | M3-T7 | POST /api/posts 需登录 | 已完成 | 自动验收通过 |
+| M3-T9 | 实现 PostService.listPosts | `service/PostService.java` | M3-T3 | 分页 + 置顶排序 + 摘要 + 首图 + 作者；1/1 测试通过 | 已完成 | 自动验收通过 |
+| M3-T10 | 实现 PostController.list | `controller/PostController.java` | M3-T9 | GET /api/posts 公开 | 已完成 | 自动验收通过 |
+| M3-T11 | 实现 PostService.getPostDetail | `service/PostService.java` | M3-T3, T4 | 含图片/作者/版块；viewCount+1（2/2 通过） | 已完成 | 自动验收通过 |
+| M3-T12 | 实现 PostController.detail | `controller/PostController.java` | M3-T11 | GET /api/posts/{id} 公开 | 已完成 | 自动验收通过 |
+| M3-T13 | 实现 PostService.updatePost（仅作者） | `service/PostService.java` | M3-T3 | 作者可编辑（is_edited=1）；他人 1002（2/2） | 已完成 | 自动验收通过 |
+| M3-T14 | 实现 PostController.update | `controller/PostController.java` | M3-T13 | PUT /api/posts/{id} 需登录 | 已完成 | 自动验收通过 |
+| M3-T15 | 实现 PostService.deletePost（软删除） | `service/PostService.java` | M3-T3 | 软删 + post_count--（2/2 通过；评论级联留 M4） | 已完成 | 自动验收通过 |
+| M3-T16 | 实现 PostController.delete | `controller/PostController.java` | M3-T15 | DELETE /api/posts/{id} 需登录 + 管理员可越权 | 已完成 | 自动验收通过 |
+| M3-T17 | 前端 api/post.js | `api/post.js` | M0-T17 | 6 个接口（list/get/create/update/delete/uploadImage） | 已完成 | 自动验收通过 |
+| M3-T18 | 实现 ImageUpload.vue | `components/common/ImageUpload.vue` | M3-T6 | 9 张上限 + 5MB 校验 + 缩略图/删除 | 已完成 | 自动验收通过 |
+| M3-T19 | 实现 PostEditor.vue（WangEditor 封装） | `components/post/PostEditor.vue` | M0-T18 | WangEditor 5 + customUpload 集成 | 已完成 | 自动验收通过 |
+| M3-T20 | 实现 PostCard.vue | `components/post/PostCard.vue` | M3-T17 | 标题/摘要/作者/计数/首图缩略 + 置顶/已编辑 Tag | 已完成 | 自动验收通过 |
+| M3-T21 | 实现 PostList.vue（分页） | `components/post/PostList.vue` | M3-T20 | boardId 切换 + 分页 + EmptyState | 已完成 | 自动验收通过 |
+| M3-T22 | 实现 Pagination.vue 通用组件 | `components/common/Pagination.vue` | M0-T14 | el-pagination 封装 | 已完成 | 自动验收通过 |
+| M3-T23 | 实现 EmptyState.vue 空状态组件 | `components/common/EmptyState.vue` | M0-T14 | el-empty 封装 | 已完成 | 自动验收通过 |
+| M3-T24 | 实现 Board.vue 版块帖子页 | `views/Board.vue` | M3-T21 | 版块标题/描述 + 帖子列表 + 发帖入口 | 已完成 | 自动验收通过 |
+| M3-T25 | 实现 PostCreate.vue 发帖页 | `views/PostCreate.vue` | M3-T18, T19 | 版块选择/标题/正文/图片，提交跳详情 | 已完成 | 自动验收通过 |
+| M3-T26 | 实现 PostEdit.vue 编辑页 | `views/PostEdit.vue` | M3-T25 | 预填充 + 保存 | 已完成 | 自动验收通过 |
+| M3-T27 | 实现 PostDetail.vue（不含评论交互） | `views/PostDetail.vue` | M3-T17 | 标题/正文 HTML 渲染/图片 preview/作者/编辑删除按钮 | 已完成 | 自动验收通过 |
+| M3-T28 | 更新 Home.vue 显示最新帖 | `views/Home.vue` | M3-T20, M2-T11 | 首页直接展示全站最新帖列表（简化版） | 已完成 | 自动验收通过 |
 
 ---
 

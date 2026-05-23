@@ -16,7 +16,10 @@ const Placeholder = (name) => defineComponent({
 
 const routes = [
   { path: '/',          name: 'home',     component: () => import('@/views/Home.vue'),   meta: { title: '首页' } },
-  { path: '/board/:id', name: 'board',    component: Placeholder('版块详情（M3 实现）'), meta: { title: '版块' } },
+  { path: '/board/:id', name: 'board',    component: () => import('@/views/Board.vue'),  meta: { title: '版块' } },
+  { path: '/post/create',   name: 'post-create', component: () => import('@/views/PostCreate.vue'), meta: { title: '发帖', requiresAuth: true } },
+  { path: '/post/:id',      name: 'post-detail', component: () => import('@/views/PostDetail.vue'), meta: { title: '帖子详情' } },
+  { path: '/post/:id/edit', name: 'post-edit',   component: () => import('@/views/PostEdit.vue'),   meta: { title: '编辑帖子', requiresAuth: true } },
   { path: '/login',     name: 'login',    component: () => import('@/views/Login.vue'),     meta: { title: '登录', guest: true } },
   { path: '/register',  name: 'register', component: () => import('@/views/Register.vue'),  meta: { title: '注册', guest: true } },
   { path: '/verify-email', name: 'verify-email', component: () => import('@/views/VerifyEmail.vue'), meta: { title: '邮箱验证' } },
