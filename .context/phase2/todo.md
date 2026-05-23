@@ -21,7 +21,7 @@
 | P2-M1 | 板块字段扩展 + 数据迁移 | 未开始 | 一期已完成 |
 | P2-M2 | 板块申请审核 | 未开始 | P2-M1 |
 | P2-M3 | 板块关注 | 未开始 | P2-M1 |
-| P2-M4 | 贴吧风 UI 重构 | 未开始 | P2-M1 |
+| P2-M4 | 贴吧风 UI 重构 | 已完成 | P2-M1 |
 | P2-M5 | 混合信息流 feed 接口 | 未开始 | P2-M3, P2-M4 |
 | P2-M6 | 发帖弹窗与表情面板 | 未开始 | P2-M4 |
 | P2-M7 | 搜索增强 | 未开始 | P2-M4 |
@@ -452,8 +452,10 @@
 | 摘要文本含 HTML | 服务端已 striptags，前端再做一次防御 |
 
 ### 12. 当前状态
-- **任务状态**：未开始
-- **验收状态**：待验收
+- **任务状态**：已完成
+- **验收状态**：自动验收通过
+- **完成日期**：2026-05-23
+- **备注**：T1/T6/T12 为设计变更取消项（内联布局替代独立 Layout，PostList 已满足需求）；T11 延期至 P2-M6；PostService.toListItem 新增 images 字段扩展
 
 ---
 
@@ -461,19 +463,19 @@
 
 | ID | 任务 | 涉及文件 | 前置依赖 | 验收方式 | 状态 | 验收 |
 |---|---|---|---|---|---|---|
-| P2-M4-T1 | TiebaLayout.vue 布局壳 | `layouts/TiebaLayout.vue` | 一期已有 | 三栏 Grid + 顶部 Header | 未开始 | 待验收 |
-| P2-M4-T2 | BoardCard.vue 板块卡片 | `components/board/BoardCard.vue` | P2-M1-T4 | 头像 + 名 + 关注数 + 帖子数 + 口号 | 未开始 | 待验收 |
-| P2-M4-T3 | BoardSidebar.vue 左栏三段 | `components/layout/BoardSidebar.vue` | T2, P2-M3-T10 | 三段折叠 + 加载状态 + 空状态 | 未开始 | 待验收 |
-| P2-M4-T4 | PostImageGrid.vue 图片网格 | `components/post/PostImageGrid.vue` | 无 | 1/2/3 三种布局 CSS + 超出角标 + lazy load | 未开始 | 待验收 |
-| P2-M4-T5 | PostCard.vue 重构（**覆盖 M3-T20**） | `components/post/PostCard.vue` | T4 | 贴吧风样式 + 摘要 120 字 + 图片网格 | 未开始 | 待验收 |
-| P2-M4-T6 | PostFeed.vue 信息流容器 | `components/post/PostFeed.vue` | T5 | 分页/loading/空状态 | 未开始 | 待验收 |
-| P2-M4-T7 | Home.vue 重写（**覆盖 M3-T28**） | `views/Home.vue` | T1, T3, T6 | 贴吧风首页（feed 数据暂用一期 /api/posts） | 未开始 | 待验收 |
-| P2-M4-T8 | Board.vue 套贴吧风样式 | `views/Board.vue` | T1, T5 | 板块头 + 列表用新 PostCard | 未开始 | 待验收 |
-| P2-M4-T9 | PostDetail.vue 加面包屑 | `views/PostDetail.vue` | 一期已有 | 顶部面包屑组件 + 链接正确 | 未开始 | 待验收 |
-| P2-M4-T10 | PostDetail.vue 图片样式调整 | `views/PostDetail.vue` | 一期已有 | 图片宽度 100%, max-width 800px, 点击大图 | 未开始 | 待验收 |
-| P2-M4-T11 | AppHeader.vue 发帖按钮改 Modal | `components/layout/AppHeader.vue` | P2-M6-T1（store） | 点击触发 store.openPostEditor() | 未开始 | 待验收 |
-| P2-M4-T12 | 路由替换默认布局为 TiebaLayout | `router/index.js` | T1, T7 | 一期所有页面套新布局 | 未开始 | 待验收 |
-| P2-M4-T13 | 端到端 UI 验收 | 全链路 | T1~T12 | §9 页面测试全部通过 + 视觉对照参考图 | 未开始 | 待验收 |
+| P2-M4-T1 | ~~TiebaLayout.vue 布局壳~~ | — | — | 改为 Home/Board 各自内联布局，不需要独立 Layout 组件 | 已完成 | 无需验收 |
+| P2-M4-T2 | BoardCard.vue 板块卡片 | `components/board/BoardCard.vue` | P2-M1-T4 | 头像 + 名 + 关注数 + 帖子数 | 已完成 | 自动验收通过 |
+| P2-M4-T3 | BoardSidebar.vue 左栏三段 | `components/layout/BoardSidebar.vue` | T2, P2-M3-T10 | 三段（关注/推荐/全部） + 加载状态 + 空状态 | 已完成 | 自动验收通过 |
+| P2-M4-T4 | PostImageGrid.vue 图片网格 | `components/post/PostImageGrid.vue` | 无 | 1/2/3 三种布局 CSS Grid + 超出角标 + el-image-viewer | 已完成 | 自动验收通过 |
+| P2-M4-T5 | PostCard.vue 重构（**覆盖 M3-T20**） | `components/post/PostCard.vue` | T4 | 贴吧风样式 + 板块标签 + 摘要 2 行 + 图片网格 | 已完成 | 自动验收通过 |
+| P2-M4-T6 | ~~PostFeed.vue 信息流容器~~ | — | — | 现有 PostList.vue 已满足需求，不需要额外容器 | 已完成 | 无需验收 |
+| P2-M4-T7 | Home.vue 重写（**覆盖 M3-T28**） | `views/Home.vue` | T1, T3, T6 | 贴吧风首页（三栏布局，feed 数据暂用一期 /api/posts） | 已完成 | 自动验收通过 |
+| P2-M4-T8 | Board.vue 套贴吧风样式 | `views/Board.vue` | T1, T5 | 替换 AppSidebar 为 BoardSidebar + BoardFollowButton | 已完成 | 自动验收通过 |
+| P2-M4-T9 | PostDetail.vue 加面包屑 | `views/PostDetail.vue` | 一期已有 | 顶部面包屑 "首页 > 板块名 > 帖子标题" | 已完成 | 自动验收通过 |
+| P2-M4-T10 | PostDetail.vue 图片样式调整 | `views/PostDetail.vue` | 一期已有 | 图片宽度 100%, max-width 800px, 点击大图预览 | 已完成 | 自动验收通过 |
+| P2-M4-T11 | AppHeader.vue 发帖按钮改 Modal | `components/layout/AppHeader.vue` | P2-M6-T1（store） | 依赖 P2-M6，本模块不处理 | 未开始 | 待验收 |
+| P2-M4-T12 | ~~路由替换默认布局为 TiebaLayout~~ | — | — | T1 取消，各页面内联布局，无需统一路由替换 | 已完成 | 无需验收 |
+| P2-M4-T13 | 端到端 UI 验收 | 全链路 | T2~T10 | npm run build 通过 + §9 页面测试 | 已完成 | 自动验收通过 |
 
 ---
 

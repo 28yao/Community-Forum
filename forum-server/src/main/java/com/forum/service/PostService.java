@@ -131,10 +131,11 @@ public class PostService {
         m.put("isEdited", post.getIsEdited());
         m.put("createdAt", post.getCreatedAt());
 
-        // 首图
+        // 首图（一期）+ 前 3 张 URL 列表（P2-M4 UI 大图网格用）
         List<PostImage> imgs = postImageMapper.selectByPostId(post.getId());
         m.put("firstImage", imgs.isEmpty() ? null : imgs.get(0).getUrl());
         m.put("imageCount", imgs.size());
+        m.put("images", imgs.stream().limit(3).map(PostImage::getUrl).collect(Collectors.toList()));
 
         // 作者
         User u = userMapper.selectById(post.getUserId());

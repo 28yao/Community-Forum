@@ -1,10 +1,10 @@
 <template>
   <div class="board-page">
     <el-row :gutter="16">
-      <el-col :xs="24" :sm="8" :md="6">
-        <AppSidebar />
+      <el-col :xs="24" :sm="8" :md="6" :lg="5">
+        <BoardSidebar />
       </el-col>
-      <el-col :xs="24" :sm="16" :md="18">
+      <el-col :xs="24" :sm="16" :md="18" :lg="19">
         <div class="main-content">
           <div class="board-header">
             <div>
@@ -31,6 +31,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AppSidebar from '@/components/layout/AppSidebar.vue';
+import BoardSidebar from '@/components/layout/BoardSidebar.vue';
 import PostList from '@/components/post/PostList.vue';
 import BoardFollowButton from '@/components/board/BoardFollowButton.vue';
 import { useUserStore } from '@/stores/user';

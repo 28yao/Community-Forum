@@ -1,5 +1,14 @@
 <template>
   <div class="post-detail-page" v-loading="loading">
+    <!-- 面包屑：首页 > 板块名 > 帖子标题 -->
+    <el-breadcrumb v-if="post" separator="/" class="breadcrumb">
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="post.board?.id" :to="{ path: `/board/${post.board.id}` }">
+        {{ post.board.name }}
+      </el-breadcrumb-item>
+      <el-breadcrumb-item>{{ post.title }}</el-breadcrumb-item>
+    </el-breadcrumb>
+
     <el-card v-if="post">
       <div class="post-header">
         <h1 class="post-title">
@@ -234,6 +243,9 @@ onMounted(load);
   max-width: 900px;
   margin: 0 auto;
 }
+.breadcrumb {
+  margin-bottom: 16px;
+}
 .post-title {
   margin: 0 0 12px 0;
   font-size: 24px;
@@ -271,14 +283,14 @@ onMounted(load);
 }
 .post-images {
   margin-top: 16px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 .post-img {
   width: 100%;
-  height: 150px;
-  border-radius: 4px;
+  max-width: 800px;
+  border-radius: 6px;
 }
 .post-footer {
   display: flex;
