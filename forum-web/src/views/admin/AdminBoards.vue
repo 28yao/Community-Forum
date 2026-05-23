@@ -11,15 +11,22 @@
       <el-table-column prop="description" label="描述" show-overflow-tooltip />
       <el-table-column prop="sortWeight" label="排序权重" width="100" />
       <el-table-column prop="postCount" label="帖子数" width="90" />
+      <el-table-column label="吧主" width="120">
+        <template #default="{ row }">
+          <span v-if="row.ownerUserId">ID: {{ row.ownerUserId }}</span>
+          <span v-else style="color:#999;">无</span>
+        </template>
+      </el-table-column>
       <el-table-column label="状态" width="100">
         <template #default="{ row }">
           <el-tag v-if="row.status === 1" type="success">启用</el-tag>
           <el-tag v-else type="info">已禁用</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="200">
+      <el-table-column label="操作" width="280">
         <template #default="{ row }">
           <el-button size="small" @click="openEdit(row)">编辑</el-button>
+          <el-button size="small" type="primary" @click="openTransfer(row)">移交吧主</el-button>
           <el-button
             v-if="row.status === 1"
             size="small"
@@ -49,6 +56,15 @@
         <el-button type="primary" :loading="submitting" @click="submit">确定</el-button>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="transferVisible" title="移交吧主" width="400px">
+      <p>将板块 <strong>{{ transferBoard?.name }}</strong> 的吧主移交给：</p>
+      <el-input v-model="transferUserId" placeholder="输入新吧主的用户 ID" />
+      <template #footer>
+        <el-button @click="transferVisible = false">取消</el-button>
+        <el-button type="primary" :loading="transferSubmitting" @click="submitTransfer">确认移交</el-button>
+      </template>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -57,7 +73,7 @@ import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
 import {
-  adminListBoards, adminCreateBoard, adminUpdateBoard, adminSetBoardStatus
+  adminListBoards, adminCreateBoard, adminUpdateBoard, adminSetBoardStatus, adminTransferOwner
 } from '@/api/admin';
 import { useAppStore } from '@/stores/app';
 
@@ -69,6 +85,10 @@ const dialogVisible = ref(false);
 const submitting = ref(false);
 const editingId = ref(null);
 const form = ref({ name: '', description: '', sortWeight: 0 });
+const transferVisible = ref(false);
+const transferBoard = ref(null);
+const transferUserId = ref('');
+const transferSubmitting = ref(false);
 
 async function fetchData() {
   loading.value = true;
@@ -131,6 +151,31 @@ async function toggleStatus(row, status) {
     appStore.boardsLoaded = false;
   } catch (e) {
     if (e !== 'cancel' && e?.message) ElMessage.error(e.message);
+  }
+}
+
+function openTransfer(row) {
+  transferBoard.value = row;
+  transferUserId.value = '';
+  transferVisible.value = true;
+}
+
+async function submitTransfer() {
+  const id = Number(transferUserId.value);
+  if (!id || id <= 0) {
+    ElMessage.warning('请输入有效的用户 ID');
+    return;
+  }
+  transferSubmitting.value = true;
+  try {
+    await adminTransferOwner(transferBoard.value.id, id);
+    ElMessage.success('吧主已移交');
+    transferVisible.value = false;
+    fetchData();
+  } catch (e) {
+    ElMessage.error(e.message || '移交失败');
+  } finally {
+    transferSubmitting.value = false;
   }
 }
 

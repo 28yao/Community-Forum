@@ -35,6 +35,9 @@ export function adminUpdateBoard(id, body) {
 export function adminSetBoardStatus(id, status) {
   return request.post(`/admin/boards/${id}/status`, { status });
 }
+export function adminTransferOwner(id, newOwnerId) {
+  return request.post(`/admin/boards/${id}/transfer-owner`, { newOwnerId });
+}
 
 /** ===== Posts ===== */
 export function adminListPosts(params) {

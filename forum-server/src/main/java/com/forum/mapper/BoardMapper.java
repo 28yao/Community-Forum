@@ -52,4 +52,8 @@ public interface BoardMapper extends BaseMapper<Board> {
             "OR tags LIKE CONCAT('%', #{keyword}, '%')) " +
             "ORDER BY follower_count DESC, post_count DESC")
     IPage<Board> searchByKeyword(IPage<Board> page, @Param("keyword") String keyword);
+
+    /** 移交吧主（P2-M8） */
+    @Update("UPDATE board SET owner_user_id = #{newOwnerId} WHERE id = #{id}")
+    int updateOwner(@Param("id") Long id, @Param("newOwnerId") Long newOwnerId);
 }

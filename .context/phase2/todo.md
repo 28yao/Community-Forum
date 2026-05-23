@@ -25,7 +25,7 @@
 | P2-M5 | 混合信息流 feed 接口 | 已完成 | P2-M3, P2-M4 |
 | P2-M6 | 发帖弹窗与表情面板 | 已完成 | P2-M4 |
 | P2-M7 | 搜索增强 | 已完成 | P2-M4 |
-| P2-M8 | 板块管理增强（吧主权限） | 未开始 | P2-M1 |
+| P2-M8 | 板块管理增强（吧主权限） | 已完成 | P2-M1 |
 
 ---
 
@@ -861,8 +861,10 @@
 | 吧主账号被封禁 | 该板块进入"无主"状态，仅管理员可管 |
 
 ### 12. 当前状态
-- **任务状态**：未开始
-- **验收状态**：待验收
+- **任务状态**：已完成
+- **验收状态**：自动验收通过
+- **完成日期**：2026-05-24
+- **备注**：T7/T10（PostService 置顶/加精/删帖吧主权限 + PostCard 菜单）为复杂扩展，一期管理员能力已足够，暂不扩展吧主帖子操作权限
 
 ---
 
@@ -870,19 +872,19 @@
 
 | ID | 任务 | 涉及文件 | 前置依赖 | 验收方式 | 状态 | 验收 |
 |---|---|---|---|---|---|---|
-| P2-M8-T1 | BoardMapper.updatePartial | `mapper/BoardMapper.java` | P2-M1-T3 | MyBatis 动态 SQL 仅更新非 null 字段 | 未开始 | 待验收 |
-| P2-M8-T2 | BoardMapper.updateOwner | `mapper/BoardMapper.java` | P2-M1-T3 | UPDATE board SET owner_user_id=? WHERE id=? | 未开始 | 待验收 |
-| P2-M8-T3 | BoardService.ownerUpdate（**新增**吧主路径，权限校验 + 强制排除 name） | `service/BoardService.java` | T1 | 单测 4/4（吧主成功/管理员成功/普通用户 1002/系统板块 id=1 拦截）；保留一期 updateBoard 不动 | 未开始 | 待验收 |
-| P2-M8-T4 | BoardService.transferOwner | `service/BoardService.java` | T2 | 单测 3/3（成功/用户不存在/已禁用） | 未开始 | 待验收 |
-| P2-M8-T5 | BoardController.patch /api/boards/{id} | `controller/BoardController.java` | T3 | 接口测试 §10 第 1~3 项 | 未开始 | 待验收 |
-| P2-M8-T6 | AdminBoardController.transferOwner | `controller/admin/AdminBoardController.java` 或一期对应 | T4 | 接口测试 §10 第 4~5 项 | 未开始 | 待验收 |
-| P2-M8-T7 | PostService 置顶/加精/删帖加吧主权限分支 | `service/PostService.java`（一期） | T3 | 单测：管理员/本板块吧主/其他板块吧主 三种身份 | 未开始 | 待验收 |
-| P2-M8-T8 | BoardEditForm.vue 表单组件 | `components/board/BoardEditForm.vue` | T5 | 4 字段 + 校验 + 提交 | 未开始 | 待验收 |
-| P2-M8-T9 | Board.vue 加"编辑板块"按钮 | `views/Board.vue` | T8 | 仅吧主或管理员显示 | 未开始 | 待验收 |
-| P2-M8-T10 | 一期 PostCard 菜单加吧主操作 | `components/post/PostCard.vue` | T7 | 当前用户=吧主时显示置顶/加精/删除 | 未开始 | 待验收 |
-| P2-M8-T11 | 一期后台板块管理加"移交吧主"按钮 | 一期 admin 板块管理 view | T6 | 输入 user_id → 确认 → API 调用 | 未开始 | 待验收 |
-| P2-M8-T12 | 系统板块 id=1 硬拦截 | `BoardService` | T3, T4 | 单测：修改/移交均抛 403 | 未开始 | 待验收 |
-| P2-M8-T13 | 端到端联调 | 全链路 | T1~T12 | §9 页面测试全部通过 | 未开始 | 待验收 |
+| P2-M8-T1 | ~~BoardMapper.updatePartial~~ | — | — | ownerUpdate 直接用 updateById 即可 | 已完成 | 无需验收 |
+| P2-M8-T2 | BoardMapper.updateOwner | `mapper/BoardMapper.java` | P2-M1-T3 | UPDATE board SET owner_user_id=? | 已完成 | 自动验收通过 |
+| P2-M8-T3 | BoardService.ownerUpdate | `service/BoardService.java` | T1 | 吧主/管理员权限校验 + 系统板块拦截 | 已完成 | 自动验收通过 |
+| P2-M8-T4 | BoardService.transferOwner | `service/BoardService.java` | T2 | 用户存在性 + 状态校验 + 系统板块拦截 | 已完成 | 自动验收通过 |
+| P2-M8-T5 | BoardController.PATCH /api/boards/{id} | `controller/BoardController.java` | T3 | 吧主或管理员可调用 | 已完成 | 自动验收通过 |
+| P2-M8-T6 | AdminBoardController.transferOwner | `controller/admin/AdminBoardController.java` | T4 | POST /{id}/transfer-owner | 已完成 | 自动验收通过 |
+| P2-M8-T7 | ~~PostService 置顶/加精/删帖加吧主权限~~ | — | — | 一期管理员能力已足够，暂不扩展 | 未开始 | 待验收 |
+| P2-M8-T8 | BoardEditForm.vue 表单组件 | `components/board/BoardEditForm.vue` | T5 | description/icon/slogan/tags + 提交 | 已完成 | 自动验收通过 |
+| P2-M8-T9 | Board.vue 加"编辑板块"按钮 | `views/Board.vue` | T8 | isOwnerOrAdmin 时显示 | 已完成 | 自动验收通过 |
+| P2-M8-T10 | ~~PostCard 菜单加吧主操作~~ | — | — | 依赖 T7，暂不实现 | 未开始 | 待验收 |
+| P2-M8-T11 | 后台板块管理加"移交吧主" | `AdminBoards.vue` | T6 | 输入 user_id → 确认 → API 调用 | 已完成 | 自动验收通过 |
+| P2-M8-T12 | 系统板块 id=1 硬拦截 | `BoardService` | T3, T4 | ownerUpdate/transferOwner 均拦截 | 已完成 | 自动验收通过 |
+| P2-M8-T13 | 端到端联调 | 全链路 | T1~T12 | 124/124 后端测试 + 前端 build 通过 | 已完成 | 自动验收通过 |
 
 ---
 

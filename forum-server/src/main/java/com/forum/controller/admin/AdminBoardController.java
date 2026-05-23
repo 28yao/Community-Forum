@@ -55,4 +55,13 @@ public class AdminBoardController {
         boardService.setBoardStatus(id, status, operatorId);
         return Result.success("状态已更新", null);
     }
+
+    /** POST /api/admin/boards/{id}/transfer-owner - 移交吧主（P2-M8） */
+    @PostMapping("/{id}/transfer-owner")
+    public Result<Void> transferOwner(@PathVariable Long id, @RequestBody Map<String, Object> body, HttpServletRequest request) {
+        Long adminId = (Long) request.getAttribute("userId");
+        Long newOwnerId = ((Number) body.get("newOwnerId")).longValue();
+        boardService.transferOwner(id, newOwnerId, adminId);
+        return Result.success("吧主已移交", null);
+    }
 }

@@ -3,7 +3,9 @@ package com.forum.service;
 import com.forum.common.ErrorCode;
 import com.forum.common.exception.BizException;
 import com.forum.entity.Board;
+import com.forum.entity.User;
 import com.forum.mapper.BoardMapper;
+import com.forum.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import java.util.List;
 public class BoardService {
 
     private final BoardMapper boardMapper;
+    private final UserMapper userMapper;
 
     /** 启用版块列表（按 sort_weight DESC） */
     public List<Board> listEnabled() {
@@ -51,6 +54,64 @@ public class BoardService {
             throw new BizException(ErrorCode.BOARD_NOT_FOUND);
         }
         return b;
+    }
+
+    // ========== P2-M8 吧主权限 ==========
+
+    /**
+     * 吧主修改板块信息（P2-M8）
+     * 仅允许修改 description/icon/slogan/tags，name 不可改。
+     * 权限：当前用户是板块 owner_user_id 或管理员。
+     */
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
+    public void ownerUpdate(Long boardId, String description, String icon, String slogan, String tags, Long currentUserId, boolean isAdmin) {
+        Board b = boardMapper.selectById(boardId);
+        if (b == null) {
+            throw new BizException(ErrorCode.BOARD_NOT_FOUND);
+        }
+        // 系统板块 id=1 不可修改
+        if (b.getId() == 1L) {
+            throw new BizException(ErrorCode.FORBIDDEN, "系统板块不可修改");
+        }
+        if (!isAdmin && !b.getOwnerUserId().equals(currentUserId)) {
+            throw new BizException(ErrorCode.FORBIDDEN);
+        }
+        if (description != null) b.setDescription(description);
+        if (icon != null) b.setIcon(icon);
+        if (slogan != null) b.setSlogan(slogan);
+        if (tags != null) b.setTags(tags);
+        boardMapper.updateById(b);
+        log.info("[OWNER_UPDATE] board={} by={}", boardId, currentUserId);
+    }
+
+    /**
+     * 移交吧主（P2-M8，仅管理员）
+     */
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
+    public void transferOwner(Long boardId, Long newOwnerId, Long adminId) {
+        Board b = boardMapper.selectById(boardId);
+        if (b == null) {
+            throw new BizException(ErrorCode.BOARD_NOT_FOUND);
+        }
+        if (b.getId() == 1L) {
+            throw new BizException(ErrorCode.FORBIDDEN, "系统板块不可移交");
+        }
+        User newOwner = userMapper.selectById(newOwnerId);
+        if (newOwner == null) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "用户不存在");
+        }
+        if (!Integer.valueOf(1).equals(newOwner.getStatus())) {
+            throw new BizException(ErrorCode.FORBIDDEN, "该用户已被封禁");
+        }
+        boardMapper.updateOwner(boardId, newOwnerId);
+        log.info("[TRANSFER_OWNER] board={} from={} to={} by admin={}", boardId, b.getOwnerUserId(), newOwnerId, adminId);
+    }
+
+    /** 判断用户是否是板块吧主 */
+    public boolean isOwner(Long boardId, Long userId) {
+        if (userId == null) return false;
+        Board b = boardMapper.selectById(boardId);
+        return b != null && userId.equals(b.getOwnerUserId());
     }
 
     // ========== M6 后台 ==========

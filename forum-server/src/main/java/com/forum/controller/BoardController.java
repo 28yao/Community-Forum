@@ -4,6 +4,7 @@ import com.forum.common.Result;
 import com.forum.entity.Board;
 import com.forum.service.BoardFollowService;
 import com.forum.service.BoardService;
+import org.springframework.http.HttpStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -105,5 +106,26 @@ public class BoardController {
         Map<String, Object> data = new HashMap<>();
         data.put("isFollowed", false);
         return Result.success(data);
+    }
+
+    /**
+     * PATCH /api/boards/{id} - 吧主修改板块信息（P2-M8）
+     *
+     * 仅允许 description/icon/slogan/tags，name 不可改。
+     * 权限：吧主或管理员。
+     */
+    @PatchMapping("/{id}")
+    public Result<Void> ownerUpdate(@PathVariable Long id,
+                                    @RequestBody Map<String, Object> body,
+                                    HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        String role = (String) request.getAttribute("role");
+        boolean isAdmin = "admin".equals(role);
+        String description = (String) body.get("description");
+        String icon = (String) body.get("icon");
+        String slogan = (String) body.get("slogan");
+        String tags = (String) body.get("tags");
+        boardService.ownerUpdate(id, description, icon, slogan, tags, userId, isAdmin);
+        return Result.success("已更新", null);
     }
 }

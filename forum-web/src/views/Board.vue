@@ -15,6 +15,7 @@
               </p>
             </div>
             <div class="board-actions">
+              <el-button v-if="isOwnerOrAdmin" @click="showEdit = true">编辑板块</el-button>
               <BoardFollowButton v-if="board" :board="board" />
               <el-button v-if="userStore.isLoggedIn" type="primary" @click="goCreate">发帖</el-button>
             </div>
@@ -22,6 +23,13 @@
           <el-divider />
           <PostList ref="listRef" :board-id="boardId" />
         </div>
+
+        <BoardEditForm
+          v-if="showEdit && board"
+          :board="board"
+          @close="showEdit = false"
+          @saved="onEditSaved"
+        />
       </el-col>
     </el-row>
   </div>
@@ -30,10 +38,10 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import AppSidebar from '@/components/layout/AppSidebar.vue';
 import BoardSidebar from '@/components/layout/BoardSidebar.vue';
 import PostList from '@/components/post/PostList.vue';
 import BoardFollowButton from '@/components/board/BoardFollowButton.vue';
+import BoardEditForm from '@/components/board/BoardEditForm.vue';
 import { useUserStore } from '@/stores/user';
 import { useBoardFollowStore } from '@/stores/boardFollow';
 import { usePostEditorStore } from '@/stores/postEditor';
@@ -49,6 +57,12 @@ const postEditorStore = usePostEditorStore();
 const boardId = computed(() => Number(route.params.id));
 const board = ref(null);
 const listRef = ref(null);
+const showEdit = ref(false);
+
+const isOwnerOrAdmin = computed(() => {
+  if (!userStore.isLoggedIn || !board.value) return false;
+  return userStore.isAdmin || board.value.ownerUserId === userStore.info?.id;
+});
 
 async function load() {
   try {
@@ -68,6 +82,11 @@ onMounted(load);
 
 function goCreate() {
   postEditorStore.open({ boardId: boardId.value });
+}
+
+async function onEditSaved() {
+  showEdit.value = false;
+  await load();
 }
 </script>
 
