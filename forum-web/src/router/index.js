@@ -1,19 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { defineComponent, h } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/user';
-
-// 占位组件：后续模块替换为真正的页面
-const Placeholder = (name) => defineComponent({
-  name,
-  render() {
-    return h('div', { class: 'placeholder-page' }, [
-      h('h2', { style: 'margin:0 0 12px' }, name),
-      h('p', { class: 'hint', style: 'color:#888' },
-        `这是 ${name} 占位页。后续模块会替换为真实页面。`)
-    ]);
-  }
-});
 
 const routes = [
   { path: '/',          name: 'home',     component: () => import('@/views/Home.vue'),   meta: { title: '首页' } },
@@ -44,7 +31,7 @@ const routes = [
   },
 
   // 兜底 404
-  { path: '/:pathMatch(.*)*', name: 'not-found', component: Placeholder('404 未找到'), meta: { title: '404' } }
+  { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFound.vue'), meta: { title: '404 未找到' } }
 ];
 
 const router = createRouter({

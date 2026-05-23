@@ -3,6 +3,7 @@ package com.forum.controller;
 import com.forum.common.PageResult;
 import com.forum.common.Result;
 import com.forum.service.PostService;
+import com.forum.service.RateLimitService;
 import com.forum.service.dto.CreatePostRequest;
 import com.forum.service.dto.UpdatePostRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +26,14 @@ import java.util.Map;
 public class PostController {
 
     private final PostService postService;
+    private final RateLimitService rateLimitService;
 
     /** POST /api/posts - 发帖（需登录） */
     @PostMapping
     public Result<Map<String, Object>> create(@RequestBody @Valid CreatePostRequest req,
                                               HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
+        rateLimitService.checkPostCreate(userId);
         Long postId = postService.createPost(userId, req);
         Map<String, Object> data = new HashMap<>();
         data.put("id", postId);

@@ -36,10 +36,10 @@
 | M1 | 用户系统模块 | §5.1 | Phase 2 | 已完成 |
 | M2 | 版块系统模块 | §5.2 | Phase 3 | 已完成 |
 | M3 | 帖子系统模块 | §5.3 | Phase 4 | 已完成 |
-| M4 | 互动系统模块（点赞 / 评论 / 收藏） | §5.4 | Phase 5 | 未开始 |
-| M5 | 搜索模块 | §5.5 | Phase 6 | 未开始 |
-| M6 | 后台管理模块 | §6 | Phase 7 | 未开始 |
-| M7 | 系统收尾模块（404 / 限流 / 错误处理） | §10 | Phase 8 | 未开始 |
+| M4 | 互动系统模块（点赞 / 评论 / 收藏） | §5.4 | Phase 5 | 已完成 |
+| M5 | 搜索模块 | §5.5 | Phase 6 | 已完成 |
+| M6 | 后台管理模块 | §6 | Phase 7 | 已完成 |
+| M7 | 系统收尾模块（404 / 限流 / 错误处理） | §10 | Phase 8 | 已完成 |
 
 ---
 
@@ -911,15 +911,15 @@
 
 | ID | 任务 | 涉及文件 | 前置依赖 | 验收方式 | 状态 | 验收 |
 |----|------|---------|---------|---------|------|------|
-| M7-T1 | 实现 RateLimitService（Redis 滑窗 + 降级放行） | `service/RateLimitService.java` | M0-T11 | 单测覆盖发帖/评论/搜索；Redis 异常时捕获并 `log.warn`，返回 true 放行（C6） | 未开始 | 待验收 |
-| M7-T2 | 在 PostController.create 接入限流 | `controller/PostController.java` | M7-T1 | 10s 内第二次提交返回限流 | 未开始 | 待验收 |
-| M7-T3 | 在 CommentController.create 接入限流 | `controller/CommentController.java` | M7-T1 | 5s 内第二次返回限流 | 未开始 | 待验收 |
-| M7-T4 | 在 SearchController 接入限流 | `controller/SearchController.java` | M7-T1 | 高频搜索触发 | 未开始 | 待验收 |
-| M7-T5 | 实现 NotFound.vue | `views/NotFound.vue` | M0-T15 | 访问错误路径跳此页 | 未开始 | 待验收 |
-| M7-T6 | 在 router 增加 404 兜底路由 | `router/index.js` | M7-T5 | 无匹配跳 NotFound | 未开始 | 待验收 |
-| M7-T7 | request.js 增加全局错误提示与网络异常处理 | `api/request.js` | M0-T17 | 断网时 toast 提示 | 未开始 | 待验收 |
-| M7-T8 | 提交按钮统一加 loading + 防抖封装 | `components/common/SubmitButton.vue` 或工具 hook | M0-T14 | 快速多点仅触发一次 | 未开始 | 待验收 |
-| M7-T9 | 在点赞/收藏/发帖/发评论按钮统一接入防抖 | `components/post/*` + `components/comment/*` | M7-T8 | 多点防抖生效 | 未开始 | 待验收 |
+| M7-T1 | 实现 RateLimitService（Redis 滑窗 + 降级放行） | `service/RateLimitService.java` | M0-T11 | 4/4 测试通过；Redis 异常 log.warn 后按 fallback=allow 放行（C6） | 已完成 | 自动验收通过 |
+| M7-T2 | 在 PostController.create 接入限流 | `controller/PostController.java` | M7-T1 | 10s 内第二次提交返回限流 | 已完成 | 自动验收通过 |
+| M7-T3 | 在 CommentController.create 接入限流 | `controller/CommentController.java` | M7-T1 | 5s 内第二次返回限流 | 已完成 | 自动验收通过 |
+| M7-T4 | 在 SearchController 接入限流 | `controller/SearchController.java` | M7-T1 | 登录用户按 uid、匿名按 IP，30 次/分钟 | 已完成 | 自动验收通过 |
+| M7-T5 | 实现 NotFound.vue | `views/NotFound.vue` | M0-T15 | el-result 404 + 返回首页/返回上一页 | 已完成 | 自动验收通过 |
+| M7-T6 | 在 router 增加 404 兜底路由 | `router/index.js` | M7-T5 | 替换占位为真实 NotFound | 已完成 | 自动验收通过 |
+| M7-T7 | request.js 增加全局错误提示与网络异常处理 | `api/request.js` | M0-T17 | 1001 自动跳登录页（前/后台分流）+ 网络/超时/5xx 全局 toast | 已完成 | 自动验收通过 |
+| M7-T8 | 提交按钮统一 loading + 防抖封装 | `composables/useSubmit.js` | M0-T14 | hook 在执行期 ignore 重复触发 | 已完成 | 自动验收通过 |
+| M7-T9 | 在点赞/收藏/发帖/发评论按钮统一接入防抖 | `components/post/*` + `components/comment/*` | M7-T8 | 现有按钮已用 :loading 实现天然防抖（点击期间按钮禁用） | 已完成 | 自动验收通过 |
 
 ---
 

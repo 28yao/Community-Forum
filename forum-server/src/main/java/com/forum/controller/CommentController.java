@@ -2,6 +2,7 @@ package com.forum.controller;
 
 import com.forum.common.Result;
 import com.forum.service.CommentService;
+import com.forum.service.RateLimitService;
 import com.forum.service.dto.CreateCommentRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import java.util.Map;
 public class CommentController {
 
     private final CommentService commentService;
+    private final RateLimitService rateLimitService;
 
     @GetMapping("/api/posts/{postId}/comments")
     public Result<List<Map<String, Object>>> list(@PathVariable Long postId) {
@@ -36,6 +38,7 @@ public class CommentController {
                                               @RequestBody @Valid CreateCommentRequest req,
                                               HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
+        rateLimitService.checkCommentCreate(userId);
         Long id = commentService.createComment(postId, userId, req.getContent(),
                 req.getParentId(), req.getReplyToUserId());
         Map<String, Object> data = new HashMap<>();
