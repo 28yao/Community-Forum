@@ -1,34 +1,53 @@
 import { defineStore } from 'pinia';
+import { login as loginApi, logout as logoutApi } from '@/api/auth';
 
 /**
- * 用户登录态 Store（基础骨架）
+ * 用户登录态 Store（M1-T19）
  *
- * M1-T19 任务将扩展：
- *  - persistedstate 持久化到 localStorage
- *  - 真实 login / logout actions（调 api/auth.js）
- *  - 自动加载用户资料
+ * - localStorage 持久化 token + info
+ * - login / logout actions 调用后端接口
  */
 export const useUserStore = defineStore('user', {
   state: () => ({
     /** JWT token，未登录为 '' */
-    token: '',
-    /** 当前用户信息：{ id, nickname, avatar, role, ... } */
-    info: null
+    token: localStorage.getItem('forum_token') || '',
+    /** 当前用户信息：{ id, nickname, avatar, role, email } */
+    info: JSON.parse(localStorage.getItem('forum_user') || 'null')
   }),
   getters: {
     isLoggedIn: (s) => !!s.token,
     isAdmin: (s) => s.info?.role === 'admin'
   },
   actions: {
-    setToken(token) {
-      this.token = token || '';
+    /** 登录：调接口 → 存 state + localStorage */
+    async login(email, password) {
+      const data = await loginApi({ email, password });
+      this.token = data.token;
+      this.info = data.user;
+      localStorage.setItem('forum_token', data.token);
+      localStorage.setItem('forum_user', JSON.stringify(data.user));
+      return data;
     },
-    setInfo(info) {
-      this.info = info || null;
+    /** 登出：调接口 → 清 state + localStorage */
+    async logout() {
+      try {
+        await logoutApi();
+      } catch (e) {
+        // 接口失败也继续清本地
+      }
+      this.clear();
     },
+    /** 清除登录态 */
     clear() {
       this.token = '';
       this.info = null;
+      localStorage.removeItem('forum_token');
+      localStorage.removeItem('forum_user');
+    },
+    /** 更新用户信息（编辑资料后调用） */
+    updateInfo(patch) {
+      this.info = { ...this.info, ...patch };
+      localStorage.setItem('forum_user', JSON.stringify(this.info));
     }
   }
 });

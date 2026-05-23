@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { defineComponent, h } from 'vue';
+import { useUserStore } from '@/stores/user';
 
 // 占位组件：后续模块替换为真正的页面
 const Placeholder = (name) => defineComponent({
@@ -8,16 +9,17 @@ const Placeholder = (name) => defineComponent({
     return h('div', { class: 'placeholder-page' }, [
       h('h2', { style: 'margin:0 0 12px' }, name),
       h('p', { class: 'hint', style: 'color:#888' },
-        `这是 ${name} 占位页。M0-T15 路由可达性已验证；后续任务会替换为真实页面。`)
+        `这是 ${name} 占位页。后续模块会替换为真实页面。`)
     ]);
   }
 });
 
-// 占位路由：后续 M2-T11 (Home), M1-T22~T25 (Auth pages), M3 / M4 / M6 等模块将注册真实路由。
 const routes = [
   { path: '/',          name: 'home',     component: Placeholder('首页'),   meta: { title: '首页' } },
-  { path: '/login',     name: 'login',    component: Placeholder('登录'),   meta: { title: '登录' } },
-  { path: '/register',  name: 'register', component: Placeholder('注册'),   meta: { title: '注册' } },
+  { path: '/login',     name: 'login',    component: () => import('@/views/Login.vue'),     meta: { title: '登录', guest: true } },
+  { path: '/register',  name: 'register', component: () => import('@/views/Register.vue'),  meta: { title: '注册', guest: true } },
+  { path: '/verify-email', name: 'verify-email', component: () => import('@/views/VerifyEmail.vue'), meta: { title: '邮箱验证' } },
+  { path: '/settings',  name: 'settings', component: () => import('@/views/Settings.vue'),   meta: { title: '个人设置', requiresAuth: true } },
   // 兜底 404（M7-T6 会替换为 NotFound.vue 页面）
   { path: '/:pathMatch(.*)*', name: 'not-found', component: Placeholder('404 未找到'), meta: { title: '404' } }
 ];
@@ -25,6 +27,18 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes
+});
+
+// 路由守卫（M1-T27）
+router.beforeEach((to, _from, next) => {
+  const userStore = useUserStore();
+  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+    next({ path: '/login', query: { redirect: to.fullPath } });
+  } else if (to.meta.guest && userStore.isLoggedIn) {
+    next('/');
+  } else {
+    next();
+  }
 });
 
 router.afterEach((to) => {

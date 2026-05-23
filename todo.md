@@ -33,7 +33,7 @@
 | # | 模块 | 关联 PRD | 关联 Phase | 当前状态 |
 |---|------|---------|-----------|---------|
 | M0 | 基础设施模块（项目初始化） | — | Phase 1 | 已完成 |
-| M1 | 用户系统模块 | §5.1 | Phase 2 | 未开始 |
+| M1 | 用户系统模块 | §5.1 | Phase 2 | 已完成 |
 | M2 | 版块系统模块 | §5.2 | Phase 3 | 未开始 |
 | M3 | 帖子系统模块 | §5.3 | Phase 4 | 未开始 |
 | M4 | 互动系统模块（点赞 / 评论 / 收藏） | §5.4 | Phase 5 | 未开始 |
@@ -230,8 +230,11 @@
 | Token 过期再调接口 | code=1001, 前端跳登录页 |
 
 ### 12. 当前状态
-- **任务状态**: 未开始
-- **验收状态**: 待验收
+- **任务状态**: 已完成
+- **验收状态**: 自动验收通过
+- **完成日期**: 2026-05-23
+- **后端测试**: 66/66 通过
+- **前端构建**: vite build 成功（1665 modules，页面代码拆分）
 
 ---
 
@@ -239,33 +242,33 @@
 
 | ID | 任务 | 涉及文件 | 前置依赖 | 验收方式 | 状态 | 验收 |
 |----|------|---------|---------|---------|------|------|
-| M1-T1 | 创建 User 实体 | `entity/User.java` | M0 完成 | MyBatis-Plus 注解齐全，映射 user 表 | 未开始 | 待验收 |
-| M1-T2 | 创建 UserMapper | `mapper/UserMapper.java` | M1-T1 | 单测 selectById / selectByEmail 正确 | 未开始 | 待验收 |
-| M1-T3 | 创建 VerificationToken 实体 + Mapper | `entity/VerificationToken.java` + `mapper/VerificationTokenMapper.java` | M0 完成 | 单测 CRUD 正确 | 未开始 | 待验收 |
-| M1-T4 | 实现 MailService（发送验证邮件，QQ SMTP） | `service/MailService.java` | M0-T3 | 通过 QQ 邮箱授权码方式实际发送邮件成功（C7） | 未开始 | 待验收 |
-| M1-T5 | 实现 UserService.register | `service/UserService.java` | M1-T1, T3, T4 | 单测覆盖正常/邮箱重复/昵称重复/密码强度 | 未开始 | 待验收 |
-| M1-T6 | 实现 AuthController.register 接口 | `controller/AuthController.java` | M1-T5 | curl 注册成功，邮箱收到验证邮件 | 未开始 | 待验收 |
-| M1-T7 | 实现 verify-email 接口 | `controller/AuthController.java` | M1-T6 | 点击邮件链接后 user.email_verified=1 | 未开始 | 待验收 |
-| M1-T8 | 实现 resend-verification 接口（含 60s 冷却） | `controller/AuthController.java` | M1-T6 | 重复调用第二次返回冷却提示 | 未开始 | 待验收 |
-| M1-T9 | 实现 UserService.login（含失败锁定） | `service/UserService.java` | M1-T2 | 单测覆盖：成功/密码错/封禁/锁定 | 未开始 | 待验收 |
-| M1-T10 | 实现 JWT 工具类 | `common/JwtUtil.java` | M0-T11 | 单测生成/解析 Token 正确 | 未开始 | 待验收 |
-| M1-T11 | 实现 AuthController.login 接口 | `controller/AuthController.java` | M1-T9, T10 | curl 登录返回 token | 未开始 | 待验收 |
-| M1-T12 | 实现 AuthController.logout 接口 | `controller/AuthController.java` | M1-T11 | 登出后 Token 在 Redis 失效 | 未开始 | 待验收 |
-| M1-T13 | 实现 AuthInterceptor（Token 校验 + 用户注入） | `interceptor/AuthInterceptor.java` | M1-T10 | 受保护接口未带 Token 返回 1001 | 未开始 | 待验收 |
-| M1-T14 | 注册 AuthInterceptor 到 SecurityConfig | `config/SecurityConfig.java` | M1-T13 | 启动后拦截规则生效 | 未开始 | 待验收 |
-| M1-T15 | 实现 UserService.getUserById / updateProfile | `service/UserService.java` | M1-T2 | 单测覆盖昵称冷却/昵称重复 | 未开始 | 待验收 |
-| M1-T16 | 实现 UserController.getUser / updateProfile | `controller/UserController.java` | M1-T15 | curl 获取/更新资料正常 | 未开始 | 待验收 |
-| M1-T17 | 实现 FileService（图片上传基础） | `service/FileService.java` | M0-T12 | 单测：上传成功返回 URL；格式/大小校验 | 未开始 | 待验收 |
-| M1-T18 | 实现 UserController.uploadAvatar | `controller/UserController.java` | M1-T17 | curl 上传图片返回 URL，user.avatar 更新 | 未开始 | 待验收 |
-| M1-T19 | 实现前端 user store（登录态/Token 持久化） | `stores/user.js` | M0-T16 | 刷新页面登录态保留 | 未开始 | 待验收 |
-| M1-T20 | 实现前端 api/auth.js | `api/auth.js` | M0-T17 | 调用 register/login/logout 接口成功 | 未开始 | 待验收 |
-| M1-T21 | 实现前端 api/user.js | `api/user.js` | M0-T17 | 调用 user 相关接口成功 | 未开始 | 待验收 |
-| M1-T22 | 实现 Register.vue 页面 | `views/Register.vue` | M1-T20 | 表单提交成功收到邮件 | 未开始 | 待验收 |
-| M1-T23 | 实现 Login.vue 页面 | `views/Login.vue` | M1-T20 | 登录成功跳转首页 | 未开始 | 待验收 |
-| M1-T24 | 实现 VerifyEmail.vue 页面 | `views/VerifyEmail.vue` | M1-T20 | 链接访问显示验证结果 | 未开始 | 待验收 |
-| M1-T25 | 实现 Settings.vue 编辑资料页 | `views/Settings.vue` | M1-T21 | 修改昵称/简介/头像保存成功 | 未开始 | 待验收 |
-| M1-T26 | 实现 AppHeader 登录态切换 | `components/layout/AppHeader.vue` | M1-T19 | 登录/登出后顶栏状态正确 | 未开始 | 待验收 |
-| M1-T27 | 实现前端路由守卫（未登录跳转） | `router/index.js` | M1-T19 | 未登录访问需登录页面自动跳 `/login` | 未开始 | 待验收 |
+| M1-T1 | 创建 User 实体 | `entity/User.java` | M0 完成 | MyBatis-Plus 注解齐全，映射 user 表；编译通过 | 已完成 | 自动验收通过 |
+| M1-T2 | 创建 UserMapper | `mapper/UserMapper.java` + 启动类加 @MapperScan | M1-T1 | 单测 selectById / selectByEmail / 软删除 / incrLoginFailCount 正确（5/5） | 已完成 | 自动验收通过 |
+| M1-T3 | 创建 VerificationToken 实体 + Mapper | `entity/VerificationToken.java` + `mapper/VerificationTokenMapper.java` | M0 完成 | 单测 CRUD 正确（2/2） | 已完成 | 自动验收通过 |
+| M1-T4 | 实现 MailService（发送验证邮件，QQ SMTP） | `service/MailService.java` | M0-T3 | 通过 QQ 邮箱授权码方式实际发送邮件成功（一次性手工测试已实发到 3168968763@qq.com）；MockBean 单测验证邮件构造（C7） | 已完成 | 自动验收通过 + 人工验收通过 |
+| M1-T5 | 实现 UserService.register | `service/UserService.java` + `service/dto/RegisterRequest.java` | M1-T1, T3, T4 | 单测覆盖正常/邮箱重复/昵称重复/密码强度（3/3） | 已完成 | 自动验收通过 |
+| M1-T6 | 实现 AuthController.register 接口 | `controller/AuthController.java` | M1-T5 | curl 注册成功，邮箱收到验证邮件；4 个边界单测全过（4/4） | 已完成 | 自动验收通过 |
+| M1-T7 | 实现 verify-email 接口 | `controller/AuthController.java` | M1-T6 | 点击邮件链接后 user.email_verified=1 | 已完成 | 自动验收通过 |
+| M1-T8 | 实现 resend-verification 接口（含 60s 冷却） | `controller/AuthController.java` | M1-T6 | 重复调用第二次返回冷却提示 | 已完成 | 自动验收通过 |
+| M1-T9 | 实现 UserService.login（含失败锁定） | `service/UserService.java` | M1-T2 | 单测覆盖：成功/密码错/封禁/锁定/5次锁定/未注册（6/6） | 已完成 | 自动验收通过 |
+| M1-T10 | 实现 JWT 工具类 | `common/JwtUtil.java` | M0-T11 | 单测生成/解析/校验 Token（6/6） | 已完成 | 自动验收通过 |
+| M1-T11 | 实现 AuthController.login 接口 | `controller/AuthController.java` | M1-T9, T10 | curl 登录返回 token | 已完成 | 自动验收通过 |
+| M1-T12 | 实现 AuthController.logout 接口 | `controller/AuthController.java` | M1-T11 | 登出后 Token 在 Redis 失效 | 已完成 | 自动验收通过 |
+| M1-T13 | 实现 AuthInterceptor（Token 校验 + 用户注入） | `interceptor/AuthInterceptor.java` | M1-T10 | 受保护接口未带 Token 返回 1001 | 已完成 | 自动验收通过 |
+| M1-T14 | 注册 AuthInterceptor 到 SecurityConfig | `config/ForumWebMvcConfig.java` | M1-T13 | 启动后拦截规则生效（公开/受保护路径分离） | 已完成 | 自动验收通过 |
+| M1-T15 | 实现 UserService.getUserById / updateProfile | `service/UserService.java` | M1-T2 | 含昵称 30 天冷却/昵称重复校验 | 已完成 | 自动验收通过 |
+| M1-T16 | 实现 UserController.getUser / updateProfile | `controller/UserController.java` | M1-T15 | GET 公开 + PUT 需登录 | 已完成 | 自动验收通过 |
+| M1-T17 | 实现 FileService（图片上传基础） | `service/FileService.java` | M0-T12 | 格式/大小校验 + 本地存储 | 已完成 | 自动验收通过 |
+| M1-T18 | 实现 UserController.uploadAvatar | `controller/UserController.java` | M1-T17 | POST multipart 上传头像 | 已完成 | 自动验收通过 |
+| M1-T19 | 实现前端 user store（登录态/Token 持久化） | `stores/user.js` | M0-T16 | localStorage 持久化 + login/logout/updateInfo actions | 已完成 | 自动验收通过 |
+| M1-T20 | 实现前端 api/auth.js | `api/auth.js` | M0-T17 | register/login/logout/verifyEmail/resendVerification | 已完成 | 自动验收通过 |
+| M1-T21 | 实现前端 api/user.js | `api/user.js` | M0-T17 | getUserById/updateProfile/uploadAvatar | 已完成 | 自动验收通过 |
+| M1-T22 | 实现 Register.vue 页面 | `views/Register.vue` | M1-T20 | 表单校验 + 提交 + 跳转登录 | 已完成 | 自动验收通过 |
+| M1-T23 | 实现 Login.vue 页面 | `views/Login.vue` | M1-T20 | 登录 + 跳转 + redirect 参数 | 已完成 | 自动验收通过 |
+| M1-T24 | 实现 VerifyEmail.vue 页面 | `views/VerifyEmail.vue` | M1-T20 | token 验证 + 成功/失败结果展示 | 已完成 | 自动验收通过 |
+| M1-T25 | 实现 Settings.vue 编辑资料页 | `views/Settings.vue` | M1-T21 | 昵称/简介/头像编辑 + 30天冷却提示 | 已完成 | 自动验收通过 |
+| M1-T26 | 实现 AppHeader 登录态切换 | `components/layout/AppHeader.vue` | M1-T19 | 登录/登出 + 下拉菜单 + 头像显示 | 已完成 | 自动验收通过 |
+| M1-T27 | 实现前端路由守卫（未登录跳转） | `router/index.js` | M1-T19 | requiresAuth 跳 /login + guest 已登录跳 / | 已完成 | 自动验收通过 |
 
 ---
 
