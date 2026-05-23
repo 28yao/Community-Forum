@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { defineComponent, h } from 'vue';
+import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/user';
 
 // 占位组件：后续模块替换为真正的页面
@@ -25,7 +26,24 @@ const routes = [
   { path: '/verify-email', name: 'verify-email', component: () => import('@/views/VerifyEmail.vue'), meta: { title: '邮箱验证' } },
   { path: '/settings',  name: 'settings', component: () => import('@/views/Settings.vue'),   meta: { title: '个人设置', requiresAuth: true } },
   { path: '/search',    name: 'search',   component: () => import('@/views/Search.vue'),     meta: { title: '搜索' } },
-  // 兜底 404（M7-T6 会替换为 NotFound.vue 页面）
+
+  // 后台（M6）
+  { path: '/admin/login', name: 'admin-login', component: () => import('@/views/admin/AdminLogin.vue'),
+    meta: { title: '后台登录', adminLayout: true } },
+  {
+    path: '/admin',
+    component: () => import('@/views/admin/AdminLayout.vue'),
+    meta: { adminOnly: true, adminLayout: true },
+    children: [
+      { path: '',          name: 'admin-dashboard', component: () => import('@/views/admin/AdminDashboard.vue'), meta: { title: '后台总览' } },
+      { path: 'users',     name: 'admin-users',     component: () => import('@/views/admin/AdminUsers.vue'),     meta: { title: '用户管理' } },
+      { path: 'boards',    name: 'admin-boards',    component: () => import('@/views/admin/AdminBoards.vue'),    meta: { title: '版块管理' } },
+      { path: 'posts',     name: 'admin-posts',     component: () => import('@/views/admin/AdminPosts.vue'),     meta: { title: '帖子管理' } },
+      { path: 'comments',  name: 'admin-comments',  component: () => import('@/views/admin/AdminComments.vue'),  meta: { title: '评论管理' } }
+    ]
+  },
+
+  // 兜底 404
   { path: '/:pathMatch(.*)*', name: 'not-found', component: Placeholder('404 未找到'), meta: { title: '404' } }
 ];
 
@@ -34,16 +52,27 @@ const router = createRouter({
   routes
 });
 
-// 路由守卫（M1-T27）
+// 路由守卫（M1-T27 + M6-T20）
 router.beforeEach((to, _from, next) => {
   const userStore = useUserStore();
-  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
-    next({ path: '/login', query: { redirect: to.fullPath } });
-  } else if (to.meta.guest && userStore.isLoggedIn) {
-    next('/');
-  } else {
-    next();
+  // 后台守卫：要求 admin
+  if (to.meta.adminOnly) {
+    if (!userStore.isLoggedIn) {
+      return next({ path: '/admin/login' });
+    }
+    if (!userStore.isAdmin) {
+      ElMessage.warning('需要管理员权限');
+      return next({ path: '/' });
+    }
+    return next();
   }
+  if (to.meta.requiresAuth && !userStore.isLoggedIn) {
+    return next({ path: '/login', query: { redirect: to.fullPath } });
+  }
+  if (to.meta.guest && userStore.isLoggedIn) {
+    return next('/');
+  }
+  next();
 });
 
 router.afterEach((to) => {

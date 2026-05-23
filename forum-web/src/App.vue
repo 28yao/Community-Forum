@@ -1,5 +1,9 @@
 <template>
-  <div class="app-shell">
+  <!-- 后台布局：直接渲染 router-view（AdminLayout 自带布局；AdminLogin 全屏） -->
+  <router-view v-if="isAdminLayout" />
+
+  <!-- 前台布局 -->
+  <div v-else class="app-shell">
     <AppHeader />
     <main class="app-main">
       <router-view />
@@ -9,8 +13,13 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import AppHeader from '@/components/layout/AppHeader.vue';
 import AppFooter from '@/components/layout/AppFooter.vue';
+
+const route = useRoute();
+const isAdminLayout = computed(() => !!route.meta?.adminLayout);
 </script>
 
 <style scoped>

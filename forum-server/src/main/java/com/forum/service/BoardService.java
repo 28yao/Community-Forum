@@ -52,4 +52,65 @@ public class BoardService {
         }
         return b;
     }
+
+    // ========== M6 后台 ==========
+
+    /** 后台：含禁用版块的全部列表（按 sort_weight DESC） */
+    public List<Board> adminListAll() {
+        return boardMapper.selectList(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Board>()
+                .orderByDesc(Board::getSortWeight));
+    }
+
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
+    public Long createBoard(String name, String description, Integer sortWeight, Long operatorId) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "版块名称不能为空");
+        }
+        // 唯一性
+        Board exists = boardMapper.selectOne(
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Board>().eq(Board::getName, name));
+        if (exists != null) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "版块名称已存在");
+        }
+        Board b = new Board();
+        b.setName(name.trim());
+        b.setDescription(description == null ? "" : description);
+        b.setSortWeight(sortWeight == null ? 0 : sortWeight);
+        b.setStatus(1);
+        b.setPostCount(0);
+        boardMapper.insert(b);
+        log.info("[ADMIN] op=CREATE_BOARD by={} board={} name='{}'", operatorId, b.getId(), name);
+        return b.getId();
+    }
+
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
+    public void updateBoard(Long id, String name, String description, Integer sortWeight, Long operatorId) {
+        Board b = boardMapper.selectById(id);
+        if (b == null) {
+            throw new BizException(ErrorCode.BOARD_NOT_FOUND);
+        }
+        if (name != null && !name.equals(b.getName())) {
+            Board other = boardMapper.selectOne(
+                    new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Board>().eq(Board::getName, name));
+            if (other != null) {
+                throw new BizException(ErrorCode.PARAM_INVALID, "版块名称已存在");
+            }
+            b.setName(name);
+        }
+        if (description != null) b.setDescription(description);
+        if (sortWeight != null) b.setSortWeight(sortWeight);
+        boardMapper.updateById(b);
+        log.info("[ADMIN] op=UPDATE_BOARD by={} board={}", operatorId, id);
+    }
+
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
+    public void setBoardStatus(Long id, int status, Long operatorId) {
+        Board b = boardMapper.selectById(id);
+        if (b == null) {
+            throw new BizException(ErrorCode.BOARD_NOT_FOUND);
+        }
+        b.setStatus(status);
+        boardMapper.updateById(b);
+        log.info("[ADMIN] op=SET_BOARD_STATUS by={} board={} status={}", operatorId, id, status);
+    }
 }

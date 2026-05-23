@@ -32,6 +32,7 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="settings">个人设置</el-dropdown-item>
+                <el-dropdown-item v-if="userStore.isAdmin" command="admin" divided>进入后台</el-dropdown-item>
                 <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -80,6 +81,8 @@ function handleSearch() {
 async function handleCommand(cmd) {
   if (cmd === 'settings') {
     router.push('/settings');
+  } else if (cmd === 'admin') {
+    router.push('/admin');
   } else if (cmd === 'logout') {
     await userStore.logout();
     ElMessage.success('已退出登录');

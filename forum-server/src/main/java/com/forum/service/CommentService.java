@@ -167,4 +167,50 @@ public class CommentService {
         postMapper.decrCommentCount(c.getPostId());
         log.info("[COMMENT_DELETE] commentId={} by user={}", commentId, userId);
     }
+
+    // ========== M6 后台 ==========
+
+    /** 后台分页查询评论（含已删除） */
+    public com.forum.common.PageResult<Map<String, Object>> adminListComments(Long postId, int page, int size) {
+        if (page < 1) page = 1;
+        if (size < 1 || size > 100) size = 20;
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<Comment> p =
+                new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(page, size);
+        com.baomidou.mybatisplus.core.metadata.IPage<Comment> result = commentMapper.adminListComments(p, postId);
+
+        // 批量取作者
+        List<Long> userIds = result.getRecords().stream().map(Comment::getUserId).distinct().collect(Collectors.toList());
+        Map<Long, User> userMap = userIds.isEmpty() ? new HashMap<>()
+                : userMapper.selectBatchIds(userIds).stream().collect(Collectors.toMap(User::getId, x -> x));
+
+        List<Map<String, Object>> items = result.getRecords().stream().map(c -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", c.getId());
+            m.put("postId", c.getPostId());
+            m.put("userId", c.getUserId());
+            m.put("content", c.getContent());
+            m.put("depth", c.getDepth());
+            m.put("deleted", c.getDeleted());
+            m.put("createdAt", c.getCreatedAt());
+            User u = userMap.get(c.getUserId());
+            m.put("nickname", u != null ? u.getNickname() : "已注销");
+            return m;
+        }).collect(Collectors.toList());
+        return com.forum.common.PageResult.of(result.getTotal(), result.getCurrent(), result.getSize(), items);
+    }
+
+    /** 后台恢复评论 */
+    @Transactional(rollbackFor = Exception.class)
+    public void restoreComment(Long commentId, Long operatorId) {
+        Comment c = commentMapper.selectByIdIncludeDeleted(commentId);
+        if (c == null) {
+            throw new BizException(ErrorCode.COMMENT_NOT_FOUND);
+        }
+        if (Integer.valueOf(0).equals(c.getDeleted())) {
+            return;
+        }
+        commentMapper.restore(commentId);
+        postMapper.incrCommentCount(c.getPostId());
+        log.info("[ADMIN] op=RESTORE_COMMENT by={} comment={}", operatorId, commentId);
+    }
 }

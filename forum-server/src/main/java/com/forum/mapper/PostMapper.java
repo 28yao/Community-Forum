@@ -49,4 +49,29 @@ public interface PostMapper extends BaseMapper<Post> {
             "AND MATCH(title, content) AGAINST(#{keyword} IN BOOLEAN MODE) " +
             "ORDER BY MATCH(title, content) AGAINST(#{keyword} IN BOOLEAN MODE) DESC, created_at DESC")
     IPage<Post> searchByKeyword(IPage<Post> page, @Param("keyword") String keyword);
+
+    /**
+     * 后台分页查询（含已软删除）
+     */
+    @Select({"<script>",
+            "SELECT * FROM post WHERE 1=1",
+            "<if test='boardId != null'> AND board_id = #{boardId} </if>",
+            "<if test='keyword != null and keyword != \"\"'> AND title LIKE CONCAT('%', #{keyword}, '%') </if>",
+            "ORDER BY is_pinned DESC, created_at DESC",
+            "</script>"})
+    IPage<Post> adminListPosts(IPage<Post> page,
+                               @Param("boardId") Long boardId,
+                               @Param("keyword") String keyword);
+
+    /** 后台按 id 查询（含已删除） */
+    @Select("SELECT * FROM post WHERE id = #{id}")
+    Post selectByIdIncludeDeleted(@Param("id") Long id);
+
+    /** 恢复软删除 */
+    @Update("UPDATE post SET deleted = 0 WHERE id = #{id}")
+    int restore(@Param("id") Long id);
+
+    /** 置顶切换 */
+    @Update("UPDATE post SET is_pinned = #{pinned} WHERE id = #{id} AND deleted = 0")
+    int setPinned(@Param("id") Long id, @Param("pinned") int pinned);
 }

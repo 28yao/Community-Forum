@@ -313,4 +313,90 @@ public class UserService {
         userMapper.updateById(u);
         log.info("[UPDATE_AVATAR] user id={}", userId);
     }
+
+    // ========== M6 后台管理 ==========
+
+    /** 封禁用户（M6-T5）。同时清除 Redis 中的 Token（C5）。 */
+    @Transactional(rollbackFor = Exception.class)
+    public void banUser(Long targetUserId, Long operatorId, String reason) {
+        if (targetUserId.equals(operatorId)) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "不能封禁自己");
+        }
+        User u = userMapper.selectById(targetUserId);
+        if (u == null) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "用户不存在");
+        }
+        if ("admin".equals(u.getRole())) {
+            throw new BizException(ErrorCode.FORBIDDEN, "不能封禁管理员账号");
+        }
+        u.setStatus(0);
+        u.setBanReason(reason);
+        userMapper.updateById(u);
+        // 踢出 Token
+        redisTemplate.delete(TOKEN_REDIS_PREFIX + targetUserId);
+        log.info("[ADMIN] op=BAN_USER by={} target={} reason='{}'", operatorId, targetUserId, reason);
+    }
+
+    /** 解封 */
+    @Transactional(rollbackFor = Exception.class)
+    public void unbanUser(Long targetUserId, Long operatorId) {
+        User u = userMapper.selectById(targetUserId);
+        if (u == null) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "用户不存在");
+        }
+        u.setStatus(1);
+        u.setBanReason(null);
+        userMapper.updateById(u);
+        log.info("[ADMIN] op=UNBAN_USER by={} target={}", operatorId, targetUserId);
+    }
+
+    /** 重置密码（M6-T7），同时清除 Redis Token（C5：老 Token 立即失效） */
+    @Transactional(rollbackFor = Exception.class)
+    public void adminResetPassword(Long targetUserId, Long operatorId, String newPassword) {
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "新密码至少 6 位");
+        }
+        User u = userMapper.selectById(targetUserId);
+        if (u == null) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "用户不存在");
+        }
+        u.setPassword(passwordEncoder.encode(newPassword));
+        u.setLoginFailCount(0);
+        u.setLockedUntil(null);
+        userMapper.updateById(u);
+        // 踢出 Token
+        redisTemplate.delete(TOKEN_REDIS_PREFIX + targetUserId);
+        log.info("[ADMIN] op=RESET_PASSWORD by={} target={}", operatorId, targetUserId);
+    }
+
+    /** 后台分页查询用户（M6-T4） */
+    public com.forum.common.PageResult<java.util.Map<String, Object>> adminListUsers(String keyword, int page, int size) {
+        if (page < 1) page = 1;
+        if (size < 1 || size > 100) size = 20;
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<User> p =
+                new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(page, size);
+        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<User> q =
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            String k = keyword.trim();
+            q.like(User::getEmail, k).or().like(User::getNickname, k);
+        }
+        q.orderByDesc(User::getCreatedAt);
+        com.baomidou.mybatisplus.core.metadata.IPage<User> result = userMapper.selectPage(p, q);
+
+        java.util.List<java.util.Map<String, Object>> items = result.getRecords().stream().map(u -> {
+            java.util.Map<String, Object> m = new java.util.HashMap<>();
+            m.put("id", u.getId());
+            m.put("email", u.getEmail());
+            m.put("nickname", u.getNickname());
+            m.put("avatar", u.getAvatar());
+            m.put("role", u.getRole());
+            m.put("status", u.getStatus());
+            m.put("banReason", u.getBanReason());
+            m.put("emailVerified", u.getEmailVerified());
+            m.put("createdAt", u.getCreatedAt());
+            return m;
+        }).collect(java.util.stream.Collectors.toList());
+        return com.forum.common.PageResult.of(result.getTotal(), result.getCurrent(), result.getSize(), items);
+    }
 }

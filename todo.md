@@ -813,27 +813,27 @@
 
 | ID | 任务 | 涉及文件 | 前置依赖 | 验收方式 | 状态 | 验收 |
 |----|------|---------|---------|---------|------|------|
-| M6-T1 | 实现 AdminInterceptor（校验 role=admin） | `interceptor/AdminInterceptor.java` | M1-T13 | 普通用户访问后台接口返回 1002 | 未开始 | 待验收 |
-| M6-T2 | 在 SecurityConfig 注册 AdminInterceptor | `config/SecurityConfig.java` | M6-T1 | 拦截 `/api/admin/**` | 未开始 | 待验收 |
-| M6-T3 | 实现 AdminAuthController.login（含失败锁定） | `controller/admin/AdminAuthController.java` | M1-T11 | curl 测试通过；5 次失败锁定 30 分钟 | 未开始 | 待验收 |
-| M6-T4 | 实现 AdminUserController.list / detail | `controller/admin/AdminUserController.java` | M1-T15 | curl 支持分页/搜索 | 未开始 | 待验收 |
-| M6-T5 | 实现 UserService.banUser / unbanUser（封禁时踢出 Token） | `service/UserService.java` | M1-T15 | 单测覆盖：禁止封禁自己；封禁/解封同时清除该用户在 Redis 的所有 Token（C5） | 未开始 | 待验收 |
-| M6-T6 | 实现 AdminUserController.ban / unban | `controller/admin/AdminUserController.java` | M6-T5 | curl 测试通过 | 未开始 | 待验收 |
-| M6-T7 | 实现 AdminUserController.resetPassword（重置后老 Token 立即失效） | `controller/admin/AdminUserController.java` | M1-T15 | curl 测试；新密码可登录；该用户老 Token 在 Redis 中清除，再次调接口返回 1001（C5） | 未开始 | 待验收 |
-| M6-T7b | 后台写操作统一审计日志（仅 Spring 日志） | `controller/admin/*` 全部写接口 | M6-T3 | 每次后台写操作产生 `[ADMIN] op=xxx by=adminId target=xxx` 日志行（C4） | 未开始 | 待验收 |
-| M6-T8 | 实现 AdminBoardController（CRUD + status） | `controller/admin/AdminBoardController.java` | M2-T3 | curl 测试全套 | 未开始 | 待验收 |
-| M6-T9 | 实现 PostService.adminListPosts / restore / pin | `service/PostService.java` | M3-T11 | 单测覆盖 includeDeleted / 置顶 | 未开始 | 待验收 |
-| M6-T10 | 实现 AdminPostController | `controller/admin/AdminPostController.java` | M6-T9 | curl 测试通过 | 未开始 | 待验收 |
-| M6-T11 | 实现 CommentService.adminList / restore | `service/CommentService.java` | M4-T7 | 单测覆盖 | 未开始 | 待验收 |
-| M6-T12 | 实现 AdminCommentController | `controller/admin/AdminCommentController.java` | M6-T11 | curl 测试通过 | 未开始 | 待验收 |
-| M6-T13 | 前端 api/admin.js（统一后台接口） | `api/admin.js` | M0-T17 | 调用成功 | 未开始 | 待验收 |
-| M6-T14 | 实现 AdminLogin.vue | `admin/AdminLogin.vue` | M6-T13 | 登录跳转成功 | 未开始 | 待验收 |
-| M6-T15 | 实现 AdminLayout.vue（侧边菜单 + 顶栏） | `admin/AdminLayout.vue` | M6-T14 | 菜单切换正常 | 未开始 | 待验收 |
-| M6-T16 | 实现 AdminUsers.vue | `admin/AdminUsers.vue` | M6-T15 | 列表/封禁/解封/重置密码均可用 | 未开始 | 待验收 |
-| M6-T17 | 实现 AdminBoards.vue | `admin/AdminBoards.vue` | M6-T15 | CRUD 与启用禁用均通 | 未开始 | 待验收 |
-| M6-T18 | 实现 AdminPosts.vue | `admin/AdminPosts.vue` | M6-T15 | 删除/恢复/置顶均通 | 未开始 | 待验收 |
-| M6-T19 | 实现 AdminComments.vue | `admin/AdminComments.vue` | M6-T15 | 删除/恢复均通 | 未开始 | 待验收 |
-| M6-T20 | 前端后台路由守卫（管理员校验） | `router/index.js` | M6-T13 | 非管理员访问后台跳登录 | 未开始 | 待验收 |
+| M6-T1 | 实现 AdminInterceptor（校验 role=admin） | `interceptor/AdminInterceptor.java` | M1-T13 | 普通用户访问后台接口返回 1002 | 已完成 | 自动验收通过 |
+| M6-T2 | 在 ForumWebMvcConfig 注册 AdminInterceptor | `config/ForumWebMvcConfig.java` | M6-T1 | order=2 拦截 `/api/admin/**` | 已完成 | 自动验收通过 |
+| M6-T3 | 实现 AdminAuthController.login（含 role 校验） | `controller/admin/AdminAuthController.java` | M1-T11 | 复用 UserService.login + role=admin 二次校验；非 admin 即踢 token | 已完成 | 自动验收通过 |
+| M6-T4 | 实现 AdminUserController.list / detail | `controller/admin/AdminUserController.java` | M1-T15 | 分页 + 关键词模糊搜索（email/nickname） | 已完成 | 自动验收通过 |
+| M6-T5 | 实现 UserService.banUser / unbanUser（封禁时踢出 Token） | `service/UserService.java` | M1-T15 | 单测覆盖：禁止封禁自己/禁止封禁管理员/封禁同时清 Redis Token | 已完成 | 自动验收通过 |
+| M6-T6 | 实现 AdminUserController.ban / unban | `controller/admin/AdminUserController.java` | M6-T5 | POST /api/admin/users/{id}/ban + /unban | 已完成 | 自动验收通过 |
+| M6-T7 | 实现 AdminUserController.resetPassword（重置后老 Token 立即失效） | `controller/admin/AdminUserController.java` | M1-T15 | 单测覆盖：新密码可登录 + Redis Token 立即清除（C5） | 已完成 | 自动验收通过 |
+| M6-T7b | 后台写操作统一审计日志（仅 Spring 日志） | `controller/admin/*` 全部写接口 | M6-T3 | `[ADMIN] op=XXX by=opId target=tgtId` 日志行（C4） | 已完成 | 自动验收通过 |
+| M6-T8 | 实现 AdminBoardController（CRUD + status） | `controller/admin/AdminBoardController.java` + `service/BoardService.java` | M2-T3 | 含名称唯一性 + 启用/禁用切换 | 已完成 | 自动验收通过 |
+| M6-T9 | 实现 PostService.adminListPosts / restore / pin | `service/PostService.java` + `mapper/PostMapper.java` | M3-T11 | 单测覆盖 includeDeleted / 恢复 / 置顶切换 | 已完成 | 自动验收通过 |
+| M6-T10 | 实现 AdminPostController | `controller/admin/AdminPostController.java` | M6-T9 | list/delete/restore/pin | 已完成 | 自动验收通过 |
+| M6-T11 | 实现 CommentService.adminList / restore | `service/CommentService.java` + `mapper/CommentMapper.java` | M4-T7 | 含已删评论 + 恢复 | 已完成 | 自动验收通过 |
+| M6-T12 | 实现 AdminCommentController | `controller/admin/AdminCommentController.java` | M6-T11 | list/delete/restore | 已完成 | 自动验收通过 |
+| M6-T13 | 前端 api/admin.js（统一后台接口） | `api/admin.js` | M0-T17 | 16 个接口封装 | 已完成 | 自动验收通过 |
+| M6-T14 | 实现 AdminLogin.vue | `views/admin/AdminLogin.vue` | M6-T13 | 全屏渐变背景 + 表单 + 跳转 /admin | 已完成 | 自动验收通过 |
+| M6-T15 | 实现 AdminLayout.vue（侧边菜单 + 顶栏） | `views/admin/AdminLayout.vue` | M6-T14 | 5 项菜单 + 返回前台 + 退出登录 | 已完成 | 自动验收通过 |
+| M6-T16 | 实现 AdminUsers.vue | `views/admin/AdminUsers.vue` | M6-T15 | 列表/封禁(原因)/解封/重置密码(校验) | 已完成 | 自动验收通过 |
+| M6-T17 | 实现 AdminBoards.vue | `views/admin/AdminBoards.vue` | M6-T15 | 列表 + 弹窗创建/编辑 + 启停 | 已完成 | 自动验收通过 |
+| M6-T18 | 实现 AdminPosts.vue | `views/admin/AdminPosts.vue` | M6-T15 | 版块/标题过滤 + 删除/恢复/置顶 | 已完成 | 自动验收通过 |
+| M6-T19 | 实现 AdminComments.vue | `views/admin/AdminComments.vue` | M6-T15 | 按帖子过滤 + 删除/恢复 | 已完成 | 自动验收通过 |
+| M6-T20 | 前端后台路由守卫（管理员校验） | `router/index.js` + `App.vue` | M6-T13 | adminOnly 守卫 + adminLayout 切布局 + Dashboard 总览页 | 已完成 | 自动验收通过 |
 
 ---
 

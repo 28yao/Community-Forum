@@ -276,4 +276,64 @@ public class PostService {
         }
         return post;
     }
+
+    // ========== M6 后台 ==========
+
+    /** 后台分页：含已删除帖子 */
+    public PageResult<Map<String, Object>> adminListPosts(Long boardId, String keyword, int page, int size) {
+        if (page < 1) page = 1;
+        if (size < 1 || size > 100) size = 20;
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<Post> p =
+                new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(page, size);
+        com.baomidou.mybatisplus.core.metadata.IPage<Post> result = postMapper.adminListPosts(p, boardId, keyword);
+
+        List<Map<String, Object>> items = result.getRecords().stream().map(post -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", post.getId());
+            m.put("boardId", post.getBoardId());
+            m.put("userId", post.getUserId());
+            m.put("title", post.getTitle());
+            m.put("likeCount", post.getLikeCount());
+            m.put("commentCount", post.getCommentCount());
+            m.put("viewCount", post.getViewCount());
+            m.put("isPinned", post.getIsPinned());
+            m.put("status", post.getStatus());
+            m.put("deleted", post.getDeleted());
+            m.put("createdAt", post.getCreatedAt());
+
+            User u = userMapper.selectById(post.getUserId());
+            Map<String, Object> author = new HashMap<>();
+            author.put("id", post.getUserId());
+            author.put("nickname", u != null ? u.getNickname() : "已注销");
+            m.put("author", author);
+            return m;
+        }).collect(java.util.stream.Collectors.toList());
+        return PageResult.of(result.getTotal(), result.getCurrent(), result.getSize(), items);
+    }
+
+    /** 恢复软删除（M6） */
+    @Transactional(rollbackFor = Exception.class)
+    public void restorePost(Long postId, Long operatorId) {
+        Post post = postMapper.selectByIdIncludeDeleted(postId);
+        if (post == null) {
+            throw new BizException(ErrorCode.POST_NOT_FOUND);
+        }
+        if (Integer.valueOf(0).equals(post.getDeleted())) {
+            return; // 已经是正常状态，幂等
+        }
+        postMapper.restore(postId);
+        boardMapper.incrPostCount(post.getBoardId());
+        log.info("[ADMIN] op=RESTORE_POST by={} post={}", operatorId, postId);
+    }
+
+    /** 置顶切换（M6） */
+    @Transactional(rollbackFor = Exception.class)
+    public void pinPost(Long postId, boolean pin, Long operatorId) {
+        Post post = postMapper.selectById(postId);
+        if (post == null) {
+            throw new BizException(ErrorCode.POST_NOT_FOUND);
+        }
+        postMapper.setPinned(postId, pin ? 1 : 0);
+        log.info("[ADMIN] op={} by={} post={}", pin ? "PIN_POST" : "UNPIN_POST", operatorId, postId);
+    }
 }
