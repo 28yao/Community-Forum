@@ -39,6 +39,18 @@ public class AuthInterceptor implements HandlerInterceptor {
     /** GET /api/search 公开 */
     private static final Pattern PUBLIC_SEARCH_GET = Pattern.compile("^/api/search$");
 
+    /**
+     * GET /api/boards 与 GET /api/boards/{id} 公开（P2-M3：原一期整段 exclude 改为精细控制）。
+     * 同前缀下的写操作（关注、修改）走默认需登录分支。
+     */
+    private static final Pattern PUBLIC_BOARD_GET = Pattern.compile("^/api/boards(/\\d+)?$");
+
+    /**
+     * GET /api/boards/recommended 公开（P2-M3）：首页推荐区无需登录可看。
+     * GET /api/boards/followed 不在此列 —— 它依赖 userId，必须登录。
+     */
+    private static final Pattern PUBLIC_BOARD_RECOMMENDED = Pattern.compile("^/api/boards/recommended$");
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // OPTIONS 预检请求放行
@@ -53,6 +65,8 @@ public class AuthInterceptor implements HandlerInterceptor {
                         || PUBLIC_POST_GET.matcher(uri).matches()
                         || PUBLIC_COMMENT_GET.matcher(uri).matches()
                         || PUBLIC_SEARCH_GET.matcher(uri).matches()
+                        || PUBLIC_BOARD_GET.matcher(uri).matches()
+                        || PUBLIC_BOARD_RECOMMENDED.matcher(uri).matches()
         );
         if (isPublic) {
             // 尝试解析 token；带 token 则注入 userId/role，否则匿名通过

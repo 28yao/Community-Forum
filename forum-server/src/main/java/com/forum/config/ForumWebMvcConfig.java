@@ -30,8 +30,9 @@ public class ForumWebMvcConfig implements WebMvcConfigurer {
                         "/api/auth/verify-email",
                         "/api/auth/resend-verification",
                         "/api/auth/login",
-                        "/api/admin/auth/login",  // 后台登录公开
-                        "/api/boards/**"          // 版块列表公开（M2）
+                        "/api/admin/auth/login"  // 后台登录公开
+                        // P2-M3 起：移除 /api/boards/** 整段 exclude，改由 AuthInterceptor 内部
+                        // PUBLIC_BOARD_GET 模式精细控制（GET 公开，POST/DELETE 等需登录）
                 );
 
         // 后台路径必须 role=admin
