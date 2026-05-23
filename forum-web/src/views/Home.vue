@@ -12,7 +12,7 @@
               + 发帖
             </el-button>
           </div>
-          <PostList />
+          <PostList mode="feed" />
         </div>
       </el-col>
       <!-- 右栏占位（按 PRD，二期不实现热点） -->

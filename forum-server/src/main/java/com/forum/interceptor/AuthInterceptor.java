@@ -30,8 +30,8 @@ public class AuthInterceptor implements HandlerInterceptor {
     /** GET /api/users/{id} 是公开接口，路径中的 id 为纯数字 */
     private static final Pattern PUBLIC_USER_GET = Pattern.compile("^/api/users/\\d+$");
 
-    /** GET /api/posts 与 GET /api/posts/{id} 公开 */
-    private static final Pattern PUBLIC_POST_GET = Pattern.compile("^/api/posts(/\\d+)?$");
+    /** GET /api/posts 与 GET /api/posts/{id} 公开；GET /api/posts/feed 也公开（匿名走热门） */
+    private static final Pattern PUBLIC_POST_GET = Pattern.compile("^/api/posts(/\\d+|/feed)?$");
 
     /** GET /api/posts/{id}/comments 公开 */
     private static final Pattern PUBLIC_COMMENT_GET = Pattern.compile("^/api/posts/\\d+/comments$");

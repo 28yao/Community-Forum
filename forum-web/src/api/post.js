@@ -5,6 +5,11 @@ export function listPosts(params = {}) {
   return request.get('/posts', { params });
 }
 
+/** 混合信息流（P2-M5）：匿名走热门，登录有关注则 70% 关注 + 30% 热门 */
+export function getFeed(params = {}) {
+  return request.get('/posts/feed', { params });
+}
+
 /** 帖子详情 */
 export function getPostById(id) {
   return request.get(`/posts/${id}`);

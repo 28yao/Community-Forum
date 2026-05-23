@@ -116,7 +116,7 @@ public class PostService {
         return PageResult.of(p.getTotal(), p.getCurrent(), p.getSize(), items);
     }
 
-    private Map<String, Object> toListItem(Post post) {
+    public Map<String, Object> toListItem(Post post) {
         Map<String, Object> m = new HashMap<>();
         m.put("id", post.getId());
         m.put("boardId", post.getBoardId());

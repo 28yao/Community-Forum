@@ -8,6 +8,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.List;
+
 /**
  * 帖子 Mapper
  *
@@ -74,4 +76,32 @@ public interface PostMapper extends BaseMapper<Post> {
     /** 置顶切换 */
     @Update("UPDATE post SET is_pinned = #{pinned} WHERE id = #{id} AND deleted = 0")
     int setPinned(@Param("id") Long id, @Param("pinned") int pinned);
+
+    /**
+     * 全站热门帖子（P2-M5）
+     * 热度公式：(like*3 + comment*2 + view*0.1) × 时间衰减
+     * 时间衰减 = 1 / (1 + TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24)
+     * 置顶帖始终排最前。
+     */
+    @Select("SELECT * FROM post " +
+            "WHERE deleted = 0 AND status = 1 " +
+            "ORDER BY is_pinned DESC, " +
+            "(like_count * 3 + comment_count * 2 + view_count * 0.1) " +
+            "/ (1 + TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) DESC, " +
+            "created_at DESC")
+    IPage<Post> selectHotPosts(IPage<Post> page);
+
+    /**
+     * 按板块 ID 列表查帖子（P2-M5 关注流用）
+     * 仅查 status=1 且未删除，按置顶 → 创建时间倒序。
+     */
+    @Select({"<script>",
+            "SELECT * FROM post WHERE deleted = 0 AND status = 1",
+            "AND board_id IN",
+            "<foreach item='id' collection='boardIds' open='(' separator=',' close=')'>",
+            "#{id}",
+            "</foreach>",
+            "ORDER BY is_pinned DESC, created_at DESC",
+            "</script>"})
+    IPage<Post> selectByBoardIds(IPage<Post> page, @Param("boardIds") List<Long> boardIds);
 }

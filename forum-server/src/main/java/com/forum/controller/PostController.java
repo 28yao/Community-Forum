@@ -2,6 +2,7 @@ package com.forum.controller;
 
 import com.forum.common.PageResult;
 import com.forum.common.Result;
+import com.forum.service.FeedService;
 import com.forum.service.PostService;
 import com.forum.service.RateLimitService;
 import com.forum.service.dto.CreatePostRequest;
@@ -26,6 +27,7 @@ import java.util.Map;
 public class PostController {
 
     private final PostService postService;
+    private final FeedService feedService;
     private final RateLimitService rateLimitService;
 
     /** POST /api/posts - 发帖（需登录） */
@@ -47,6 +49,16 @@ public class PostController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "20") int size) {
         return Result.success(postService.listPosts(boardId, page, size));
+    }
+
+    /** GET /api/posts/feed?page=&size= - 混合信息流（公开，匿名走热门） */
+    @GetMapping("/feed")
+    public Result<PageResult<Map<String, Object>>> feed(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size,
+            HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        return Result.success(feedService.getFeed(userId, page, size));
     }
 
     /** GET /api/posts/{id} - 帖子详情（公开） */

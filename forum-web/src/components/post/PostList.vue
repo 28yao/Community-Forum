@@ -20,10 +20,12 @@ import { ref, watch, onMounted } from 'vue';
 import PostCard from './PostCard.vue';
 import Pagination from '@/components/common/Pagination.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
-import { listPosts } from '@/api/post';
+import { listPosts, getFeed } from '@/api/post';
 
 const props = defineProps({
-  boardId: { type: [Number, String], default: null }
+  boardId: { type: [Number, String], default: null },
+  /** list=按板块列表（默认），feed=混合信息流 */
+  mode: { type: String, default: 'list' }
 });
 
 const posts = ref([]);
@@ -36,8 +38,13 @@ async function fetchData() {
   loading.value = true;
   try {
     const params = { page: page.value, size: size.value };
-    if (props.boardId) params.boardId = props.boardId;
-    const res = await listPosts(params);
+    let res;
+    if (props.mode === 'feed' && !props.boardId) {
+      res = await getFeed(params);
+    } else {
+      if (props.boardId) params.boardId = props.boardId;
+      res = await listPosts(params);
+    }
     posts.value = res.list || [];
     total.value = res.total || 0;
   } catch (e) {

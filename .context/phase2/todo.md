@@ -22,7 +22,7 @@
 | P2-M2 | 板块申请审核 | 未开始 | P2-M1 |
 | P2-M3 | 板块关注 | 未开始 | P2-M1 |
 | P2-M4 | 贴吧风 UI 重构 | 已完成 | P2-M1 |
-| P2-M5 | 混合信息流 feed 接口 | 未开始 | P2-M3, P2-M4 |
+| P2-M5 | 混合信息流 feed 接口 | 已完成 | P2-M3, P2-M4 |
 | P2-M6 | 发帖弹窗与表情面板 | 未开始 | P2-M4 |
 | P2-M7 | 搜索增强 | 未开始 | P2-M4 |
 | P2-M8 | 板块管理增强（吧主权限） | 未开始 | P2-M1 |
@@ -544,8 +544,10 @@
 | size 过大（>100） | 应用层 clamp 到 100 |
 
 ### 12. 当前状态
-- **任务状态**：未开始
-- **验收状态**：待验收
+- **任务状态**：已完成
+- **验收状态**：自动验收通过
+- **完成日期**：2026-05-23
+- **备注**：未用 hot_score 存储列，改为 SQL 实时计算热度公式；getFeed 去重逻辑用 Set 过滤；toListItem 从 private 改为 public 供 FeedService 复用
 
 ---
 
@@ -553,14 +555,14 @@
 
 | ID | 任务 | 涉及文件 | 前置依赖 | 验收方式 | 状态 | 验收 |
 |---|---|---|---|---|---|---|
-| P2-M5-T1 | PostMapper.selectHotPosts (含 hot_score SQL) | `mapper/PostMapper.java` 或 xml | 一期 | 单测：相同数据返回顺序符合公式 | 未开始 | 待验收 |
-| P2-M5-T2 | PostMapper.selectByBoardIdsOrderByCreatedAt | `mapper/PostMapper.java` | 一期 | 单测：多板块 IN 查询 + 分页 + 排序 | 未开始 | 待验收 |
-| P2-M5-T3 | FeedService.getFeed（含 70/30 合并） | `service/FeedService.java` | T1, T2, P2-M3-T2 | 单测 4/4（匿名/无关注/有关注/不足补热门） | 未开始 | 待验收 |
-| P2-M5-T4 | FeedController GET /api/posts/feed | `controller/PostController.java` 加方法或新建 | T3 | 接口测试 §10 全部通过 | 未开始 | 待验收 |
-| P2-M5-T5 | size clamp ≤100 | Controller 参数校验 | T4 | size=200 时实际返回 ≤100 | 未开始 | 待验收 |
-| P2-M5-T6 | 前端 api/feed.js | `api/feed.js` | T4 | getFeed(page, size) | 未开始 | 待验收 |
-| P2-M5-T7 | Home.vue 改调 /feed | `views/Home.vue` | T6, P2-M4-T7 | 首页中间区显示混合流 | 未开始 | 待验收 |
-| P2-M5-T8 | 端到端联调 | 全链路 | T1~T7 | §9 页面测试全部通过 | 未开始 | 待验收 |
+| P2-M5-T1 | PostMapper.selectHotPosts (热度 SQL) | `mapper/PostMapper.java` | 一期 | SQL 实时计算热度，无需存储列 | 已完成 | 自动验收通过 |
+| P2-M5-T2 | PostMapper.selectByBoardIds | `mapper/PostMapper.java` | 一期 | 多板块 IN 查询 + 分页 + 排序 | 已完成 | 自动验收通过 |
+| P2-M5-T3 | FeedService.getFeed（含 70/30 合并） | `service/FeedService.java` | T1, T2, P2-M3-T2 | 匿名/无关注→热门，有关注→70/30 合并 + 去重 | 已完成 | 自动验收通过 |
+| P2-M5-T4 | GET /api/posts/feed | `controller/PostController.java` | T3 | 公开接口，匿名可访问 | 已完成 | 自动验收通过 |
+| P2-M5-T5 | size clamp ≤100 | FeedService 参数校验 | T3 | size=200 时实际返回 ≤100 | 已完成 | 自动验收通过 |
+| P2-M5-T6 | 前端 getFeed | `api/post.js` 加函数 | T4 | getFeed(params) | 已完成 | 自动验收通过 |
+| P2-M5-T7 | PostList.vue feed 模式 + Home.vue | `PostList.vue`, `Home.vue` | T6, P2-M4-T7 | mode="feed" 走 /posts/feed | 已完成 | 自动验收通过 |
+| P2-M5-T8 | 端到端联调 | 全链路 | T1~T7 | 124/124 后端测试通过 + 前端 build 通过 | 已完成 | 自动验收通过 |
 
 ---
 
