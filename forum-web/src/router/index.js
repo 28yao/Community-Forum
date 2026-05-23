@@ -15,7 +15,8 @@ const Placeholder = (name) => defineComponent({
 });
 
 const routes = [
-  { path: '/',          name: 'home',     component: Placeholder('首页'),   meta: { title: '首页' } },
+  { path: '/',          name: 'home',     component: () => import('@/views/Home.vue'),   meta: { title: '首页' } },
+  { path: '/board/:id', name: 'board',    component: Placeholder('版块详情（M3 实现）'), meta: { title: '版块' } },
   { path: '/login',     name: 'login',    component: () => import('@/views/Login.vue'),     meta: { title: '登录', guest: true } },
   { path: '/register',  name: 'register', component: () => import('@/views/Register.vue'),  meta: { title: '注册', guest: true } },
   { path: '/verify-email', name: 'verify-email', component: () => import('@/views/VerifyEmail.vue'), meta: { title: '邮箱验证' } },

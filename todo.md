@@ -34,7 +34,7 @@
 |---|------|---------|-----------|---------|
 | M0 | 基础设施模块（项目初始化） | — | Phase 1 | 已完成 |
 | M1 | 用户系统模块 | §5.1 | Phase 2 | 已完成 |
-| M2 | 版块系统模块 | §5.2 | Phase 3 | 未开始 |
+| M2 | 版块系统模块 | §5.2 | Phase 3 | 已完成 |
 | M3 | 帖子系统模块 | §5.3 | Phase 4 | 未开始 |
 | M4 | 互动系统模块（点赞 / 评论 / 收藏） | §5.4 | Phase 5 | 未开始 |
 | M5 | 搜索模块 | §5.5 | Phase 6 | 未开始 |
@@ -335,8 +335,11 @@
 | 已删除版块前台访问 | 返回 3003 |
 
 ### 12. 当前状态
-- **任务状态**: 未开始
-- **验收状态**: 待验收
+- **任务状态**: 已完成
+- **验收状态**: 自动验收通过
+- **完成日期**: 2026-05-23
+- **后端测试**: 71/71 通过（含 BoardServiceTest 5/5）
+- **前端构建**: vite build 成功（Home 单独 chunk）
 
 ---
 
@@ -344,18 +347,18 @@
 
 | ID | 任务 | 涉及文件 | 前置依赖 | 验收方式 | 状态 | 验收 |
 |----|------|---------|---------|---------|------|------|
-| M2-T1 | 创建 Board 实体 | `entity/Board.java` | M0 完成 | 注解齐全，映射 board 表 | 未开始 | 待验收 |
-| M2-T2 | 创建 BoardMapper | `mapper/BoardMapper.java` | M2-T1 | 单测列表查询正确 | 未开始 | 待验收 |
-| M2-T3 | 实现 BoardService（列表/详情） | `service/BoardService.java` | M2-T2 | 单测覆盖启用过滤、按排序 | 未开始 | 待验收 |
-| M2-T4 | 实现 BoardController.list 接口 | `controller/BoardController.java` | M2-T3 | curl 返回启用版块列表 | 未开始 | 待验收 |
-| M2-T5 | 实现 BoardController.detail 接口 | `controller/BoardController.java` | M2-T3 | curl 返回单个版块；不存在返回 3003 | 未开始 | 待验收 |
-| M2-T6 | 种子数据已合并到 M0-T4b（默认管理员 + 3 个版块） | `db/seed.sql` | M0-T4b | 与 M0-T4b 一并验收，本行仅作模块内引用 | 未开始 | 无需验收 |
-| M2-T7 | 前端 api/board.js | `api/board.js` | M0-T17 | 调用接口返回数据 | 未开始 | 待验收 |
-| M2-T8 | 实现 AppHeader.vue | `components/layout/AppHeader.vue` | M1-T26 | 顶栏正确显示 | 未开始 | 待验收 |
-| M2-T9 | 实现 AppSidebar.vue（版块导航） | `components/layout/AppSidebar.vue` | M2-T7 | 列出版块，点击跳转 | 未开始 | 待验收 |
-| M2-T10 | 实现 AppFooter.vue | `components/layout/AppFooter.vue` | M0-T14 | 页脚显示 | 未开始 | 待验收 |
-| M2-T11 | 实现 Home.vue 首页布局 | `views/Home.vue` | M2-T8, T9, T10 | 三栏布局正常 | 未开始 | 待验收 |
-| M2-T12 | 在 app store 中缓存版块列表 | `stores/app.js` | M2-T7 | 首次加载后切页面无重复请求 | 未开始 | 待验收 |
+| M2-T1 | 创建 Board 实体 | `entity/Board.java` | M0 完成 | MyBatis-Plus 注解齐全，映射 board 表 | 已完成 | 自动验收通过 |
+| M2-T2 | 创建 BoardMapper | `mapper/BoardMapper.java` | M2-T1 | selectEnabledList + incrPostCount/decrPostCount | 已完成 | 自动验收通过 |
+| M2-T3 | 实现 BoardService（列表/详情） | `service/BoardService.java` | M2-T2 | 5/5 测试通过（启用过滤/排序/3003/禁用过滤/incr） | 已完成 | 自动验收通过 |
+| M2-T4 | 实现 BoardController.list 接口 | `controller/BoardController.java` | M2-T3 | GET /api/boards 公开返回启用版块 | 已完成 | 自动验收通过 |
+| M2-T5 | 实现 BoardController.detail 接口 | `controller/BoardController.java` | M2-T3 | GET /api/boards/{id} 公开；不存在/禁用 3003 | 已完成 | 自动验收通过 |
+| M2-T6 | 种子数据已合并到 M0-T4b（默认管理员 + 3 个版块） | `db/seed.sql` | M0-T4b | 与 M0-T4b 一并验收，本行仅作模块内引用 | 已完成 | 无需验收 |
+| M2-T7 | 前端 api/board.js | `api/board.js` | M0-T17 | listBoards / getBoardById | 已完成 | 自动验收通过 |
+| M2-T8 | 实现 AppHeader.vue | `components/layout/AppHeader.vue` | M1-T26 | 已在 M1-T26 实现 | 已完成 | 自动验收通过 |
+| M2-T9 | 实现 AppSidebar.vue（版块导航） | `components/layout/AppSidebar.vue` | M2-T7 | 列出版块 + 帖子数 Tag + 跳转 /board/:id | 已完成 | 自动验收通过 |
+| M2-T10 | 实现 AppFooter.vue | `components/layout/AppFooter.vue` | M0-T14 | 页脚显示版权 + 技术栈 | 已完成 | 自动验收通过 |
+| M2-T11 | 实现 Home.vue 首页布局 | `views/Home.vue` | M2-T8, T9, T10 | 左侧 Sidebar + 右侧主区版块预览卡片 | 已完成 | 自动验收通过 |
+| M2-T12 | 在 app store 中缓存版块列表 | `stores/app.js` | M2-T7 | boardsLoaded 标记 + loadBoards(force) action | 已完成 | 自动验收通过 |
 
 ---
 
