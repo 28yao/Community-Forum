@@ -35,6 +35,10 @@ public class RateLimitService {
     @Value("${forum.ratelimit.search-per-minute:30}")
     private int searchPerMinute;
 
+    /** 板块申请限流：每用户 N 秒一次（P2-M2 默认 60s） */
+    @Value("${forum.ratelimit.board-application-seconds:60}")
+    private int boardApplicationSeconds;
+
     @Value("${forum.ratelimit.fallback:allow}")
     private String fallback;
 
@@ -48,6 +52,12 @@ public class RateLimitService {
     public void checkCommentCreate(Long userId) {
         cooldown("rate:comment:" + userId, commentCreateSeconds,
                 "评论过于频繁，请 " + commentCreateSeconds + " 秒后再试");
+    }
+
+    /** 板块申请限流：每用户 N 秒一次（P2-M2） */
+    public void checkBoardApplicationSubmit(Long userId) {
+        cooldown("rate:board-app:" + userId, boardApplicationSeconds,
+                "申请过于频繁，请 " + boardApplicationSeconds + " 秒后再试");
     }
 
     /** 搜索限流：每分钟 N 次（按 userId 或 ip 区分） */

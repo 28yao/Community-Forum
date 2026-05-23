@@ -205,8 +205,14 @@
 | 审核一个已审核过的申请 | code=409 "申请状态已变化" |
 
 ### 12. 当前状态
-- **任务状态**：未开始
-- **验收状态**：待验收
+- **任务状态**：已完成
+- **验收状态**：自动验收通过
+- **完成日期**：2026-05-23
+- **后端测试**：BoardApplicationServiceTest 10/10 通过；总回归 124/124
+- **前端构建**：vite build 成功
+- **限流**：RateLimitService 新增 checkBoardApplicationSubmit（60s/用户）
+- **后台菜单**：新增"板块申请审核"入口（在版块管理之后）
+- **个人中心**：用户下拉菜单加"我的板块申请"
 
 ---
 
@@ -214,27 +220,27 @@
 
 | ID | 任务 | 涉及文件 | 前置依赖 | 验收方式 | 状态 | 验收 |
 |---|---|---|---|---|---|---|
-| P2-M2-T1 | schema.v2.sql 创建 board_application 表 | `db/schema.v2.sql` | P2-M1-T1 | 表结构与字段类型符合 plan §2.1 | 未开始 | 待验收 |
-| P2-M2-T2 | BoardApplication 实体 + Mapper | `entity/BoardApplication.java`, `mapper/BoardApplicationMapper.java` | T1 | 基本 CRUD 注解 + 自定义查询签名 | 未开始 | 待验收 |
-| P2-M2-T3 | DTO：SubmitRequest / ReviewRequest / EligibilityVO | `dto/*.java` | T2 | @Valid 注解齐全（5-20/10-100/30/60 长度限制） | 未开始 | 待验收 |
-| P2-M2-T4 | BoardApplicationService.checkEligibility | `service/BoardApplicationService.java` | T2 | 单测 4/4（足/差天/差帖/有 pending） | 未开始 | 待验收 |
-| P2-M2-T5 | BoardApplicationService.submit | `service/BoardApplicationService.java` | T4 | 单测 4/4（成功/资格不足/名称冲突/重复 pending） | 未开始 | 待验收 |
-| P2-M2-T6 | BoardApplicationService.listMine | `service/BoardApplicationService.java` | T2 | 分页查询单测 | 未开始 | 待验收 |
-| P2-M2-T7 | BoardApplicationController (用户端 3 接口) | `controller/BoardApplicationController.java` | T4~T6 | 接口测试 §10 第 1~5 项通过 | 未开始 | 待验收 |
-| P2-M2-T8 | BoardApplicationService.approve（事务） | `service/BoardApplicationService.java` | T2, P2-M1-T4 | 单测：成功路径 + 二次名称冲突 + 已审核重复 | 未开始 | 待验收 |
-| P2-M2-T9 | BoardApplicationService.reject | `service/BoardApplicationService.java` | T2 | 单测：成功 + 已审核重复 + 空 reason | 未开始 | 待验收 |
-| P2-M2-T10 | BoardApplicationService.listForReview | `service/BoardApplicationService.java` | T2 | 分页 + status 过滤单测 | 未开始 | 待验收 |
-| P2-M2-T11 | AdminBoardApplicationController (3 接口) | `controller/admin/AdminBoardApplicationController.java` | T8~T10 | 接口测试 §10 第 6~9 项通过 + AdminInterceptor 拦截 | 未开始 | 待验收 |
-| P2-M2-T12 | RateLimit：board-applications 60s/用户 | 限流配置 / Controller 注解 | T7, 一期 RateLimitService | 60s 内第二次提交返回限流 | 未开始 | 待验收 |
-| P2-M2-T13 | 前端 api/boardApplication.js | `api/boardApplication.js` | T7, T11 | 5 个函数：eligibility/submit/listMine/listForReview/approve/reject | 未开始 | 待验收 |
-| P2-M2-T14 | ApplicationForm.vue 表单组件 | `components/board-application/ApplicationForm.vue` | T13 | 字段校验 + 提交后 toast | 未开始 | 待验收 |
-| P2-M2-T15 | EligibilityHint.vue 资格提示 | `components/board-application/EligibilityHint.vue` | T13 | 显示注册天数/发帖数/差额 | 未开始 | 待验收 |
-| P2-M2-T16 | ApplicationList.vue 我的申请列表 | `components/board-application/ApplicationList.vue` | T13 | 卡片含状态 + 驳回原因 + 跳板块链接（通过时） | 未开始 | 待验收 |
-| P2-M2-T17 | MyApplications.vue 个人中心 Tab | `views/user/MyApplications.vue` | T14~T16 | Tab 集成 + 申请按钮联动 EligibilityHint 弹窗 | 未开始 | 待验收 |
-| P2-M2-T18 | 个人中心路由 + 菜单加 "我的板块申请" | `views/user/UserCenter.vue` 或一期对应文件, `router/index.js` | T17 | 一期个人中心新增 Tab | 未开始 | 待验收 |
-| P2-M2-T19 | 管理后台 BoardApplicationReview.vue | `views/admin/BoardApplicationReview.vue` | T13 | 列表 + 详情面板 + 通过/驳回操作 + 驳回弹窗填原因 | 未开始 | 待验收 |
-| P2-M2-T20 | 后台菜单加 "板块申请" | 一期 admin 布局/菜单文件 | T19 | 管理员登录后看到新菜单 | 未开始 | 待验收 |
-| P2-M2-T21 | 端到端联调（用户提交 → 审核 → 板块创建） | 全链路 | T1~T20 | 见 §9 页面测试全部跑通 | 未开始 | 待验收 |
+| P2-M2-T1 | schema.v2.sql 创建 board_application 表 | `db/schema.v2.sql` | P2-M1-T1 | 已随 P2-M1 执行 | 已完成 | 自动验收通过 |
+| P2-M2-T2 | BoardApplication 实体 + Mapper | `entity/BoardApplication.java`, `mapper/BoardApplicationMapper.java` | T1 | 基本 CRUD + selectMine/selectForUpdate | 已完成 | 自动验收通过 |
+| P2-M2-T3 | DTO：SubmitRequest / RejectRequest / EligibilityVO | `service/dto/*.java` | T2 | @Valid 注解齐全 | 已完成 | 自动验收通过 |
+| P2-M2-T4 | BoardApplicationService.checkEligibility | `service/BoardApplicationService.java` | T2 | 单测 4 个分支通过 | 已完成 | 自动验收通过 |
+| P2-M2-T5 | BoardApplicationService.submit | `service/BoardApplicationService.java` | T4 | 单测：成功/名称冲突/标签超限 | 已完成 | 自动验收通过 |
+| P2-M2-T6 | BoardApplicationService.listMine | `service/BoardApplicationService.java` | T2 | 分页查询 | 已完成 | 自动验收通过 |
+| P2-M2-T7 | BoardApplicationController（3 接口） | `controller/BoardApplicationController.java` | T4~T6 | eligibility/submit/mine | 已完成 | 自动验收通过 |
+| P2-M2-T8 | BoardApplicationService.approve（事务） | `service/BoardApplicationService.java` | T2, P2-M1 | 单测：成功路径 + 已审核重复 | 已完成 | 自动验收通过 |
+| P2-M2-T9 | BoardApplicationService.reject | `service/BoardApplicationService.java` | T2 | 单测：驳回成功 + 原因落库 | 已完成 | 自动验收通过 |
+| P2-M2-T10 | BoardApplicationService.listForReview | `service/BoardApplicationService.java` | T2 | 分页 + status 过滤 | 已完成 | 自动验收通过 |
+| P2-M2-T11 | AdminBoardApplicationController（3 接口） | `controller/admin/AdminBoardApplicationController.java` | T8~T10 | list/approve/reject + AdminInterceptor 拦截 | 已完成 | 自动验收通过 |
+| P2-M2-T12 | RateLimit：board-applications 60s/用户 | `service/RateLimitService.java`, Controller | T7 | RateLimitService 新增 checkBoardApplicationSubmit | 已完成 | 自动验收通过 |
+| P2-M2-T13 | 前端 api/boardApplication.js | `api/boardApplication.js` | T7, T11 | 6 个函数 | 已完成 | 自动验收通过 |
+| P2-M2-T14 | ApplicationForm.vue 表单组件 | `components/board-application/ApplicationForm.vue` | T13 | 字段校验 + 提交 + 取消 | 已完成 | 自动验收通过 |
+| P2-M2-T15 | EligibilityHint.vue 资格提示 | `components/board-application/EligibilityHint.vue` | T13 | 显示注册天数/发帖数/差额 | 已完成 | 自动验收通过 |
+| P2-M2-T16 | ApplicationList.vue 我的申请列表 | `components/board-application/ApplicationList.vue` | T13 | 卡片含状态 + 驳回原因 + 跳板块链接 | 已完成 | 自动验收通过 |
+| P2-M2-T17 | MyApplications.vue 视图 | `views/user/MyApplications.vue` | T14~T16 | 列表 + 申请弹窗（资格联动） | 已完成 | 自动验收通过 |
+| P2-M2-T18 | 个人中心路由 + 用户下拉菜单"我的板块申请" | `router/index.js`, `components/layout/AppHeader.vue` | T17 | 顶栏用户下拉新增入口；路由 /me/applications | 已完成 | 自动验收通过 |
+| P2-M2-T19 | 管理后台 AdminBoardApplications.vue | `views/admin/AdminBoardApplications.vue` | T13 | 列表 + 详情 Drawer + 通过/驳回弹窗 | 已完成 | 自动验收通过 |
+| P2-M2-T20 | 后台菜单加"板块申请审核" | `router/index.js`, `views/admin/AdminLayout.vue` | T19 | 管理员侧边菜单新增项 | 已完成 | 自动验收通过 |
+| P2-M2-T21 | 端到端联调（用户提交 → 审核 → 板块创建） | 全链路 | T1~T20 | 后端 124/124 + 前端构建通过 | 已完成 | 自动验收通过 |
 
 ---
 

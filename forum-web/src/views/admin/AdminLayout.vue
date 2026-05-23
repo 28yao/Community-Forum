@@ -21,6 +21,10 @@
           <el-icon><Grid /></el-icon>
           <span>版块管理</span>
         </el-menu-item>
+        <el-menu-item index="/admin/board-applications">
+          <el-icon><Promotion /></el-icon>
+          <span>板块申请审核</span>
+        </el-menu-item>
         <el-menu-item index="/admin/posts">
           <el-icon><Document /></el-icon>
           <span>帖子管理</span>
@@ -54,7 +58,7 @@
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { Odometer, User, Grid, Document, ChatDotRound } from '@element-plus/icons-vue';
+import { Odometer, User, Grid, Document, ChatDotRound, Promotion } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/user';
 
 const route = useRoute();

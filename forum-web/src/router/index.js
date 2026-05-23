@@ -12,6 +12,7 @@ const routes = [
   { path: '/register',  name: 'register', component: () => import('@/views/Register.vue'),  meta: { title: '注册', guest: true } },
   { path: '/verify-email', name: 'verify-email', component: () => import('@/views/VerifyEmail.vue'), meta: { title: '邮箱验证' } },
   { path: '/settings',  name: 'settings', component: () => import('@/views/Settings.vue'),   meta: { title: '个人设置', requiresAuth: true } },
+  { path: '/me/applications', name: 'my-applications', component: () => import('@/views/user/MyApplications.vue'), meta: { title: '我的板块申请', requiresAuth: true } },
   { path: '/search',    name: 'search',   component: () => import('@/views/Search.vue'),     meta: { title: '搜索' } },
 
   // 后台（M6）
@@ -25,6 +26,7 @@ const routes = [
       { path: '',          name: 'admin-dashboard', component: () => import('@/views/admin/AdminDashboard.vue'), meta: { title: '后台总览' } },
       { path: 'users',     name: 'admin-users',     component: () => import('@/views/admin/AdminUsers.vue'),     meta: { title: '用户管理' } },
       { path: 'boards',    name: 'admin-boards',    component: () => import('@/views/admin/AdminBoards.vue'),    meta: { title: '版块管理' } },
+      { path: 'board-applications', name: 'admin-board-applications', component: () => import('@/views/admin/AdminBoardApplications.vue'), meta: { title: '板块申请审核' } },
       { path: 'posts',     name: 'admin-posts',     component: () => import('@/views/admin/AdminPosts.vue'),     meta: { title: '帖子管理' } },
       { path: 'comments',  name: 'admin-comments',  component: () => import('@/views/admin/AdminComments.vue'),  meta: { title: '评论管理' } }
     ]
