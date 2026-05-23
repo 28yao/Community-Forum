@@ -168,6 +168,10 @@ npm run build
   - 应用层：启动参数加 `-Dfile.encoding=UTF-8`（在 IDE 或 spring-boot-maven-plugin 的 jvmArguments 配置）
 - **没有 `@Transactional+@Rollback` 的测试会污染 DB**：使用真 MySQL 跑 `@SpringBootTest` 时，每个写入 user/post 的测试方法都必须挂 `@Transactional` + `@Rollback`，否则插入的 email/nickname/post 会留在库里。下次跑同一个测试，因为 UNIQUE 约束直接报错。修复：所有涉及 register/createPost 的测试加事务回滚；已污染的库用 `DELETE FROM user WHERE email LIKE 'i-%@example.com'` 清理。
 - **FULLTEXT 索引在未提交事务里"看不见"刚 INSERT 的数据**：跑 `@Transactional+@Rollback` 测试时，在事务里 `INSERT post` 然后立刻 `MATCH AGAINST` 搜索，FULLTEXT 索引可能仍然看不见这条数据（InnoDB 全文索引的"缓存"机制 + 事务可见性差异）。表现：单元测试 expected `true` actual `false`，但同一段代码用真实流程跑能搜到。修复：搜索类测试**不要**用 `@Transactional+@Rollback`，改用唯一关键词 + try/finally 手工清理。
+- **FULLTEXT 索引的 `WITH PARSER ngram` 容易"静默丢失"，且 SHOW INDEX 看不出来**：schema.sql 写了 `FULLTEXT idx_search(title,content) WITH PARSER ngram`，但在某些情况下（早期手工建表、迁移、版本差异）实际索引会落成默认 parser，对中文整段当 1 个 token，搜任何中文词永远 0 结果。表现：英文/纯数字关键词能命中（因为有空格分词），中文关键词全部空结果，但 schema.sql 看上去是对的。
+  - 检查方法：`SHOW INDEX FROM post` **不会**告诉你 parser；必须 `SHOW CREATE TABLE post\G`，找到 `FULLTEXT KEY idx_search ... /*!50100 WITH PARSER ngram */`，没看到 `WITH PARSER ngram` 就是丢了。
+  - 修复：`ALTER TABLE post DROP INDEX idx_search; ALTER TABLE post ADD FULLTEXT INDEX idx_search (title,content) WITH PARSER ngram;` 不影响数据，立刻生效。
+  - 部署新环境后**第一件事**就该跑 `SHOW CREATE TABLE post\G` 验证 ngram 是否落上了。
 
 ### 重要决策记录
 
