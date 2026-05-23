@@ -1,0 +1,76 @@
+# =============================================================
+# 社区论坛系统 - 主配置（公共部分，可入仓）
+# 真实凭据（MySQL 密码、QQ 邮箱授权码等）放在 application-dev.yml / application-prod.yml，不入仓
+# =============================================================
+
+spring:
+  profiles:
+    active: dev          # 默认激活开发环境配置
+  application:
+    name: forum-server
+
+  # 文件上传单文件大小（前端 §5.3.1 要求单图 <=5MB；预留余量到 10MB）
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 100MB
+
+  # MyBatis-Plus 不通过 spring.* 配；保留这里让 datasource/redis/mail 子配置在 -dev.yml 中覆盖
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  tomcat:
+    uri-encoding: UTF-8
+
+# =============================================================
+# MyBatis-Plus
+# =============================================================
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.forum.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl   # 开发期 SQL 日志，生产可关
+  global-config:
+    db-config:
+      logic-delete-field: deleted          # 软删除字段（plan.md §6.6）
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      id-type: auto
+
+# =============================================================
+# 业务配置
+# =============================================================
+forum:
+  upload:
+    path: ./uploads                         # dev 默认；prod 在 application-prod.yml 覆盖为 /data/forum-uploads
+    access-prefix: /static/uploads/**       # 静态资源映射前缀（M0-T12 WebMvcConfig 中使用）
+    url-prefix: /static/uploads             # 拼接图片 URL 时的前缀
+    max-single-size: 5242880                # 单图 5MB（字节）
+    max-count-per-post: 9                   # 单帖最多 9 张图
+    allowed-types: jpg,jpeg,png,gif
+  jwt:
+    secret: ${FORUM_JWT_SECRET:please-override-in-dev-or-prod-yml}
+    expire-days: 7
+    header: Authorization
+    prefix: "Bearer "
+  ratelimit:
+    fallback: allow                          # Redis 不可用时降级策略（C6 决策）
+    post-create-seconds: 10                  # 发帖限流（10s）
+    comment-create-seconds: 5                # 评论限流（5s）
+    search-per-minute: 30                    # 搜索限流（每分钟 30 次）
+
+# =============================================================
+# 日志
+# =============================================================
+logging:
+  level:
+    root: INFO
+    com.forum: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n"

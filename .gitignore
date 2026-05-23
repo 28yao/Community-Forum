@@ -1,0 +1,52 @@
+# =============================================================
+# 根级 .gitignore — 覆盖整个仓库
+# =============================================================
+
+# ===== 本地工具 / 二进制 =====
+.redis/
+
+# ===== Maven（后端） =====
+**/target/
+*.class
+
+# ===== Node / 前端 =====
+**/node_modules/
+**/dist/
+**/.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===== 上传目录（运行期生成） =====
+forum-server/uploads/
+**/uploads/
+
+# ===== 凭据：含真实账号密码的环境配置，禁止入仓 =====
+**/application-dev.yml
+**/application-prod.yml
+**/application-local.yml
+**/.env
+**/.env.local
+**/.env.*.local
+
+# ===== IDE =====
+.idea/
+*.iml
+.vscode/
+*.code-workspace
+.project
+.classpath
+.settings/
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== 日志与临时 =====
+logs/
+*.log
+*.tmp
+*.swp
+*~

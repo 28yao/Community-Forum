@@ -1,0 +1,39 @@
+# =============================================================
+# 开发环境配置样例（去敏，可入仓）
+# 使用方法：复制为 application-dev.yml，填入真实凭据
+# =============================================================
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/forum?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: <YOUR_DB_USER>
+    password: "<YOUR_DB_PASSWORD>"
+
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    timeout: 5000
+
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: <YOUR_QQ_EMAIL>@qq.com
+    password: <YOUR_QQ_SMTP_AUTH_CODE>      # 在 QQ 邮箱 → 设置 → 账户 → POP3/SMTP 中生成
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+            required: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+
+forum:
+  jwt:
+    secret: "<RUN: openssl rand -base64 48>"
+  mail:
+    from: <YOUR_QQ_EMAIL>@qq.com
+    verify-link-base: http://localhost:5173/verify-email
