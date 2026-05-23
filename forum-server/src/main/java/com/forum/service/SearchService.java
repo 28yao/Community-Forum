@@ -45,27 +45,27 @@ public class SearchService {
     private static final int MAX_PAGE_SIZE = 50;
 
     /**
-     * 搜索帖子
+     * 搜索帖子（兼容一期，P2-M7 扩展 scope）
      *
      * @param keyword 关键词
+     * @param scope   title=仅标题，both=标题+内容（默认）
      * @param page    页码（从 1 起）
      * @param size    每页大小
      */
-    public PageResult<Map<String, Object>> search(String keyword, int page, int size) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            throw new BizException(ErrorCode.PARAM_INVALID, "请输入搜索关键词");
-        }
+    public PageResult<Map<String, Object>> searchPosts(String keyword, String scope, int page, int size) {
+        validateKeyword(keyword);
         String trimmed = keyword.trim();
-        if (trimmed.length() < MIN_KEYWORD_LENGTH) {
-            throw new BizException(ErrorCode.PARAM_INVALID, "关键词至少 2 个字符");
-        }
         if (page < 1) page = 1;
         if (size < 1 || size > MAX_PAGE_SIZE) size = 20;
 
         String escaped = escapeBoolean(trimmed);
-        // 直接使用转义后的关键词；如要更强相关性也可拼前缀星号
         Page<Post> p = new Page<>(page, size);
-        IPage<Post> result = postMapper.searchByKeyword(p, escaped);
+        IPage<Post> result;
+        if ("title".equals(scope)) {
+            result = postMapper.searchByTitleFulltext(p, escaped);
+        } else {
+            result = postMapper.searchByKeyword(p, escaped);
+        }
 
         if (result.getRecords().isEmpty()) {
             return PageResult.empty(page, size);
@@ -114,8 +114,73 @@ public class SearchService {
             return m;
         }).collect(Collectors.toList());
 
-        log.info("[SEARCH] keyword='{}' page={} size={} total={}", trimmed, page, size, result.getTotal());
+        log.info("[SEARCH_POSTS] keyword='{}' scope={} page={} size={} total={}", trimmed, scope, page, size, result.getTotal());
         return PageResult.of(result.getTotal(), result.getCurrent(), result.getSize(), items);
+    }
+
+    /**
+     * 搜索板块（P2-M7）
+     */
+    public PageResult<Map<String, Object>> searchBoards(String keyword, int page, int size) {
+        validateKeyword(keyword);
+        String trimmed = keyword.trim();
+        if (page < 1) page = 1;
+        if (size < 1 || size > MAX_PAGE_SIZE) size = 20;
+
+        IPage<Board> result = boardMapper.searchByKeyword(new Page<>(page, size), trimmed);
+        List<Map<String, Object>> items = result.getRecords().stream().map(board -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", board.getId());
+            m.put("name", board.getName());
+            m.put("description", board.getDescription());
+            m.put("icon", board.getIcon());
+            m.put("slogan", board.getSlogan());
+            m.put("tags", board.getTags());
+            m.put("followerCount", board.getFollowerCount());
+            m.put("postCount", board.getPostCount());
+            return m;
+        }).collect(Collectors.toList());
+
+        log.info("[SEARCH_BOARDS] keyword='{}' page={} size={} total={}", trimmed, page, size, result.getTotal());
+        return PageResult.of(result.getTotal(), result.getCurrent(), result.getSize(), items);
+    }
+
+    /**
+     * 搜索用户（P2-M7）
+     */
+    public PageResult<Map<String, Object>> searchUsers(String keyword, int page, int size) {
+        validateKeyword(keyword);
+        String trimmed = keyword.trim();
+        if (page < 1) page = 1;
+        if (size < 1 || size > MAX_PAGE_SIZE) size = 20;
+
+        IPage<User> result = userMapper.searchByKeyword(new Page<>(page, size), trimmed);
+        List<Map<String, Object>> items = result.getRecords().stream().map(user -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", user.getId());
+            m.put("nickname", user.getNickname());
+            m.put("avatar", user.getAvatar());
+            m.put("bio", user.getBio());
+            m.put("createdAt", user.getCreatedAt());
+            return m;
+        }).collect(Collectors.toList());
+
+        log.info("[SEARCH_USERS] keyword='{}' page={} size={} total={}", trimmed, page, size, result.getTotal());
+        return PageResult.of(result.getTotal(), result.getCurrent(), result.getSize(), items);
+    }
+
+    /** 兼容一期：search(keyword, page, size) → searchPosts(scope=both) */
+    public PageResult<Map<String, Object>> search(String keyword, int page, int size) {
+        return searchPosts(keyword, "both", page, size);
+    }
+
+    private void validateKeyword(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "请输入搜索关键词");
+        }
+        if (keyword.trim().length() < MIN_KEYWORD_LENGTH) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "关键词至少 2 个字符");
+        }
     }
 
     /** BOOLEAN MODE 关键字转义：去掉保留字符，避免 SQL 注入和操作符冲突 */

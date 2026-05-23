@@ -2,9 +2,11 @@ package com.forum.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.forum.entity.Board;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
@@ -41,4 +43,13 @@ public interface BoardMapper extends BaseMapper<Board> {
     /** follower_count - 1（不低于 0，P2-M3） */
     @Update("UPDATE board SET follower_count = GREATEST(follower_count - 1, 0) WHERE id = #{id}")
     int decrFollowerCount(@Param("id") Long id);
+
+    /** 板块搜索（P2-M7）：LIKE 匹配 name/description/slogan/tags，仅启用状态 */
+    @Select("SELECT * FROM board WHERE status = 1 " +
+            "AND (name LIKE CONCAT('%', #{keyword}, '%') " +
+            "OR description LIKE CONCAT('%', #{keyword}, '%') " +
+            "OR slogan LIKE CONCAT('%', #{keyword}, '%') " +
+            "OR tags LIKE CONCAT('%', #{keyword}, '%')) " +
+            "ORDER BY follower_count DESC, post_count DESC")
+    IPage<Board> searchByKeyword(IPage<Board> page, @Param("keyword") String keyword);
 }

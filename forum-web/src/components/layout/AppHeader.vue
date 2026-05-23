@@ -78,7 +78,7 @@ function handleSearch() {
     ElMessage.warning('关键词至少 2 个字符');
     return;
   }
-  router.push({ path: '/search', query: { q } });
+  router.push({ path: '/search', query: { q, type: 'post' } });
 }
 
 async function handleCommand(cmd) {

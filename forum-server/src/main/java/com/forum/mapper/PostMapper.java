@@ -92,6 +92,16 @@ public interface PostMapper extends BaseMapper<Post> {
     IPage<Post> selectHotPosts(IPage<Post> page);
 
     /**
+     * 标题全文搜索（P2-M7）
+     * 使用 idx_title(title) WITH PARSER ngram 的 FULLTEXT 索引。
+     */
+    @Select("SELECT * FROM post " +
+            "WHERE deleted = 0 AND status = 1 " +
+            "AND MATCH(title) AGAINST(#{keyword} IN BOOLEAN MODE) " +
+            "ORDER BY MATCH(title) AGAINST(#{keyword} IN BOOLEAN MODE) DESC, created_at DESC")
+    IPage<Post> searchByTitleFulltext(IPage<Post> page, @Param("keyword") String keyword);
+
+    /**
      * 按板块 ID 列表查帖子（P2-M5 关注流用）
      * 仅查 status=1 且未删除，按置顶 → 创建时间倒序。
      */

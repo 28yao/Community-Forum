@@ -1,7 +1,9 @@
 package com.forum.controller;
 
+import com.forum.common.ErrorCode;
 import com.forum.common.PageResult;
 import com.forum.common.Result;
+import com.forum.common.exception.BizException;
 import com.forum.service.RateLimitService;
 import com.forum.service.SearchService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,8 @@ public class SearchController {
     @GetMapping
     public Result<PageResult<Map<String, Object>>> search(
             @RequestParam("q") String q,
+            @RequestParam(value = "type", defaultValue = "post") String type,
+            @RequestParam(value = "scope", defaultValue = "both") String scope,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "20") int size,
             HttpServletRequest request) {
@@ -36,7 +40,17 @@ public class SearchController {
         Object uid = request.getAttribute("userId");
         String identity = uid != null ? "u:" + uid : "ip:" + clientIp(request);
         rateLimitService.checkSearch(identity);
-        return Result.success(searchService.search(q, page, size));
+
+        switch (type) {
+            case "post":
+                return Result.success(searchService.searchPosts(q, scope, page, size));
+            case "board":
+                return Result.success(searchService.searchBoards(q, page, size));
+            case "user":
+                return Result.success(searchService.searchUsers(q, page, size));
+            default:
+                throw new BizException(ErrorCode.PARAM_INVALID, "type 必须是 post/board/user");
+        }
     }
 
     private String clientIp(HttpServletRequest req) {

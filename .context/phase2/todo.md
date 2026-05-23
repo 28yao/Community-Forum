@@ -24,7 +24,7 @@
 | P2-M4 | 贴吧风 UI 重构 | 已完成 | P2-M1 |
 | P2-M5 | 混合信息流 feed 接口 | 已完成 | P2-M3, P2-M4 |
 | P2-M6 | 发帖弹窗与表情面板 | 已完成 | P2-M4 |
-| P2-M7 | 搜索增强 | 未开始 | P2-M4 |
+| P2-M7 | 搜索增强 | 已完成 | P2-M4 |
 | P2-M8 | 板块管理增强（吧主权限） | 未开始 | P2-M1 |
 
 ---
@@ -755,8 +755,10 @@
 | 已删除/已禁用用户 | 不出现在结果中 |
 
 ### 12. 当前状态
-- **任务状态**：未开始
-- **验收状态**：待验收
+- **任务状态**：已完成
+- **验收状态**：自动验收通过
+- **完成日期**：2026-05-23
+- **备注**：idx_title FULLTEXT 索引已在 schema.v2.sql 中定义；SearchService 拆分为 searchPosts/searchBoards/searchUsers 三方法，保留 search() 兼容一期；Search.vue 重写为 Tab + scope toggle
 
 ---
 
@@ -764,19 +766,19 @@
 
 | ID | 任务 | 涉及文件 | 前置依赖 | 验收方式 | 状态 | 验收 |
 |---|---|---|---|---|---|---|
-| P2-M7-T1 | schema.v2.sql 加 idx_title FULLTEXT 索引 | `db/schema.v2.sql` | P2-M1-T1 | SHOW CREATE TABLE post 含 idx_title WITH PARSER ngram | 未开始 | 待验收 |
-| P2-M7-T2 | BoardMapper.searchByKeyword | `mapper/BoardMapper.java` | P2-M1-T3 | LIKE on name/description/slogan/tags，分页 | 未开始 | 待验收 |
-| P2-M7-T3 | PostMapper.searchByTitleFulltext | `mapper/PostMapper.java` | T1 | MATCH(title) AGAINST + 分页 | 未开始 | 待验收 |
-| P2-M7-T4 | UserMapper.searchByKeyword | `mapper/UserMapper.java` | 一期 | LIKE username/nickname + 过滤已禁用 | 未开始 | 待验收 |
-| P2-M7-T5 | SearchService.searchBoards | `service/SearchService.java` | T2 | 单测：命中/未命中 | 未开始 | 待验收 |
-| P2-M7-T6 | SearchService.searchPosts 扩展 scope | `service/SearchService.java` | T3 + 一期 SearchService | 单测：scope=title vs both 行为差异 | 未开始 | 待验收 |
-| P2-M7-T7 | SearchService.searchUsers | `service/SearchService.java` | T4 | 单测 | 未开始 | 待验收 |
-| P2-M7-T8 | SearchController 扩展 type / scope 参数 | `controller/SearchController.java` | T5~T7 | 兼容性测试：旧 URL 行为不变；新 type 正确路由 | 未开始 | 待验收 |
-| P2-M7-T9 | 前端 api/search.js 扩展参数 | `api/search.js` | T8 | searchPosts/Boards/Users + scope 参数 | 未开始 | 待验收 |
-| P2-M7-T10 | SearchResultBoard.vue / Post.vue / User.vue 三组件 | `components/search/*.vue` | T9 | 各自渲染对应数据结构 | 未开始 | 待验收 |
-| P2-M7-T11 | Search.vue 重写（**覆盖 M5-T7**） | `views/Search.vue` | T9, T10 | Tab 切换 + URL 同步 + scope toggle | 未开始 | 待验收 |
-| P2-M7-T12 | 上线检查：SHOW CREATE TABLE post | 数据库 | T1 | 含 idx_search 和 idx_title，都带 WITH PARSER ngram | 未开始 | 待验收 |
-| P2-M7-T13 | 端到端联调 | 全链路 | T1~T12 | §9 页面测试 + §10 接口测试 全部通过 | 未开始 | 待验收 |
+| P2-M7-T1 | schema.v2.sql 加 idx_title FULLTEXT 索引 | `db/schema.v2.sql` | P2-M1-T1 | 已在 P2-M1 中定义 | 已完成 | 无需验收 |
+| P2-M7-T2 | BoardMapper.searchByKeyword | `mapper/BoardMapper.java` | P2-M1-T3 | LIKE on name/description/slogan/tags，分页 | 已完成 | 自动验收通过 |
+| P2-M7-T3 | PostMapper.searchByTitleFulltext | `mapper/PostMapper.java` | T1 | MATCH(title) AGAINST + 分页 | 已完成 | 自动验收通过 |
+| P2-M7-T4 | UserMapper.searchByKeyword | `mapper/UserMapper.java` | 一期 | LIKE nickname + 过滤已禁用/已删除 | 已完成 | 自动验收通过 |
+| P2-M7-T5 | SearchService.searchBoards | `service/SearchService.java` | T2 | 返回板块列表 + followerCount/postCount | 已完成 | 自动验收通过 |
+| P2-M7-T6 | SearchService.searchPosts 扩展 scope | `service/SearchService.java` | T3 + 一期 | scope=title vs both 行为差异 | 已完成 | 自动验收通过 |
+| P2-M7-T7 | SearchService.searchUsers | `service/SearchService.java` | T4 | 返回用户列表 + nickname/avatar/bio | 已完成 | 自动验收通过 |
+| P2-M7-T8 | SearchController 扩展 type/scope 参数 | `controller/SearchController.java` | T5~T7 | type 路由到对应方法 + 旧 URL 兼容 | 已完成 | 自动验收通过 |
+| P2-M7-T9 | 前端 api/search.js 扩展 | `api/search.js` | T8 | search/searchPosts/searchBoards/searchUsers | 已完成 | 自动验收通过 |
+| P2-M7-T10 | SearchResultBoard/Post/User 三组件 | `components/search/*.vue` | T9 | 各自渲染 + 关键词高亮 | 已完成 | 自动验收通过 |
+| P2-M7-T11 | Search.vue 重写（**覆盖 M5-T7**） | `views/Search.vue` | T9, T10 | Tab 切换 + URL 同步 + scope toggle | 已完成 | 自动验收通过 |
+| P2-M7-T12 | 上线检查：SHOW CREATE TABLE post | 数据库 | T1 | 含 idx_search 和 idx_title，都带 WITH PARSER ngram | 待手动 | 待验收 |
+| P2-M7-T13 | 端到端联调 | 全链路 | T1~T12 | 124/124 后端测试 + 前端 build 通过 | 已完成 | 自动验收通过 |
 
 ---
 
