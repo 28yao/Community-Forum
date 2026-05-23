@@ -33,4 +33,12 @@ public interface BoardMapper extends BaseMapper<Board> {
     /** post_count - 1（不低于 0） */
     @Update("UPDATE board SET post_count = GREATEST(post_count - 1, 0) WHERE id = #{id}")
     int decrPostCount(@Param("id") Long id);
+
+    /** follower_count + 1（P2-M3） */
+    @Update("UPDATE board SET follower_count = follower_count + 1 WHERE id = #{id}")
+    int incrFollowerCount(@Param("id") Long id);
+
+    /** follower_count - 1（不低于 0，P2-M3） */
+    @Update("UPDATE board SET follower_count = GREATEST(follower_count - 1, 0) WHERE id = #{id}")
+    int decrFollowerCount(@Param("id") Long id);
 }

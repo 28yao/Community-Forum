@@ -42,6 +42,21 @@ public class Board implements Serializable {
     /** 帖子数量（冗余计数） */
     private Integer postCount;
 
+    /** 板块头像URL（P2-M1） */
+    private String icon;
+
+    /** 板块口号（P2-M1） */
+    private String slogan;
+
+    /** 标签，逗号分隔，最多 3 个（P2-M1） */
+    private String tags;
+
+    /** 吧主用户ID，默认系统管理员（P2-M1） */
+    private Long ownerUserId;
+
+    /** 关注数（冗余计数，P2-M1） */
+    private Integer followerCount;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
