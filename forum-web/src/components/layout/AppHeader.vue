@@ -2,8 +2,26 @@
   <header class="app-header">
     <div class="header-inner">
       <router-link to="/" class="logo">社区论坛</router-link>
+
+      <div class="search-box">
+        <el-input
+          v-model="keyword"
+          placeholder="搜索帖子..."
+          clearable
+          @keyup.enter="handleSearch"
+          @clear="keyword = ''"
+        >
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
+      </div>
+
       <div class="nav-right">
         <template v-if="userStore.isLoggedIn">
+          <el-button type="primary" size="small" @click="$router.push('/post/create')">
+            发帖
+          </el-button>
           <el-dropdown trigger="click" @command="handleCommand">
             <span class="user-info">
               <el-avatar :size="28" :src="userStore.info?.avatar || ''">
@@ -29,12 +47,35 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
+import { ref, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
+import { Search } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/user';
 
 const router = useRouter();
+const route = useRoute();
 const userStore = useUserStore();
+
+const keyword = ref(route.query.q || '');
+
+// 路由切换时同步输入框（从其他页面回到搜索页时）
+watch(() => route.query.q, (q) => {
+  if (route.name === 'search') keyword.value = q || '';
+});
+
+function handleSearch() {
+  const q = keyword.value.trim();
+  if (!q) {
+    ElMessage.warning('请输入搜索关键词');
+    return;
+  }
+  if (q.length < 2) {
+    ElMessage.warning('关键词至少 2 个字符');
+    return;
+  }
+  router.push({ path: '/search', query: { q } });
+}
 
 async function handleCommand(cmd) {
   if (cmd === 'settings') {
@@ -63,18 +104,24 @@ async function handleCommand(cmd) {
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
 }
 .logo {
   font-size: 18px;
   font-weight: bold;
   color: #1677ff;
   text-decoration: none;
+  flex-shrink: 0;
+}
+.search-box {
+  flex: 1;
+  max-width: 480px;
 }
 .nav-right {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-left: auto;
 }
 .user-info {
   display: flex;

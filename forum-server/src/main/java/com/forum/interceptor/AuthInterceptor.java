@@ -36,6 +36,9 @@ public class AuthInterceptor implements HandlerInterceptor {
     /** GET /api/posts/{id}/comments 公开 */
     private static final Pattern PUBLIC_COMMENT_GET = Pattern.compile("^/api/posts/\\d+/comments$");
 
+    /** GET /api/search 公开 */
+    private static final Pattern PUBLIC_SEARCH_GET = Pattern.compile("^/api/search$");
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // OPTIONS 预检请求放行
@@ -49,6 +52,7 @@ public class AuthInterceptor implements HandlerInterceptor {
                 PUBLIC_USER_GET.matcher(uri).matches()
                         || PUBLIC_POST_GET.matcher(uri).matches()
                         || PUBLIC_COMMENT_GET.matcher(uri).matches()
+                        || PUBLIC_SEARCH_GET.matcher(uri).matches()
         );
         if (isPublic) {
             // 尝试解析 token；带 token 则注入 userId/role，否则匿名通过

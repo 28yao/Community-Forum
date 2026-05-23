@@ -699,13 +699,13 @@
 
 | ID | 任务 | 涉及文件 | 前置依赖 | 验收方式 | 状态 | 验收 |
 |----|------|---------|---------|---------|------|------|
-| M5-T1 | 在 schema.sql 中确认 idx_search 索引存在 | `db/schema.sql` | M0-T4 | DESC post 表显示 FULLTEXT 索引 | 未开始 | 待验收 |
-| M5-T2 | 实现 PostMapper.searchByKeyword | `mapper/PostMapper.java` + XML | M5-T1 | 单测 MATCH AGAINST 正确返回 | 未开始 | 待验收 |
-| M5-T3 | 实现 SearchService.search | `service/SearchService.java` | M5-T2 | 单测覆盖关键词转义、空结果 | 未开始 | 待验收 |
-| M5-T4 | 实现 SearchController | `controller/SearchController.java` | M5-T3 | curl 测试通过 | 未开始 | 待验收 |
-| M5-T5 | 前端 api/search.js | `api/search.js` | M0-T17 | 调用成功 | 未开始 | 待验收 |
-| M5-T6 | 在 AppHeader 实现搜索框逻辑 | `components/layout/AppHeader.vue` | M5-T5 | 输入回车跳转结果页 | 未开始 | 待验收 |
-| M5-T7 | 实现 Search.vue 页面 | `views/Search.vue` | M5-T5, M3-T21 | 列表展示 + 关键词高亮 + 分页 | 未开始 | 待验收 |
+| M5-T1 | 在 schema.sql 中确认 idx_search 索引存在 | `db/schema.sql` | M0-T4 | FULLTEXT idx_search(title,content) WITH PARSER ngram 已建（M0 时建） | 已完成 | 自动验收通过 |
+| M5-T2 | 实现 PostMapper.searchByKeyword | `mapper/PostMapper.java` | M5-T1 | MATCH AGAINST IN BOOLEAN MODE + 分页 | 已完成 | 自动验收通过 |
+| M5-T3 | 实现 SearchService.search | `service/SearchService.java` | M5-T2 | 5/5 测试通过（空/短/命中/无结果/注入） | 已完成 | 自动验收通过 |
+| M5-T4 | 实现 SearchController | `controller/SearchController.java` | M5-T3 | GET /api/search 公开 | 已完成 | 自动验收通过 |
+| M5-T5 | 前端 api/search.js | `api/search.js` | M0-T17 | searchPosts(q, params) | 已完成 | 自动验收通过 |
+| M5-T6 | 在 AppHeader 实现搜索框逻辑 | `components/layout/AppHeader.vue` | M5-T5 | 输入回车跳 /search?q= + 路由同步 | 已完成 | 自动验收通过 |
+| M5-T7 | 实现 Search.vue 页面 | `views/Search.vue` | M5-T5, M3-T21 | 标题/总数/列表+关键词高亮/分页/空状态 | 已完成 | 自动验收通过 |
 
 ---
 

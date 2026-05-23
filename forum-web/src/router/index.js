@@ -24,6 +24,7 @@ const routes = [
   { path: '/register',  name: 'register', component: () => import('@/views/Register.vue'),  meta: { title: '注册', guest: true } },
   { path: '/verify-email', name: 'verify-email', component: () => import('@/views/VerifyEmail.vue'), meta: { title: '邮箱验证' } },
   { path: '/settings',  name: 'settings', component: () => import('@/views/Settings.vue'),   meta: { title: '个人设置', requiresAuth: true } },
+  { path: '/search',    name: 'search',   component: () => import('@/views/Search.vue'),     meta: { title: '搜索' } },
   // 兜底 404（M7-T6 会替换为 NotFound.vue 页面）
   { path: '/:pathMatch(.*)*', name: 'not-found', component: Placeholder('404 未找到'), meta: { title: '404' } }
 ];

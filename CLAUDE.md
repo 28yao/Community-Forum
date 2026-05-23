@@ -167,6 +167,7 @@ npm run build
   - 临时：执行前 `chcp 65001` 切换控制台到 UTF-8
   - 应用层：启动参数加 `-Dfile.encoding=UTF-8`（在 IDE 或 spring-boot-maven-plugin 的 jvmArguments 配置）
 - **没有 `@Transactional+@Rollback` 的测试会污染 DB**：使用真 MySQL 跑 `@SpringBootTest` 时，每个写入 user/post 的测试方法都必须挂 `@Transactional` + `@Rollback`，否则插入的 email/nickname/post 会留在库里。下次跑同一个测试，因为 UNIQUE 约束直接报错。修复：所有涉及 register/createPost 的测试加事务回滚；已污染的库用 `DELETE FROM user WHERE email LIKE 'i-%@example.com'` 清理。
+- **FULLTEXT 索引在未提交事务里"看不见"刚 INSERT 的数据**：跑 `@Transactional+@Rollback` 测试时，在事务里 `INSERT post` 然后立刻 `MATCH AGAINST` 搜索，FULLTEXT 索引可能仍然看不见这条数据（InnoDB 全文索引的"缓存"机制 + 事务可见性差异）。表现：单元测试 expected `true` actual `false`，但同一段代码用真实流程跑能搜到。修复：搜索类测试**不要**用 `@Transactional+@Rollback`，改用唯一关键词 + try/finally 手工清理。
 
 ### 重要决策记录
 
