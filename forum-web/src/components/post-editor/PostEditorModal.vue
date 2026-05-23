@@ -1,54 +1,68 @@
 <template>
   <el-dialog
     v-model="editorStore.visible"
-    title="发贴"
+    :show-close="false"
     width="680px"
     :close-on-click-modal="false"
     :before-close="handleBeforeClose"
     destroy-on-close
     class="post-editor-modal"
   >
-    <div class="modal-header-bar">
-      <el-avatar :size="28" :src="userStore.info?.avatar || ''">
-        {{ userStore.info?.nickname?.charAt(0) || '?' }}
-      </el-avatar>
-      <span class="header-name">{{ userStore.info?.nickname }}</span>
-    </div>
+    <template #header>
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <el-avatar :size="36" :src="userStore.info?.avatar || ''">
+            {{ userStore.info?.nickname?.charAt(0) || '?' }}
+          </el-avatar>
+          <div class="header-info">
+            <span class="header-name">{{ userStore.info?.nickname }}</span>
+            <BoardSelectDropdown
+              v-model="form.boardId"
+              :disabled="!!editorStore.lockedBoardId"
+              class="header-board-select"
+            />
+          </div>
+        </div>
+        <el-button :icon="Close" circle @click="handleClose" />
+      </div>
+    </template>
 
     <el-form ref="formRef" :model="form" :rules="rules" label-position="top" class="editor-form">
-      <el-form-item label="发布到" prop="boardId">
-        <BoardSelectDropdown
-          v-model="form.boardId"
-          :disabled="!!editorStore.lockedBoardId"
-        />
-      </el-form-item>
-
-      <el-form-item label="标题" prop="title">
+      <el-form-item prop="title" class="title-item">
         <el-input
           v-model="form.title"
-          placeholder="标题，5-31 字"
+          placeholder="请输入标题（5-31 字）"
           maxlength="31"
           show-word-limit
+          class="title-input"
         />
       </el-form-item>
 
-      <el-form-item label="正文" prop="content">
+      <el-form-item prop="content" class="content-item">
         <PostEditor v-if="editorStore.visible" v-model="form.content" />
       </el-form-item>
-
-      <el-form-item label="图片">
-        <ImageUpload v-model="form.imageUrls" :max="9" />
-      </el-form-item>
-
-      <div class="modal-toolbar">
-        <EmojiPicker @select="insertEmoji" />
-      </div>
     </el-form>
 
-    <template #footer>
-      <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSubmit">发布</el-button>
-    </template>
+    <div class="modal-bottom-bar">
+      <div class="bottom-actions">
+        <el-upload
+          :show-file-list="false"
+          :http-request="handleImageUpload"
+          accept="image/*"
+          multiple
+        >
+          <el-button :icon="Picture" circle />
+        </el-upload>
+        <EmojiPicker @select="insertEmoji" />
+      </div>
+      <div class="bottom-right">
+        <span v-if="form.imageUrls.length" class="image-count">{{ form.imageUrls.length }}/9 图片</span>
+        <el-button @click="handleClose">取消</el-button>
+        <el-button type="primary" :loading="submitting" @click="handleSubmit" class="publish-btn">
+          发布
+        </el-button>
+      </div>
+    </div>
   </el-dialog>
 </template>
 
@@ -56,13 +70,13 @@
 import { ref, reactive, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { Close, Picture } from '@element-plus/icons-vue';
 import PostEditor from '@/components/post/PostEditor.vue';
-import ImageUpload from '@/components/common/ImageUpload.vue';
 import BoardSelectDropdown from '@/components/board/BoardSelectDropdown.vue';
 import EmojiPicker from './EmojiPicker.vue';
 import { usePostEditorStore } from '@/stores/postEditor';
 import { useUserStore } from '@/stores/user';
-import { createPost } from '@/api/post';
+import { createPost, uploadPostImage } from '@/api/post';
 
 const router = useRouter();
 const editorStore = usePostEditorStore();
@@ -131,6 +145,19 @@ function insertEmoji(emoji) {
   form.content += emoji;
 }
 
+async function handleImageUpload({ file }) {
+  if (form.imageUrls.length >= 9) {
+    ElMessage.warning('最多上传 9 张图片');
+    return;
+  }
+  try {
+    const data = await uploadPostImage(file);
+    form.imageUrls.push(data.url);
+  } catch (e) {
+    ElMessage.error(e.message || '图片上传失败');
+  }
+}
+
 async function handleSubmit() {
   try {
     await formRef.value.validate();
@@ -161,23 +188,105 @@ async function handleSubmit() {
 </script>
 
 <style scoped>
-.modal-header-bar {
+.post-editor-modal :deep(.el-dialog__header) {
+  padding: 16px 20px 12px;
+  margin: 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.post-editor-modal :deep(.el-dialog__body) {
+  padding: 16px 20px 0;
+}
+.post-editor-modal :deep(.el-dialog__footer) {
+  display: none;
+}
+.modal-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
+  justify-content: space-between;
+}
+.modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 .header-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: #333;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1;
+}
+.header-board-select {
+  width: 180px;
+}
+.header-board-select :deep(.el-input__wrapper) {
+  box-shadow: none !important;
+  background: #f5f5f5;
+  border-radius: 16px;
+  height: 28px;
+}
+.header-board-select :deep(.el-input__inner) {
+  font-size: 12px;
+  height: 28px;
+  line-height: 28px;
 }
 .editor-form {
-  margin-top: 8px;
+  margin-top: 4px;
 }
-.modal-toolbar {
+.title-item {
+  margin-bottom: 8px;
+}
+.title-input :deep(.el-input__wrapper) {
+  box-shadow: none !important;
+  border-bottom: 1px solid #e8e8e8;
+  border-radius: 0;
+  padding: 0;
+}
+.title-input :deep(.el-input__inner) {
+  font-size: 18px;
+  font-weight: 600;
+  padding: 12px 0;
+  height: auto;
+  line-height: 1.4;
+}
+.content-item {
+  margin-bottom: 0;
+}
+.content-item :deep(.el-form-item__content) {
+  min-height: 200px;
+}
+.modal-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-top: 1px solid #f0f0f0;
+  margin: 0 -20px;
+}
+.bottom-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.bottom-actions .el-button {
+  border: none;
+  background: transparent;
+}
+.bottom-right {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+.image-count {
+  font-size: 12px;
+  color: #999;
+  margin-right: 4px;
+}
+.publish-btn {
+  min-width: 80px;
 }
 </style>

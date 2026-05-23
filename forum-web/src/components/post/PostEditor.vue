@@ -1,13 +1,13 @@
 <template>
-  <div class="post-editor" style="border:1px solid #ccc; z-index:1;">
+  <div class="post-editor">
     <Toolbar
-      style="border-bottom:1px solid #ccc"
+      class="editor-toolbar"
       :editor="editorRef"
       :default-config="toolbarConfig"
       mode="default"
     />
     <Editor
-      style="height:400px; overflow-y:hidden;"
+      class="editor-content"
       v-model="valueHtml"
       :default-config="editorConfig"
       mode="default"
@@ -66,3 +66,30 @@ onBeforeUnmount(() => {
   if (editor) editor.destroy();
 });
 </script>
+
+<style scoped>
+.post-editor {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 1;
+}
+.editor-toolbar {
+  border-bottom: 1px solid #f0f0f0 !important;
+  background: #fafafa;
+}
+.editor-toolbar :deep(.w-e-bar) {
+  background: transparent;
+}
+.editor-content {
+  height: 300px;
+  overflow-y: auto;
+}
+.editor-content :deep(.w-e-text-container) {
+  background: #fff;
+}
+.editor-content :deep(.w-e-text-placeholder) {
+  color: #bbb;
+  font-style: normal;
+}
+</style>
