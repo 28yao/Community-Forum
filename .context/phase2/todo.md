@@ -23,7 +23,7 @@
 | P2-M3 | 板块关注 | 未开始 | P2-M1 |
 | P2-M4 | 贴吧风 UI 重构 | 已完成 | P2-M1 |
 | P2-M5 | 混合信息流 feed 接口 | 已完成 | P2-M3, P2-M4 |
-| P2-M6 | 发帖弹窗与表情面板 | 未开始 | P2-M4 |
+| P2-M6 | 发帖弹窗与表情面板 | 已完成 | P2-M4 |
 | P2-M7 | 搜索增强 | 未开始 | P2-M4 |
 | P2-M8 | 板块管理增强（吧主权限） | 未开始 | P2-M1 |
 
@@ -646,8 +646,10 @@
 | 一期发帖限流 10s | 触发后 Modal 显示"操作过于频繁" |
 
 ### 12. 当前状态
-- **任务状态**：未开始
-- **验收状态**：待验收
+- **任务状态**：已完成
+- **验收状态**：自动验收通过
+- **完成日期**：2026-05-23
+- **备注**：vue3-emoji-picker 使用 default import + css 子路径导出；PostEditor 在 Modal 中通过 v-if 保证 destroy-on-close 无内存泄漏
 
 ---
 
@@ -655,14 +657,14 @@
 
 | ID | 任务 | 涉及文件 | 前置依赖 | 验收方式 | 状态 | 验收 |
 |---|---|---|---|---|---|---|
-| P2-M6-T1 | stores/postEditor.js Pinia store | `stores/postEditor.js` | 一期 | open / close / lockedBoardId 状态 | 未开始 | 待验收 |
-| P2-M6-T2 | 安装 vue3-emoji-picker 依赖 | `forum-web/package.json` | 一期 | npm install 成功 + lock 文件更新 | 未开始 | 待验收 |
-| P2-M6-T3 | EmojiPicker.vue 包装 | `components/post-editor/EmojiPicker.vue` | T2 | 点表情触发 @select 事件 | 未开始 | 待验收 |
-| P2-M6-T4 | BoardSelectDropdown.vue 板块下拉 | `components/board/BoardSelectDropdown.vue` | 一期 boards API | 列出板块 + 搜索 + v-model | 未开始 | 待验收 |
-| P2-M6-T5 | PostEditorModal.vue 主弹窗 | `components/post-editor/PostEditorModal.vue` | T1, T3, T4 | 标题校验 + WangEditor 集成 + 表情插入 + 图片上传 | 未开始 | 待验收 |
-| P2-M6-T6 | App.vue 全局挂载 PostEditorModal | `App.vue` | T5 | 任何页面都能触发 | 未开始 | 待验收 |
-| P2-M6-T7 | AppHeader.vue 发帖按钮接 store | `components/layout/AppHeader.vue` | T1, T6 | 点击调 store.open() | 未开始 | 待验收 |
-| P2-M6-T8 | Board.vue 发帖按钮接 store | `views/Board.vue` | T1, T6 | 点击调 store.open({ boardId }) | 未开始 | 待验收 |
+| P2-M6-T1 | stores/postEditor.js Pinia store | `stores/postEditor.js` | 一期 | open / close / lockedBoardId 状态 | 已完成 | 自动验收通过 |
+| P2-M6-T2 | 安装 vue3-emoji-picker 依赖 | `forum-web/package.json` | 一期 | npm install 成功 | 已完成 | 自动验收通过 |
+| P2-M6-T3 | EmojiPicker.vue 包装 | `components/post-editor/EmojiPicker.vue` | T2 | el-popover + Picker + @select | 已完成 | 自动验收通过 |
+| P2-M6-T4 | BoardSelectDropdown.vue 板块下拉 | `components/board/BoardSelectDropdown.vue` | 一期 boards API | 列出板块 + filterable + v-model | 已完成 | 自动验收通过 |
+| P2-M6-T5 | PostEditorModal.vue 主弹窗 | `components/post-editor/PostEditorModal.vue` | T1, T3, T4 | 标题校验 + WangEditor + 表情 + 图片 + 脏检查 | 已完成 | 自动验收通过 |
+| P2-M6-T6 | App.vue 全局挂载 PostEditorModal | `App.vue` | T5 | 任何页面都能触发 | 已完成 | 自动验收通过 |
+| P2-M6-T7 | AppHeader.vue 发帖按钮接 store | `components/layout/AppHeader.vue` | T1, T6 | 点击调 postEditorStore.open() | 已完成 | 自动验收通过 |
+| P2-M6-T8 | Board.vue + Home.vue 接 store | `views/Board.vue`, `views/Home.vue` | T1, T6 | 发帖按钮调 store.open({ boardId }) | 已完成 | 自动验收通过 |
 | P2-M6-T9 | WangEditor 实例销毁逻辑 | `PostEditorModal.vue` | T5 | Modal 关闭时调用 editor.destroy()，无内存泄漏 | 未开始 | 待验收 |
 | P2-M6-T10 | 未保存关闭二次确认 | `PostEditorModal.vue` | T5 | 标题/正文/图片有任一非空时关闭弹确认 | 未开始 | 待验收 |
 | P2-M6-T11 | 端到端测试 | 全链路 | T1~T10 | §9 页面测试全部通过 | 未开始 | 待验收 |

@@ -36,6 +36,7 @@ import PostList from '@/components/post/PostList.vue';
 import BoardFollowButton from '@/components/board/BoardFollowButton.vue';
 import { useUserStore } from '@/stores/user';
 import { useBoardFollowStore } from '@/stores/boardFollow';
+import { usePostEditorStore } from '@/stores/postEditor';
 import { getBoardById } from '@/api/board';
 import { ElMessage } from 'element-plus';
 
@@ -43,6 +44,7 @@ const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
 const followStore = useBoardFollowStore();
+const postEditorStore = usePostEditorStore();
 
 const boardId = computed(() => Number(route.params.id));
 const board = ref(null);
@@ -65,7 +67,7 @@ watch(boardId, load);
 onMounted(load);
 
 function goCreate() {
-  router.push({ path: '/post/create', query: { boardId: boardId.value } });
+  postEditorStore.open({ boardId: boardId.value });
 }
 </script>
 

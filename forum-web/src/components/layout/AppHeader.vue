@@ -19,7 +19,7 @@
 
       <div class="nav-right">
         <template v-if="userStore.isLoggedIn">
-          <el-button type="primary" size="small" @click="$router.push('/post/create')">
+          <el-button type="primary" size="small" @click="postEditorStore.open()">
             发帖
           </el-button>
           <el-dropdown trigger="click" @command="handleCommand">
@@ -54,10 +54,12 @@ import { useRouter, useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/user';
+import { usePostEditorStore } from '@/stores/postEditor';
 
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
+const postEditorStore = usePostEditorStore();
 
 const keyword = ref(route.query.q || '');
 

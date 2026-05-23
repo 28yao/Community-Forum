@@ -8,7 +8,7 @@
         <div class="main-content">
           <div class="home-header">
             <h2 class="page-title">综合 · 信息流</h2>
-            <el-button v-if="userStore.isLoggedIn" type="primary" round @click="$router.push('/post/create')">
+            <el-button v-if="userStore.isLoggedIn" type="primary" round @click="postEditorStore.open()">
               + 发帖
             </el-button>
           </div>
@@ -40,9 +40,11 @@ import BoardSidebar from '@/components/layout/BoardSidebar.vue';
 import PostList from '@/components/post/PostList.vue';
 import { useAppStore } from '@/stores/app';
 import { useUserStore } from '@/stores/user';
+import { usePostEditorStore } from '@/stores/postEditor';
 
 const appStore = useAppStore();
 const userStore = useUserStore();
+const postEditorStore = usePostEditorStore();
 
 onMounted(() => {
   if (!appStore.boardsLoaded) appStore.loadBoards();
