@@ -137,7 +137,7 @@ mysql -u root -p --default-character-set=utf8mb4 forum < forum-server/src/main/r
 
 ```bash
 cd forum-server
-mvn clean install
+# mvn clean install
 mvn spring-boot:run
 ```
 
@@ -149,7 +149,7 @@ mvn spring-boot:run
 
 ```bash
 cd forum-web
-npm install
+# npm install
 npm run dev
 ```
 

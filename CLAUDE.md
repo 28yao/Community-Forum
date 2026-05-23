@@ -166,6 +166,7 @@ npm run build
 - **Windows 控制台中文日志乱码**：Windows cmd/PowerShell 默认 GBK，Spring Boot 日志中文（来自 application.yml UTF-8 资源）输出到 stdout 会显示成乱码（如 `�´ο��޸�`）。**不影响业务**，只影响命令行可读性。两种解法：
   - 临时：执行前 `chcp 65001` 切换控制台到 UTF-8
   - 应用层：启动参数加 `-Dfile.encoding=UTF-8`（在 IDE 或 spring-boot-maven-plugin 的 jvmArguments 配置）
+- **没有 `@Transactional+@Rollback` 的测试会污染 DB**：使用真 MySQL 跑 `@SpringBootTest` 时，每个写入 user/post 的测试方法都必须挂 `@Transactional` + `@Rollback`，否则插入的 email/nickname/post 会留在库里。下次跑同一个测试，因为 UNIQUE 约束直接报错。修复：所有涉及 register/createPost 的测试加事务回滚；已污染的库用 `DELETE FROM user WHERE email LIKE 'i-%@example.com'` 清理。
 
 ### 重要决策记录
 

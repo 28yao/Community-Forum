@@ -39,6 +39,8 @@ public class PostService {
     private final PostImageMapper postImageMapper;
     private final BoardMapper boardMapper;
     private final UserMapper userMapper;
+    private final com.forum.mapper.PostLikeMapper postLikeMapper;
+    private final com.forum.mapper.PostFavoriteMapper postFavoriteMapper;
 
     /** 单帖最多图片数 */
     private static final int MAX_IMAGES = 9;
@@ -155,6 +157,10 @@ public class PostService {
      */
     @Transactional(rollbackFor = Exception.class)
     public Map<String, Object> getPostDetail(Long postId) {
+        return getPostDetail(postId, null);
+    }
+
+    public Map<String, Object> getPostDetail(Long postId, Long currentUserId) {
         Post post = postMapper.selectById(postId);
         if (post == null || !Integer.valueOf(1).equals(post.getStatus())) {
             throw new BizException(ErrorCode.POST_NOT_FOUND);
@@ -197,6 +203,14 @@ public class PostService {
             author.put("nickname", "已注销");
         }
         m.put("author", author);
+
+        // 当前用户互动状态（未登录时为 false）
+        boolean liked = currentUserId != null
+                && postLikeMapper.selectByPostAndUser(postId, currentUserId) != null;
+        boolean favorited = currentUserId != null
+                && postFavoriteMapper.selectByPostAndUser(postId, currentUserId) != null;
+        m.put("liked", liked);
+        m.put("favorited", favorited);
         return m;
     }
 

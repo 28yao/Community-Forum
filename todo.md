@@ -603,24 +603,24 @@
 
 | ID | 任务 | 涉及文件 | 前置依赖 | 验收方式 | 状态 | 验收 |
 |----|------|---------|---------|---------|------|------|
-| M4-T1 | 创建 PostLike 实体 + Mapper | `entity/PostLike.java` + `mapper/PostLikeMapper.java` | M3 完成 | 单测插入/删除/UNIQUE | 未开始 | 待验收 |
-| M4-T2 | 实现 LikeService（幂等） | `service/LikeService.java` | M4-T1 | 单测覆盖：未点→点；已点→取消 | 未开始 | 待验收 |
-| M4-T3 | 实现 LikeController.like / unlike | `controller/LikeController.java` | M4-T2 | curl 测试通过 | 未开始 | 待验收 |
-| M4-T4 | 前端 api/like.js + 帖子详情集成点赞按钮（含防抖） | `api/like.js` + `views/PostDetail.vue` | M4-T3 | 点击防抖正常 | 未开始 | 待验收 |
-| M4-T5 | 创建 Comment 实体 + Mapper | `entity/Comment.java` + `mapper/CommentMapper.java` | M3 完成 | 单测 CRUD | 未开始 | 待验收 |
-| M4-T6 | 实现 CommentService.createComment（含 depth 校验） | `service/CommentService.java` | M4-T5 | 单测覆盖顶级/2 层/超层级拒绝 | 未开始 | 待验收 |
-| M4-T7 | 实现 CommentService.listComments（树形组装） | `service/CommentService.java` | M4-T5 | 单测覆盖嵌套结构正确 | 未开始 | 待验收 |
-| M4-T8 | 实现 CommentService.deleteComment（仅作者） | `service/CommentService.java` | M4-T5 | 单测覆盖鉴权 | 未开始 | 待验收 |
-| M4-T9 | 实现 CommentController（list/create/delete） | `controller/CommentController.java` | M4-T6, T7, T8 | curl 测试通过 | 未开始 | 待验收 |
-| M4-T10 | 前端 api/comment.js | `api/comment.js` | M0-T17 | 调用成功 | 未开始 | 待验收 |
-| M4-T11 | 实现 CommentItem.vue | `components/comment/CommentItem.vue` | M4-T10 | 渲染单条评论 + 操作按钮 | 未开始 | 待验收 |
-| M4-T12 | 实现 CommentTree.vue | `components/comment/CommentTree.vue` | M4-T11 | 递归渲染 2 层正常 | 未开始 | 待验收 |
-| M4-T13 | 实现 CommentForm.vue | `components/comment/CommentForm.vue` | M4-T10 | 顶级/子级输入均可用 | 未开始 | 待验收 |
-| M4-T14 | 在 PostDetail.vue 集成评论区 | `views/PostDetail.vue` | M4-T12, T13 | 评论展示+发布+删除均通 | 未开始 | 待验收 |
-| M4-T15 | 创建 PostFavorite 实体 + Mapper | `entity/PostFavorite.java` + `mapper/PostFavoriteMapper.java` | M3 完成 | 单测 UNIQUE 生效 | 未开始 | 待验收 |
-| M4-T16 | 实现 FavoriteService（幂等） | `service/FavoriteService.java` | M4-T15 | 单测覆盖收藏/取消 | 未开始 | 待验收 |
-| M4-T17 | 实现 FavoriteController | `controller/FavoriteController.java` | M4-T16 | curl 测试通过 | 未开始 | 待验收 |
-| M4-T18 | 前端 api/favorite.js + 收藏按钮集成 | `api/favorite.js` + `views/PostDetail.vue` | M4-T17 | 点击收藏/取消正常 | 未开始 | 待验收 |
+| M4-T1 | 创建 PostLike 实体 + Mapper | `entity/PostLike.java` + `mapper/PostLikeMapper.java` | M3 完成 | UNIQUE 约束 + 幂等单测 | 已完成 | 自动验收通过 |
+| M4-T2 | 实现 LikeService（幂等） | `service/LikeService.java` | M4-T1 | 单测覆盖：未点→点；已点→取消；并发兜底 | 已完成 | 自动验收通过 |
+| M4-T3 | 实现 LikeController.like / unlike | `controller/LikeController.java` | M4-T2 | POST/DELETE /api/posts/{id}/like | 已完成 | 自动验收通过 |
+| M4-T4 | 前端 api/like.js + 帖子详情集成点赞按钮（含 loading） | `api/like.js` + `views/PostDetail.vue` | M4-T3 | 切换/loading 防抖 | 已完成 | 自动验收通过 |
+| M4-T5 | 创建 Comment 实体 + Mapper | `entity/Comment.java` + `mapper/CommentMapper.java` | M3 完成 | selectByPostId + 软删过滤 | 已完成 | 自动验收通过 |
+| M4-T6 | 实现 CommentService.createComment（含 depth 校验） | `service/CommentService.java` | M4-T5 | 顶级/2 层/跨帖父拒绝/depth=2 时父级自动提升 | 已完成 | 自动验收通过 |
+| M4-T7 | 实现 CommentService.listComments（树形组装） | `service/CommentService.java` | M4-T5 | 应用层组装 + 批量查用户 + 已注销兜底 | 已完成 | 自动验收通过 |
+| M4-T8 | 实现 CommentService.deleteComment（仅作者/admin） | `service/CommentService.java` | M4-T5 | 鉴权 1002 + decr | 已完成 | 自动验收通过 |
+| M4-T9 | 实现 CommentController（list/create/delete） | `controller/CommentController.java` | M4-T6, T7, T8 | 3 个接口 | 已完成 | 自动验收通过 |
+| M4-T10 | 前端 api/comment.js | `api/comment.js` | M0-T17 | list/create/delete | 已完成 | 自动验收通过 |
+| M4-T11 | 实现 CommentItem.vue | `components/comment/CommentItem.vue` | M4-T10 | 头像/作者/回复目标/时间/回复/删除 | 已完成 | 自动验收通过 |
+| M4-T12 | 实现 CommentTree.vue | `components/comment/CommentTree.vue` | M4-T11 | 顶级 + children 2 层布局 | 已完成 | 自动验收通过 |
+| M4-T13 | 实现 CommentForm.vue | `components/comment/CommentForm.vue` | M4-T10 | 顶级/子级共用 + cancellable | 已完成 | 自动验收通过 |
+| M4-T14 | 在 PostDetail.vue 集成评论区 | `views/PostDetail.vue` | M4-T12, T13 | 未登录提示 + 提交 + 删除 + 即时刷新 | 已完成 | 自动验收通过 |
+| M4-T15 | 创建 PostFavorite 实体 + Mapper | `entity/PostFavorite.java` + `mapper/PostFavoriteMapper.java` | M3 完成 | UNIQUE 约束 | 已完成 | 自动验收通过 |
+| M4-T16 | 实现 FavoriteService（幂等） | `service/FavoriteService.java` | M4-T15 | 单测覆盖收藏/取消 | 已完成 | 自动验收通过 |
+| M4-T17 | 实现 FavoriteController | `controller/FavoriteController.java` | M4-T16 | POST/DELETE | 已完成 | 自动验收通过 |
+| M4-T18 | 前端 api/favorite.js + 收藏按钮集成 | `api/favorite.js` + `views/PostDetail.vue` | M4-T17 | 切换 + loading | 已完成 | 自动验收通过 |
 
 ---
 

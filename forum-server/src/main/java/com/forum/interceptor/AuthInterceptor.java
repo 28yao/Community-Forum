@@ -33,6 +33,9 @@ public class AuthInterceptor implements HandlerInterceptor {
     /** GET /api/posts 与 GET /api/posts/{id} 公开 */
     private static final Pattern PUBLIC_POST_GET = Pattern.compile("^/api/posts(/\\d+)?$");
 
+    /** GET /api/posts/{id}/comments 公开 */
+    private static final Pattern PUBLIC_COMMENT_GET = Pattern.compile("^/api/posts/\\d+/comments$");
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // OPTIONS 预检请求放行
@@ -40,14 +43,23 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        // GET /api/users/{id} 公开访问
-        if ("GET".equalsIgnoreCase(request.getMethod())
-                && PUBLIC_USER_GET.matcher(request.getRequestURI()).matches()) {
-            return true;
-        }
-        // GET /api/posts、GET /api/posts/{id} 公开
-        if ("GET".equalsIgnoreCase(request.getMethod())
-                && PUBLIC_POST_GET.matcher(request.getRequestURI()).matches()) {
+        String method = request.getMethod();
+        String uri = request.getRequestURI();
+        boolean isPublic = "GET".equalsIgnoreCase(method) && (
+                PUBLIC_USER_GET.matcher(uri).matches()
+                        || PUBLIC_POST_GET.matcher(uri).matches()
+                        || PUBLIC_COMMENT_GET.matcher(uri).matches()
+        );
+        if (isPublic) {
+            // 尝试解析 token；带 token 则注入 userId/role，否则匿名通过
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                if (jwtUtil.isValid(token)) {
+                    request.setAttribute("userId", jwtUtil.parseUserId(token));
+                    request.setAttribute("role", jwtUtil.parseRole(token));
+                }
+            }
             return true;
         }
 

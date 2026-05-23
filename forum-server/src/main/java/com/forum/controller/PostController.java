@@ -48,8 +48,10 @@ public class PostController {
 
     /** GET /api/posts/{id} - 帖子详情（公开） */
     @GetMapping("/{id}")
-    public Result<Map<String, Object>> detail(@PathVariable Long id) {
-        return Result.success(postService.getPostDetail(id));
+    public Result<Map<String, Object>> detail(@PathVariable Long id, HttpServletRequest request) {
+        // 当前公开接口未必带 token；若拦截器没注入 userId 则为 null
+        Long userId = (Long) request.getAttribute("userId");
+        return Result.success(postService.getPostDetail(id, userId));
     }
 
     /** PUT /api/posts/{id} - 编辑（仅作者） */
