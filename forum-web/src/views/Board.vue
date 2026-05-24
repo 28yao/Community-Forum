@@ -28,23 +28,57 @@
           @close="showEdit = false"
           @saved="onEditSaved"
         />
-
-        <!-- 吧主公告管理面板 -->
-        <BoardOwnerAnnouncementPanel v-if="isOwnerOrAdmin && board" :board-id="boardId" style="margin-top:24px;" />
       </main>
       <aside class="right-col">
-        <AnnouncementSidebar v-if="board" scope="board" :board-id="boardId" />
+        <div class="announcement-widget" v-if="board">
+          <div class="widget-header">
+            <span class="widget-title">
+              <el-icon><Bell /></el-icon> 板块公告
+            </span>
+            <el-button v-if="isOwnerOrAdmin" type="primary" text size="small" @click="openAnnouncementDialog(null)">
+              发布公告
+            </el-button>
+          </div>
+          <AnnouncementSidebar ref="announcementSidebarRef" scope="board" :board-id="boardId" :can-manage="isOwnerOrAdmin" @edit="openAnnouncementDialog" />
+        </div>
       </aside>
     </div>
+
+    <!-- 公告创建/编辑弹窗 -->
+    <el-dialog
+      v-model="announcementDialogVisible"
+      :title="editingAnnouncement ? '编辑公告' : '发布公告'"
+      width="520px"
+      destroy-on-close
+      @close="resetAnnouncementForm"
+    >
+      <el-form :model="announcementForm" label-width="80px">
+        <el-form-item label="标题">
+          <el-input v-model="announcementForm.title" maxlength="50" show-word-limit placeholder="公告标题" />
+        </el-form-item>
+        <el-form-item label="内容">
+          <el-input v-model="announcementForm.content" type="textarea" :rows="6" maxlength="500" show-word-limit placeholder="公告内容" />
+        </el-form-item>
+        <el-form-item label="置顶">
+          <el-switch v-model="announcementForm.pinned" :active-value="1" :inactive-value="0" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="announcementDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="announcementSubmitting" @click="handleAnnouncementSubmit">
+          {{ editingAnnouncement ? '保存' : '发布' }}
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { Bell } from '@element-plus/icons-vue';
 import UnifiedSidebar from '@/components/layout/UnifiedSidebar.vue';
 import AnnouncementSidebar from '@/components/announcement/AnnouncementSidebar.vue';
-import BoardOwnerAnnouncementPanel from '@/components/announcement/BoardOwnerAnnouncementPanel.vue';
 import PostList from '@/components/post/PostList.vue';
 import BoardFollowButton from '@/components/board/BoardFollowButton.vue';
 import BoardEditForm from '@/components/board/BoardEditForm.vue';
@@ -52,7 +86,8 @@ import { useUserStore } from '@/stores/user';
 import { useBoardFollowStore } from '@/stores/boardFollow';
 import { usePostEditorStore } from '@/stores/postEditor';
 import { getBoardById } from '@/api/board';
-import { ElMessage } from 'element-plus';
+import { createBoardAnnouncement, updateAnnouncement, deleteAnnouncement } from '@/api/announcement';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 const route = useRoute();
 const router = useRouter();
@@ -64,16 +99,60 @@ const boardId = computed(() => Number(route.params.id));
 const board = ref(null);
 const listRef = ref(null);
 const showEdit = ref(false);
+const announcementSidebarRef = ref(null);
 
 const isOwnerOrAdmin = computed(() => {
   if (!userStore.isLoggedIn || !board.value) return false;
   return userStore.isAdmin || board.value.ownerUserId === userStore.info?.id;
 });
 
+// 公告弹窗状态
+const announcementDialogVisible = ref(false);
+const editingAnnouncement = ref(null);
+const announcementSubmitting = ref(false);
+const announcementForm = ref({ title: '', content: '', pinned: 0 });
+
+function openAnnouncementDialog(announcement) {
+  editingAnnouncement.value = announcement;
+  if (announcement) {
+    announcementForm.value = { title: announcement.title, content: announcement.content, pinned: announcement.pinned };
+  } else {
+    announcementForm.value = { title: '', content: '', pinned: 0 };
+  }
+  announcementDialogVisible.value = true;
+}
+
+function resetAnnouncementForm() {
+  editingAnnouncement.value = null;
+  announcementForm.value = { title: '', content: '', pinned: 0 };
+}
+
+async function handleAnnouncementSubmit() {
+  if (!announcementForm.value.title.trim() || !announcementForm.value.content.trim()) {
+    ElMessage.warning('标题和内容不能为空');
+    return;
+  }
+  announcementSubmitting.value = true;
+  try {
+    if (editingAnnouncement.value) {
+      await updateAnnouncement(editingAnnouncement.value.id, announcementForm.value);
+      ElMessage.success('已更新');
+    } else {
+      await createBoardAnnouncement(boardId.value, announcementForm.value);
+      ElMessage.success('已发布');
+    }
+    announcementDialogVisible.value = false;
+    announcementSidebarRef.value?.reload();
+  } catch (e) {
+    ElMessage.error(e.message || '操作失败');
+  } finally {
+    announcementSubmitting.value = false;
+  }
+}
+
 async function load() {
   try {
     board.value = await getBoardById(boardId.value);
-    // 登录态首次进板块页时拉关注列表，便于按钮显示正确状态
     if (userStore.isLoggedIn && !followStore.followedLoaded) {
       await followStore.loadFollowed();
     }
@@ -128,6 +207,25 @@ async function onEditSaved() {
 .right-col {
   width: 260px;
   flex-shrink: 0;
+}
+.announcement-widget {
+  background: #fff;
+  border-radius: 6px;
+  padding: 12px;
+}
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.widget-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
 }
 @media (max-width: 768px) {
   .left-col,

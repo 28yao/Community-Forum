@@ -10,7 +10,7 @@
         v-for="a in announcements"
         :key="a.id"
         class="announcement-item"
-        @click="openDetail(a)"
+        @click="handleClick(a)"
       >
         <el-tag v-if="a.pinned" size="small" type="warning" class="pin-tag">置顶</el-tag>
         <span class="announcement-title">{{ a.title }}</span>
@@ -37,8 +37,11 @@ import { listSiteAnnouncements, listBoardAnnouncements } from '@/api/announcemen
 
 const props = defineProps({
   scope: { type: String, required: true, validator: v => ['site', 'board'].includes(v) },
-  boardId: { type: Number, default: null }
+  boardId: { type: Number, default: null },
+  canManage: { type: Boolean, default: false }
 });
+
+const emit = defineEmits(['edit']);
 
 const loading = ref(false);
 const announcements = ref([]);
@@ -59,22 +62,28 @@ async function load() {
   }
 }
 
-function openDetail(a) {
-  currentAnnouncement.value = a;
-  detailVisible.value = true;
+function handleClick(a) {
+  if (props.canManage) {
+    emit('edit', a);
+  } else {
+    currentAnnouncement.value = a;
+    detailVisible.value = true;
+  }
 }
 
 onMounted(load);
 watch(() => props.boardId, load);
+
+defineExpose({ reload: load });
 </script>
 
 <style scoped>
 .announcement-sidebar {
-  background: #fff;
+  background: transparent;
   border-radius: 6px;
-  padding: 12px;
-  position: sticky;
-  top: 70px;
+  padding: 0;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
 }
 .sidebar-title {
   display: flex;
