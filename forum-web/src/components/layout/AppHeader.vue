@@ -38,6 +38,7 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
+          <BoardApplicationDialog v-model="showApplicationDialog" />
         </template>
         <template v-else>
           <el-button text @click="$router.push('/login')">登录</el-button>
@@ -55,11 +56,14 @@ import { ElMessage } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/user';
 import { usePostEditorStore } from '@/stores/postEditor';
+import BoardApplicationDialog from '@/components/board-application/BoardApplicationDialog.vue';
 
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 const postEditorStore = usePostEditorStore();
+
+const showApplicationDialog = ref(false);
 
 const keyword = ref(route.query.q || '');
 
@@ -85,11 +89,11 @@ async function handleCommand(cmd) {
   if (cmd === 'settings') {
     router.push('/settings');
   } else if (cmd === 'my-applications') {
-    router.push('/me/applications');
+    showApplicationDialog.value = true;
   } else if (cmd === 'admin') {
     router.push('/admin');
   } else if (cmd === 'logout') {
-    await userStore.logout();
+    userStore.logout();
     ElMessage.success('已退出登录');
     router.push('/');
   }
