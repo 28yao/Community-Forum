@@ -2,7 +2,7 @@
   <div class="board-page">
     <div class="three-col-layout">
       <aside class="left-col">
-        <BoardSidebar />
+        <UnifiedSidebar />
       </aside>
       <main class="main-content">
         <div class="board-header">
@@ -36,7 +36,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import BoardSidebar from '@/components/layout/BoardSidebar.vue';
+import UnifiedSidebar from '@/components/layout/UnifiedSidebar.vue';
 import PostList from '@/components/post/PostList.vue';
 import BoardFollowButton from '@/components/board/BoardFollowButton.vue';
 import BoardEditForm from '@/components/board/BoardEditForm.vue';

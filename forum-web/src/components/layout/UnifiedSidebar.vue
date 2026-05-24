@@ -1,5 +1,19 @@
 <template>
-  <aside class="board-sidebar">
+  <aside class="unified-sidebar">
+    <!-- 快捷入口（R5） -->
+    <section class="quick-links">
+      <router-link to="/" class="quick-link" :class="{ active: route.path === '/' }">
+        <el-icon><HomeFilled /></el-icon>
+        <span>主页</span>
+      </router-link>
+      <router-link v-if="userStore.isLoggedIn" to="/settings" class="quick-link" :class="{ active: route.path === '/settings' }">
+        <el-icon><User /></el-icon>
+        <span>个人中心</span>
+      </router-link>
+    </section>
+
+    <el-divider class="sidebar-divider" />
+
     <!-- 关注的板块（仅登录态） -->
     <section class="sidebar-section">
       <h3 class="section-title">
@@ -46,7 +60,7 @@
 
     <el-divider class="sidebar-divider" />
 
-    <!-- 全部板块（一期 boards） -->
+    <!-- 全部板块 -->
     <section class="sidebar-section">
       <h3 class="section-title">
         <el-icon><Grid /></el-icon>
@@ -67,15 +81,9 @@
 </template>
 
 <script setup>
-/**
- * 贴吧风左栏（P2-M4）：关注 / 推荐 / 全部 三段
- *
- * 复用一期 appStore.boards（全部）+ 二期 boardFollowStore（关注+推荐）。
- * 仅 UI 组装，不引入新业务逻辑。
- */
 import { onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { Star, Histogram, Grid } from '@element-plus/icons-vue';
+import { HomeFilled, User, Star, Histogram, Grid } from '@element-plus/icons-vue';
 import BoardCard from '@/components/board/BoardCard.vue';
 import { useAppStore } from '@/stores/app';
 import { useUserStore } from '@/stores/user';
@@ -99,13 +107,41 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.board-sidebar {
+.unified-sidebar {
   background: #fff;
   border-radius: 6px;
-  padding: 16px 12px;
+  padding: 12px;
   min-height: 200px;
   position: sticky;
   top: 70px;
+}
+.quick-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.quick-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: #333;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+}
+.quick-link:hover {
+  background: #f0f6ff;
+  color: #4080ff;
+}
+.quick-link.active {
+  background: #e8f0fe;
+  color: #4080ff;
+}
+.sidebar-divider {
+  margin: 12px 0;
 }
 .sidebar-section {
   margin-bottom: 8px;
@@ -118,9 +154,6 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 600;
   color: #666;
-}
-.sidebar-divider {
-  margin: 12px 0;
 }
 .hint {
   color: #999;

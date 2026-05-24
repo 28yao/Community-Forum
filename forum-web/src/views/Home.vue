@@ -2,7 +2,7 @@
   <div class="home-page">
     <div class="three-col-layout">
       <aside class="left-col">
-        <BoardSidebar />
+        <UnifiedSidebar />
       </aside>
       <main class="main-content">
         <div class="home-header">
@@ -32,20 +32,13 @@
  *
  * 注：P2-M5 会把中间区域换为 /feed 接口。本模块仅 UI 重构，数据来源不变。
  */
-import { onMounted } from 'vue';
-import BoardSidebar from '@/components/layout/BoardSidebar.vue';
+import UnifiedSidebar from '@/components/layout/UnifiedSidebar.vue';
 import PostList from '@/components/post/PostList.vue';
-import { useAppStore } from '@/stores/app';
 import { useUserStore } from '@/stores/user';
 import { usePostEditorStore } from '@/stores/postEditor';
 
-const appStore = useAppStore();
 const userStore = useUserStore();
 const postEditorStore = usePostEditorStore();
-
-onMounted(() => {
-  if (!appStore.boardsLoaded) appStore.loadBoards();
-});
 </script>
 
 <style scoped>
