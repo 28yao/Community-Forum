@@ -28,14 +28,11 @@ export const useUserStore = defineStore('user', {
       localStorage.setItem('forum_user', JSON.stringify(data.user));
       return data;
     },
-    /** 登出：调接口 → 清 state + localStorage */
-    async logout() {
-      try {
-        await logoutApi();
-      } catch (e) {
-        // 接口失败也继续清本地
-      }
+    /** 登出：先清本地状态（立即生效），后端请求异步发出不阻塞 */
+    logout() {
       this.clear();
+      // 异步通知后端，不等待结果
+      logoutApi().catch(() => {});
     },
     /** 清除登录态 */
     clear() {

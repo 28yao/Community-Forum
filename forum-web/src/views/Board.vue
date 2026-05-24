@@ -39,7 +39,19 @@
               发布公告
             </el-button>
           </div>
-          <AnnouncementSidebar ref="announcementSidebarRef" scope="board" :board-id="boardId" :can-manage="isOwnerOrAdmin" @edit="openAnnouncementDialog" />
+          <el-skeleton v-if="announcementsLoading" :rows="3" animated />
+          <template v-else-if="announcements.length">
+            <div
+              v-for="a in announcements"
+              :key="a.id"
+              class="announcement-item"
+              @click="handleAnnouncementClick(a)"
+            >
+              <el-tag v-if="a.pinned" size="small" type="warning" class="pin-tag">置顶</el-tag>
+              <span class="announcement-title">{{ a.title }}</span>
+            </div>
+          </template>
+          <el-empty v-else description="暂无公告" :image-size="40" />
         </div>
       </aside>
     </div>
@@ -78,7 +90,6 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Bell } from '@element-plus/icons-vue';
 import UnifiedSidebar from '@/components/layout/UnifiedSidebar.vue';
-import AnnouncementSidebar from '@/components/announcement/AnnouncementSidebar.vue';
 import PostList from '@/components/post/PostList.vue';
 import BoardFollowButton from '@/components/board/BoardFollowButton.vue';
 import BoardEditForm from '@/components/board/BoardEditForm.vue';
@@ -86,7 +97,7 @@ import { useUserStore } from '@/stores/user';
 import { useBoardFollowStore } from '@/stores/boardFollow';
 import { usePostEditorStore } from '@/stores/postEditor';
 import { getBoardById } from '@/api/board';
-import { createBoardAnnouncement, updateAnnouncement, deleteAnnouncement } from '@/api/announcement';
+import { listBoardAnnouncements, createBoardAnnouncement, updateAnnouncement, deleteAnnouncement } from '@/api/announcement';
 import { ElMessage, ElMessageBox } from 'element-plus';
 
 const route = useRoute();
@@ -99,12 +110,33 @@ const boardId = computed(() => Number(route.params.id));
 const board = ref(null);
 const listRef = ref(null);
 const showEdit = ref(false);
-const announcementSidebarRef = ref(null);
 
 const isOwnerOrAdmin = computed(() => {
   if (!userStore.isLoggedIn || !board.value) return false;
   return userStore.isAdmin || board.value.ownerUserId === userStore.info?.id;
 });
+
+// 公告数据
+const announcements = ref([]);
+const announcementsLoading = ref(false);
+
+async function loadAnnouncements() {
+  announcementsLoading.value = true;
+  try {
+    const res = await listBoardAnnouncements(boardId.value, { page: 1, size: 20 });
+    announcements.value = res.data?.records || [];
+  } catch {
+    announcements.value = [];
+  } finally {
+    announcementsLoading.value = false;
+  }
+}
+
+function handleAnnouncementClick(a) {
+  if (isOwnerOrAdmin.value) {
+    openAnnouncementDialog(a);
+  }
+}
 
 // 公告弹窗状态
 const announcementDialogVisible = ref(false);
@@ -142,7 +174,7 @@ async function handleAnnouncementSubmit() {
       ElMessage.success('已发布');
     }
     announcementDialogVisible.value = false;
-    announcementSidebarRef.value?.reload();
+    await loadAnnouncements();
   } catch (e) {
     ElMessage.error(e.message || '操作失败');
   } finally {
@@ -156,6 +188,7 @@ async function load() {
     if (userStore.isLoggedIn && !followStore.followedLoaded) {
       await followStore.loadFollowed();
     }
+    await loadAnnouncements();
   } catch (e) {
     ElMessage.error(e.message || '版块不存在');
     router.replace('/');
@@ -226,6 +259,28 @@ async function onEditSaved() {
   font-size: 14px;
   font-weight: 600;
   color: #666;
+}
+.announcement-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.announcement-item:hover {
+  background: #f5f7fa;
+}
+.pin-tag {
+  flex-shrink: 0;
+}
+.announcement-title {
+  font-size: 13px;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 @media (max-width: 768px) {
   .left-col,
