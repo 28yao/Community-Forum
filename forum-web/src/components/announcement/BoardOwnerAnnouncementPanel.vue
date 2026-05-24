@@ -34,7 +34,7 @@
           <el-input v-model="form.title" maxlength="50" show-word-limit placeholder="公告标题" />
         </el-form-item>
         <el-form-item label="内容">
-          <el-input v-model="form.content" type="textarea" :rows="6" maxlength="500" show-word-limit placeholder="公告内容" />
+          <el-input v-model="form.content" type="textarea" :rows="8" maxlength="1000" show-word-limit placeholder="公告内容" />
         </el-form-item>
         <el-form-item label="置顶">
           <el-switch v-model="form.pinned" :active-value="1" :inactive-value="0" />

@@ -18,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AnnouncementService {
 
+    private static final int MAX_TITLE_LEN = 50;
+    private static final int MAX_CONTENT_LEN = 1000;
+
     private final AnnouncementMapper announcementMapper;
     private final BoardMapper boardMapper;
 
@@ -46,6 +49,7 @@ public class AnnouncementService {
                                 Integer pinned, Integer sortWeight, Long publisherId, boolean isAdmin) {
         validateScope(scope, boardId);
         assertCanManage(scope, boardId, publisherId, isAdmin);
+        validateFields(title, content);
 
         Announcement a = new Announcement();
         a.setScope(scope);
@@ -67,6 +71,7 @@ public class AnnouncementService {
                         Long currentUserId, boolean isAdmin) {
         Announcement a = mustFind(id);
         assertCanManage(a.getScope(), a.getBoardId(), currentUserId, isAdmin);
+        validateFields(title, content);
 
         if (title != null) a.setTitle(title);
         if (content != null) a.setContent(content);
@@ -108,6 +113,15 @@ public class AnnouncementService {
             if (b == null) {
                 throw new BizException(ErrorCode.BOARD_NOT_FOUND);
             }
+        }
+    }
+
+    private void validateFields(String title, String content) {
+        if (title != null && title.length() > MAX_TITLE_LEN) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "公告标题不能超过 " + MAX_TITLE_LEN + " 字");
+        }
+        if (content != null && content.length() > MAX_CONTENT_LEN) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "公告内容不能超过 " + MAX_CONTENT_LEN + " 字");
         }
     }
 

@@ -51,7 +51,7 @@
                 <el-tag v-if="a.pinned" size="small" type="warning" class="pin-tag">置顶</el-tag>
                 <span class="announcement-title">{{ a.title }}</span>
               </div>
-              <p class="announcement-content">{{ a.content }}</p>
+              <p class="announcement-content">{{ toPlainTextPreview(a.content) }}</p>
               <span class="announcement-date">{{ formatDate(a.updatedAt) }}</span>
             </div>
           </template>
@@ -73,7 +73,7 @@
           <el-input v-model="announcementForm.title" maxlength="50" show-word-limit placeholder="公告标题" />
         </el-form-item>
         <el-form-item label="内容">
-          <el-input v-model="announcementForm.content" type="textarea" :rows="6" maxlength="500" show-word-limit placeholder="公告内容" />
+          <el-input v-model="announcementForm.content" type="textarea" :rows="8" maxlength="1000" show-word-limit placeholder="公告内容" />
         </el-form-item>
         <el-form-item label="置顶">
           <el-switch v-model="announcementForm.pinned" :active-value="1" :inactive-value="0" />
@@ -95,6 +95,12 @@
         </div>
       </template>
     </el-dialog>
+
+    <AnnouncementDetailDialog
+      v-model="announcementDetailVisible"
+      :announcement="viewingAnnouncement"
+      show-date
+    />
   </div>
 </template>
 
@@ -111,6 +117,8 @@ import { useBoardFollowStore } from '@/stores/boardFollow';
 import { usePostEditorStore } from '@/stores/postEditor';
 import { getBoardById } from '@/api/board';
 import { listBoardAnnouncements, createBoardAnnouncement, updateAnnouncement, deleteAnnouncement } from '@/api/announcement';
+import AnnouncementDetailDialog from '@/components/announcement/AnnouncementDetailDialog.vue';
+import { toPlainTextPreview } from '@/utils/richText';
 import { ElMessage, ElMessageBox } from 'element-plus';
 
 const route = useRoute();
@@ -148,6 +156,9 @@ async function loadAnnouncements() {
 function handleAnnouncementClick(a) {
   if (isOwnerOrAdmin.value) {
     openAnnouncementDialog(a);
+  } else {
+    viewingAnnouncement.value = a;
+    announcementDetailVisible.value = true;
   }
 }
 
@@ -180,6 +191,8 @@ async function handleDeleteAnnouncement(a) {
 
 // 公告弹窗状态
 const announcementDialogVisible = ref(false);
+const announcementDetailVisible = ref(false);
+const viewingAnnouncement = ref(null);
 const editingAnnouncement = ref(null);
 const announcementSubmitting = ref(false);
 const announcementForm = ref({ title: '', content: '', pinned: 0 });
@@ -317,6 +330,7 @@ async function onEditSaved() {
   color: #888;
   line-height: 1.5;
   margin: 0;
+  white-space: pre-wrap;
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;

@@ -18,15 +18,8 @@
     </template>
     <el-empty v-else description="暂无公告" :image-size="40" />
 
-    <!-- 公告详情弹窗 -->
-    <el-dialog
-      v-model="detailVisible"
-      :title="currentAnnouncement?.title"
-      width="520px"
-      destroy-on-close
-    >
-      <div class="announcement-content" v-html="currentAnnouncement?.content" />
-    </el-dialog>
+    <!-- 公告详情弹窗（只读） -->
+    <AnnouncementDetailDialog v-model="detailVisible" :announcement="currentAnnouncement" />
   </aside>
 </template>
 
@@ -34,6 +27,7 @@
 import { ref, onMounted, watch } from 'vue';
 import { Bell } from '@element-plus/icons-vue';
 import { listSiteAnnouncements, listBoardAnnouncements } from '@/api/announcement';
+import AnnouncementDetailDialog from '@/components/announcement/AnnouncementDetailDialog.vue';
 
 const props = defineProps({
   scope: { type: String, required: true, validator: v => ['site', 'board'].includes(v) },
@@ -54,7 +48,7 @@ async function load() {
     const res = props.scope === 'site'
       ? await listSiteAnnouncements({ page: 1, size: 20 })
       : await listBoardAnnouncements(props.boardId, { page: 1, size: 20 });
-    announcements.value = res.data?.records || [];
+    announcements.value = res?.records || [];
   } catch {
     announcements.value = [];
   } finally {
@@ -115,14 +109,5 @@ defineExpose({ reload: load });
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.announcement-content {
-  font-size: 14px;
-  line-height: 1.7;
-  color: #333;
-}
-.announcement-content :deep(img) {
-  max-width: 100%;
-  border-radius: 4px;
 }
 </style>
