@@ -14,3 +14,8 @@ export function getBoardById(id) {
 export function updateBoardOwner(id, data) {
   return request.patch(`/boards/${id}`, data);
 }
+
+/** 删除板块（吧主或管理员） */
+export function deleteBoard(id) {
+  return request.delete(`/boards/${id}`);
+}

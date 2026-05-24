@@ -47,8 +47,12 @@
               class="announcement-item"
               @click="handleAnnouncementClick(a)"
             >
-              <el-tag v-if="a.pinned" size="small" type="warning" class="pin-tag">置顶</el-tag>
-              <span class="announcement-title">{{ a.title }}</span>
+              <div class="announcement-head">
+                <el-tag v-if="a.pinned" size="small" type="warning" class="pin-tag">置顶</el-tag>
+                <span class="announcement-title">{{ a.title }}</span>
+              </div>
+              <p class="announcement-content">{{ a.content }}</p>
+              <span class="announcement-date">{{ formatDate(a.updatedAt) }}</span>
             </div>
           </template>
           <el-empty v-else description="暂无公告" :image-size="40" />
@@ -76,10 +80,19 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="announcementDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="announcementSubmitting" @click="handleAnnouncementSubmit">
-          {{ editingAnnouncement ? '保存' : '发布' }}
-        </el-button>
+        <div class="dialog-footer">
+          <div>
+            <el-button v-if="editingAnnouncement" type="danger" text @click="handleDeleteAnnouncement(editingAnnouncement)">
+              删除
+            </el-button>
+          </div>
+          <div>
+            <el-button @click="announcementDialogVisible = false">取消</el-button>
+            <el-button type="primary" :loading="announcementSubmitting" @click="handleAnnouncementSubmit">
+              {{ editingAnnouncement ? '保存' : '发布' }}
+            </el-button>
+          </div>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -124,7 +137,7 @@ async function loadAnnouncements() {
   announcementsLoading.value = true;
   try {
     const res = await listBoardAnnouncements(boardId.value, { page: 1, size: 20 });
-    announcements.value = res.data?.records || [];
+    announcements.value = res?.records || [];
   } catch {
     announcements.value = [];
   } finally {
@@ -135,6 +148,33 @@ async function loadAnnouncements() {
 function handleAnnouncementClick(a) {
   if (isOwnerOrAdmin.value) {
     openAnnouncementDialog(a);
+  }
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now - d;
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHour = Math.floor(diffMs / 3600000);
+  const diffDay = Math.floor(diffMs / 86400000);
+  if (diffMin < 1) return '刚刚';
+  if (diffMin < 60) return diffMin + ' 分钟前';
+  if (diffHour < 24) return diffHour + ' 小时前';
+  if (diffDay < 30) return diffDay + ' 天前';
+  return d.toLocaleDateString('zh-CN');
+}
+
+async function handleDeleteAnnouncement(a) {
+  try {
+    await ElMessageBox.confirm('确定删除这条公告？', '删除公告', { type: 'warning' });
+    await deleteAnnouncement(a.id);
+    ElMessage.success('已删除');
+    announcementDialogVisible.value = false;
+    await loadAnnouncements();
+  } catch {
+    // cancelled
   }
 }
 
@@ -261,10 +301,7 @@ async function onEditSaved() {
   color: #666;
 }
 .announcement-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
+  padding: 10px;
   border-radius: 4px;
   cursor: pointer;
   transition: background 0.2s;
@@ -272,15 +309,43 @@ async function onEditSaved() {
 .announcement-item:hover {
   background: #f5f7fa;
 }
+.announcement-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
 .pin-tag {
   flex-shrink: 0;
 }
 .announcement-title {
   font-size: 13px;
+  font-weight: 500;
   color: #333;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.announcement-content {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.announcement-date {
+  font-size: 11px;
+  color: #bbb;
+  margin-top: 4px;
+  display: block;
+}
+.dialog-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 @media (max-width: 768px) {
   .left-col,

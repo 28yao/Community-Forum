@@ -174,4 +174,24 @@ public class BoardService {
         boardMapper.updateById(b);
         log.info("[ADMIN] op=SET_BOARD_STATUS by={} board={} status={}", operatorId, id, status);
     }
+
+    /**
+     * 删除板块（吧主或管理员）
+     * 系统板块(id=1)不可删除。软删除。
+     */
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = Exception.class)
+    public void deleteBoard(Long boardId, Long currentUserId, boolean isAdmin) {
+        Board b = boardMapper.selectById(boardId);
+        if (b == null) {
+            throw new BizException(ErrorCode.BOARD_NOT_FOUND);
+        }
+        if (b.getId() == 1L) {
+            throw new BizException(ErrorCode.FORBIDDEN, "系统板块不可删除");
+        }
+        if (!isAdmin && !b.getOwnerUserId().equals(currentUserId)) {
+            throw new BizException(ErrorCode.FORBIDDEN);
+        }
+        boardMapper.deleteById(boardId);
+        log.info("[DELETE_BOARD] board={} by={}", boardId, currentUserId);
+    }
 }

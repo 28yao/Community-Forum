@@ -128,4 +128,14 @@ public class BoardController {
         boardService.ownerUpdate(id, description, icon, slogan, tags, userId, isAdmin);
         return Result.success("已更新", null);
     }
+
+    /** DELETE /api/boards/{id} - 删除板块（吧主或管理员，软删除） */
+    @DeleteMapping("/{id}")
+    public Result<Void> delete(@PathVariable Long id, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        String role = (String) request.getAttribute("role");
+        boolean isAdmin = "admin".equals(role);
+        boardService.deleteBoard(id, userId, isAdmin);
+        return Result.success("已删除", null);
+    }
 }
