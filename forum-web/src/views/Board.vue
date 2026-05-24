@@ -1,28 +1,26 @@
 <template>
   <div class="board-page">
-    <el-row :gutter="16">
-      <el-col :xs="24" :sm="8" :md="6" :lg="5">
+    <div class="three-col-layout">
+      <aside class="left-col">
         <BoardSidebar />
-      </el-col>
-      <el-col :xs="24" :sm="16" :md="18" :lg="19">
-        <div class="main-content">
-          <div class="board-header">
-            <div>
-              <h2 style="margin:0;">{{ board?.name || '加载中' }}</h2>
-              <p style="margin:4px 0 0 0; color:#666;">{{ board?.description }}</p>
-              <p v-if="board?.followerCount != null" style="margin:4px 0 0 0; color:#999; font-size: 12px;">
-                关注 {{ board.followerCount }} · 帖子 {{ board.postCount }}
-              </p>
-            </div>
-            <div class="board-actions">
-              <el-button v-if="isOwnerOrAdmin" @click="showEdit = true">编辑板块</el-button>
-              <BoardFollowButton v-if="board" :board="board" />
-              <el-button v-if="userStore.isLoggedIn" type="primary" @click="goCreate">发帖</el-button>
-            </div>
+      </aside>
+      <main class="main-content">
+        <div class="board-header">
+          <div>
+            <h2 style="margin:0;">{{ board?.name || '加载中' }}</h2>
+            <p style="margin:4px 0 0 0; color:#666;">{{ board?.description }}</p>
+            <p v-if="board?.followerCount != null" style="margin:4px 0 0 0; color:#999; font-size: 12px;">
+              关注 {{ board.followerCount }} · 帖子 {{ board.postCount }}
+            </p>
           </div>
-          <el-divider />
-          <PostList ref="listRef" :board-id="boardId" />
+          <div class="board-actions">
+            <el-button v-if="isOwnerOrAdmin" @click="showEdit = true">编辑板块</el-button>
+            <BoardFollowButton v-if="board" :board="board" />
+            <el-button v-if="userStore.isLoggedIn" type="primary" @click="goCreate">发帖</el-button>
+          </div>
         </div>
+        <el-divider />
+        <PostList ref="listRef" :board-id="boardId" />
 
         <BoardEditForm
           v-if="showEdit && board"
@@ -30,8 +28,8 @@
           @close="showEdit = false"
           @saved="onEditSaved"
         />
-      </el-col>
-    </el-row>
+      </main>
+    </div>
   </div>
 </template>
 
@@ -91,7 +89,20 @@ async function onEditSaved() {
 </script>
 
 <style scoped>
+.board-page {
+  padding: 0;
+}
+.three-col-layout {
+  display: flex;
+  gap: 16px;
+}
+.left-col {
+  width: 240px;
+  flex-shrink: 0;
+}
 .main-content {
+  flex: 1;
+  min-width: 0;
   background: #fff;
   border-radius: 6px;
   padding: 24px;
@@ -105,5 +116,10 @@ async function onEditSaved() {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+}
+@media (max-width: 768px) {
+  .left-col {
+    display: none;
+  }
 }
 </style>

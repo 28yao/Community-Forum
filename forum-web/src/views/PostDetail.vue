@@ -240,8 +240,7 @@ onMounted(load);
 
 <style scoped>
 .post-detail-page {
-  max-width: 900px;
-  margin: 0 auto;
+  width: 100%;
 }
 .breadcrumb {
   margin-bottom: 16px;

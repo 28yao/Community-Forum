@@ -1,28 +1,25 @@
 <template>
   <div class="home-page">
-    <el-row :gutter="16">
-      <el-col :xs="24" :sm="8" :md="6" :lg="5">
+    <div class="three-col-layout">
+      <aside class="left-col">
         <BoardSidebar />
-      </el-col>
-      <el-col :xs="24" :sm="16" :md="18" :lg="14">
-        <div class="main-content">
-          <div class="home-header">
-            <h2 class="page-title">综合 · 信息流</h2>
-            <el-button v-if="userStore.isLoggedIn" type="primary" round @click="postEditorStore.open()">
-              + 发帖
-            </el-button>
-          </div>
-          <PostList mode="feed" />
+      </aside>
+      <main class="main-content">
+        <div class="home-header">
+          <h2 class="page-title">综合 · 信息流</h2>
+          <el-button v-if="userStore.isLoggedIn" type="primary" round @click="postEditorStore.open()">
+            + 发帖
+          </el-button>
         </div>
-      </el-col>
-      <!-- 右栏占位（按 PRD，二期不实现热点） -->
-      <el-col :xs="0" :sm="0" :md="0" :lg="5" class="right-col">
-        <aside class="right-placeholder">
+        <PostList mode="feed" />
+      </main>
+      <aside class="right-col">
+        <div class="right-placeholder">
           <h4>· 公告 ·</h4>
           <p class="hint-text">这里将来会显示热门话题 / 站点公告</p>
-        </aside>
-      </el-col>
-    </el-row>
+        </div>
+      </aside>
+    </div>
   </div>
 </template>
 
@@ -55,7 +52,17 @@ onMounted(() => {
 .home-page {
   padding: 0;
 }
+.three-col-layout {
+  display: flex;
+  gap: 16px;
+}
+.left-col {
+  width: 240px;
+  flex-shrink: 0;
+}
 .main-content {
+  flex: 1;
+  min-width: 0;
   background: #fff;
   border-radius: 6px;
   padding: 16px 20px;
@@ -75,7 +82,8 @@ onMounted(() => {
   color: #1a1a1a;
 }
 .right-col {
-  /* 移动端隐藏，桌面端 lg+ 显示 */
+  width: 260px;
+  flex-shrink: 0;
 }
 .right-placeholder {
   background: #fff;
@@ -94,5 +102,11 @@ onMounted(() => {
 .hint-text {
   font-size: 12px;
   margin: 0;
+}
+@media (max-width: 768px) {
+  .left-col,
+  .right-col {
+    display: none;
+  }
 }
 </style>
