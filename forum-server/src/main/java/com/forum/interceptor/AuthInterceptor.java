@@ -51,6 +51,12 @@ public class AuthInterceptor implements HandlerInterceptor {
      */
     private static final Pattern PUBLIC_BOARD_RECOMMENDED = Pattern.compile("^/api/boards/recommended$");
 
+    /** GET /api/announcements 公开（站点公告） */
+    private static final Pattern PUBLIC_ANNOUNCEMENT_SITE = Pattern.compile("^/api/announcements$");
+
+    /** GET /api/boards/{id}/announcements 公开（板块公告） */
+    private static final Pattern PUBLIC_ANNOUNCEMENT_BOARD = Pattern.compile("^/api/boards/\\d+/announcements$");
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // OPTIONS 预检请求放行
@@ -67,6 +73,8 @@ public class AuthInterceptor implements HandlerInterceptor {
                         || PUBLIC_SEARCH_GET.matcher(uri).matches()
                         || PUBLIC_BOARD_GET.matcher(uri).matches()
                         || PUBLIC_BOARD_RECOMMENDED.matcher(uri).matches()
+                        || PUBLIC_ANNOUNCEMENT_SITE.matcher(uri).matches()
+                        || PUBLIC_ANNOUNCEMENT_BOARD.matcher(uri).matches()
         );
         if (isPublic) {
             // 尝试解析 token；带 token 则注入 userId/role，否则匿名通过
