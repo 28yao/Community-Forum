@@ -247,16 +247,16 @@ CREATE TABLE announcement (
 
 > 按"先简后繁、先 UI 后接口"的顺序，可独立交付、可独立验收。
 
-| ID | 任务 | 类别 | 文件数 | 预估 |
-|---|---|---|---|---|
-| **P3-M1** | R1 图片圆角 8px | B 类（CSS 微调）| 3 | 5 分钟 |
-| **P3-M2** | R2 中列加宽 + 整体布局调整 | B 类 | 4-5 | 30 分钟 |
-| **P3-M3** | R5 UnifiedSidebar 新建 + Home/Board/PostDetail 接入 | B 类（重构） | 5-8 | 60-90 分钟 |
-| **P3-M4** | R3.1 announcement 表 + Entity + Mapper | C 类 | 4 | 30 分钟 |
-| **P3-M5** | R3.2 AnnouncementService + 权限判断 + 单元测试 | C 类 | 3 | 60 分钟 |
-| **P3-M6** | R3.3 前台 + 后台 AnnouncementController + 集成测试 | C 类 | 3 | 45 分钟 |
-| **P3-M7** | R3.4 AnnouncementSidebar + BoardOwnerPanel + AdminAnnouncements 页 | C 类 | 4-6 | 90 分钟 |
-| **P3-M8** | R4 PostDetail 改三栏 + 接入 UnifiedSidebar + AnnouncementSidebar | B 类 | 1 | 30 分钟 |
+| ID | 任务 | 类别 | 文件数 | 预估 | 依赖 |
+|---|---|---|---|---|---|
+| **P3-M1** | R1 图片圆角 8px | B 类（CSS 微调）| 3 | 5 分钟 | 无 |
+| **P3-M2** | R2 中列加宽 + 整体布局调整 | B 类 | 4-5 | 30 分钟 | 无 |
+| **P3-M3** | R5 UnifiedSidebar 新建 + Home/Board/PostDetail 接入 | B 类（重构） | 5-8 | 60-90 分钟 | 无 |
+| **P3-M4** | R3.1 announcement 表 + Entity + Mapper | C 类 | 4 | 30 分钟 | 无 |
+| **P3-M5** | R3.2 AnnouncementService + 权限判断 + 单元测试 | C 类 | 3 | 60 分钟 | M4 |
+| **P3-M6** | R3.3 前台 + 后台 AnnouncementController + 集成测试 | C 类 | 3 | 45 分钟 | M5 |
+| **P3-M7** | R3.4 AnnouncementSidebar + BoardOwnerPanel + AdminAnnouncements 页 | C 类 | 4-6 | 90 分钟 | M4, M6 |
+| **P3-M8** | R4 PostDetail 改三栏 + 接入 UnifiedSidebar + AnnouncementSidebar | B 类 | 1 | 30 分钟 | M3, M7 |
 
 **预估总时长**：约 6 小时（实际可能 4-8 小时）
 
@@ -295,6 +295,12 @@ CREATE TABLE announcement (
 | 4 | 吧主公告入口 | 板块管理页面加"公告管理" tab（待 P3-M7 落地时再细化）|
 | 5 | 个人中心路由 | **复用现有路由**（点"个人中心"跳到已有的 /settings 或 /users/{id}，按当前路由表实际情况决定）|
 | 6 | 执行顺序 | **P3-M1 → M8 逐模块 commit + push**（沿用二期质量标准）|
+| 7 | 公告正文格式 | **沿用帖子 HTML 存储**（plainToHtml 转换，v-html 渲染）|
+| 8 | 公告数量上限 | **不限数量**，靠分页控制 |
+| 9 | PostDetail 右栏内容 | **仅放板块公告**，不混入推荐/热门 |
+| 10 | Home 右栏内容 | **仅放站点公告**（scope=site）|
+| 11 | 公告 title 字数上限 | **50 字** |
+| 12 | 公告 content 字数上限 | **500 字** |
 
 ---
 
