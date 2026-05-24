@@ -18,7 +18,7 @@
   font-size: 13px;
 }
 .footer-inner {
-  max-width: 1200px;
+  max-width: var(--page-max-width);
   margin: 0 auto;
 }
 .sep {

@@ -5,5 +5,38 @@ body {
   background: #f6f7f9;
   color: #1f2329;
 }
+:root {
+  /* 前台内容区最大宽度（app-main / 顶栏 / 页脚对齐） */
+  --page-max-width: 1600px;
+}
 a { color: #1677ff; text-decoration: none; }
 a:hover { text-decoration: underline; }
+
+/* 三栏布局（Home / Board / PostDetail 共用） */
+.three-col-layout {
+  display: flex;
+  gap: 16px;
+}
+.three-col-layout > .left-col {
+  width: 240px;
+  flex-shrink: 0;
+  margin-right: 100px; /* 100px + 下方 gap 16px = 左栏与中间列间距 116px */
+}
+.three-col-layout > .main-content,
+.three-col-layout > .main-col {
+  flex: 1; /* 吃掉剩余宽度，随 --page-max-width 变化 */
+  min-width: 0;
+}
+.three-col-layout > .right-col {
+  width: 260px;
+  flex-shrink: 0;
+}
+@media (max-width: 768px) {
+  .three-col-layout > .left-col,
+  .three-col-layout > .right-col {
+    display: none;
+  }
+  .three-col-layout > .left-col {
+    margin-right: 0;
+  }
+}

@@ -2,7 +2,8 @@
 
 > 在一期 MVP + 二期 P2-M1~M8 基础上的扩展期规划
 > 文档创建：2026-05-24
-> 状态：**待用户确认**
+> 最后更新：2026-05-24
+> 状态：**已确认，执行中**
 
 ---
 
@@ -15,6 +16,8 @@
 | R3 | 双层公告系统 | 管理员发全站公告 + 吧主在自己板块发板块公告 |
 | R4 | 帖子详情页加侧边栏 | 详情页左侧也显示板块列表、右侧显示该板块公告 |
 | R5 | 主页侧边栏顶部加入口 | 我的关注板块上方加"主页"和"个人中心"两个入口 |
+| R6 | 公告显示内容预览+日期 | 板块公告列表显示标题+4行内容预览+更新时间 |
+| R7 | 板块删除功能 | 编辑板块弹窗增加删除按钮，吧主/管理员可删除 |
 
 ---
 
@@ -243,6 +246,44 @@ CREATE TABLE announcement (
 
 ---
 
+### R6 — 公告显示内容预览+日期
+
+**现状**：板块公告列表仅显示标题，用户需点击才能查看内容。
+
+**目标**：每条公告显示标题 + 4行内容预览 + 相对更新时间。
+
+**变更范围**：
+
+| 文件 | 改动 |
+|---|---|
+| `forum-web/src/views/Board.vue` | 公告列表模板增加 content 预览和 updatedAt 显示 |
+| `forum-web/src/views/Board.vue` | 新增 `formatDate()` 相对时间函数（刚刚/X分钟前/X小时前/X天前/日期） |
+
+**CSS**：
+- `.announcement-content`：`-webkit-line-clamp: 4` 限制4行，`font-size: 12px`，`color: #888`
+- `.announcement-date`：`font-size: 11px`，`color: #bbb`
+
+---
+
+### R7 — 板块删除功能
+
+**现状**：板块只能禁用（admin 后台 setBoardStatus），无删除入口。
+
+**目标**：编辑板块弹窗增加"删除板块"按钮，吧主或管理员可删除（软删除）。
+
+**权限**：系统板块（id=1）不可删除。吧主仅可删除自己管理的板块。
+
+**变更范围**：
+
+| 文件 | 改动 |
+|---|---|
+| `forum-server/.../BoardService.java` | 新增 `deleteBoard(boardId, userId, isAdmin)` |
+| `forum-server/.../BoardController.java` | 新增 `DELETE /api/boards/{id}` |
+| `forum-web/src/api/board.js` | 新增 `deleteBoard(id)` |
+| `forum-web/src/components/board/BoardEditForm.vue` | footer 左侧增加红色"删除板块"按钮，二次确认后删除并跳转首页 |
+
+---
+
 ## 四、任务拆解（建议执行顺序）
 
 > 按"先简后繁、先 UI 后接口"的顺序，可独立交付、可独立验收。
@@ -257,8 +298,10 @@ CREATE TABLE announcement (
 | **P3-M6** | R3.3 前台 + 后台 AnnouncementController + 集成测试 | C 类 | 3 | 45 分钟 | M5 |
 | **P3-M7** | R3.4 AnnouncementSidebar + BoardOwnerPanel + AdminAnnouncements 页 | C 类 | 4-6 | 90 分钟 | M4, M6 |
 | **P3-M8** | R4 PostDetail 改三栏 + 接入 UnifiedSidebar + AnnouncementSidebar | B 类 | 1 | 30 分钟 | M3, M7 |
+| **P3-M9** | R6 公告内容预览+更新日期 | B 类 | 1 | 15 分钟 | M7 |
+| **P3-M10** | R7 板块删除功能（后端+前端） | C 类 | 4 | 30 分钟 | 无 |
 
-**预估总时长**：约 6 小时（实际可能 4-8 小时）
+**预估总时长**：约 7 小时（实际可能 5-9 小时）
 
 ---
 

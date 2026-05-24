@@ -116,6 +116,21 @@ onMounted(() => {
   overflow-y: auto;
   position: sticky;
   top: 70px;
+  scrollbar-width: thin;
+  scrollbar-color: #e0e0e0 transparent;
+}
+.unified-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+.unified-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.unified-sidebar::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 3px;
+}
+.unified-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #d0d0d0;
 }
 .quick-links {
   display: flex;

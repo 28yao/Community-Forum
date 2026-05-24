@@ -254,28 +254,6 @@ onMounted(load);
 .post-detail-page {
   width: 100%;
 }
-.three-col-layout {
-  display: flex;
-  gap: 16px;
-}
-.left-col {
-  width: 240px;
-  flex-shrink: 0;
-}
-.main-col {
-  flex: 1;
-  min-width: 0;
-}
-.right-col {
-  width: 260px;
-  flex-shrink: 0;
-}
-@media (max-width: 768px) {
-  .left-col,
-  .right-col {
-    display: none;
-  }
-}
 .breadcrumb {
   margin-bottom: 16px;
 }

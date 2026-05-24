@@ -43,17 +43,7 @@ const postEditorStore = usePostEditorStore();
 .home-page {
   padding: 0;
 }
-.three-col-layout {
-  display: flex;
-  gap: 16px;
-}
-.left-col {
-  width: 240px;
-  flex-shrink: 0;
-}
 .main-content {
-  flex: 1;
-  min-width: 0;
   background: #fff;
   border-radius: 6px;
   padding: 16px 20px;
@@ -72,10 +62,6 @@ const postEditorStore = usePostEditorStore();
   font-weight: 600;
   color: #1a1a1a;
 }
-.right-col {
-  width: 260px;
-  flex-shrink: 0;
-}
 .right-placeholder {
   background: #fff;
   border-radius: 6px;
@@ -93,11 +79,5 @@ const postEditorStore = usePostEditorStore();
 .hint-text {
   font-size: 12px;
   margin: 0;
-}
-@media (max-width: 768px) {
-  .left-col,
-  .right-col {
-    display: none;
-  }
 }
 </style>

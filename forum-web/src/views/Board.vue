@@ -252,17 +252,7 @@ async function onEditSaved() {
 .board-page {
   padding: 0;
 }
-.three-col-layout {
-  display: flex;
-  gap: 16px;
-}
-.left-col {
-  width: 240px;
-  flex-shrink: 0;
-}
 .main-content {
-  flex: 1;
-  min-width: 0;
   background: #fff;
   border-radius: 6px;
   padding: 24px;
@@ -275,10 +265,6 @@ async function onEditSaved() {
 .board-actions {
   display: flex;
   gap: 8px;
-  flex-shrink: 0;
-}
-.right-col {
-  width: 260px;
   flex-shrink: 0;
 }
 .announcement-widget {
@@ -346,11 +332,5 @@ async function onEditSaved() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-@media (max-width: 768px) {
-  .left-col,
-  .right-col {
-    display: none;
-  }
 }
 </style>

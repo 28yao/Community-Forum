@@ -33,7 +33,7 @@ const isAdminLayout = computed(() => !!route.meta?.adminLayout);
 }
 .app-main {
   flex: 1;
-  max-width: 1200px;
+  max-width: var(--page-max-width);
   width: 100%;
   margin: 0 auto;
   padding: 20px;

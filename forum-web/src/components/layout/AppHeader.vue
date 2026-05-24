@@ -110,7 +110,7 @@ async function handleCommand(cmd) {
   z-index: 100;
 }
 .header-inner {
-  max-width: 1200px;
+  max-width: var(--page-max-width);
   margin: 0 auto;
   padding: 0 20px;
   height: 100%;
