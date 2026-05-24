@@ -52,7 +52,8 @@ logs/
 *~
 
 # ===== Agent 会话级临时文件 =====
-# .context/ 整体忽略，但 phase2/ 子目录需要追溯（PRD/plan/todo 团队共享）
+# .context/ 整体忽略，但 phase2/ phase3/ 子目录需要追溯（PRD/plan/todo 团队共享）
 # 注意：要先放行目录本身，再放行下面的内容，否则 git 不会进目录
 .context/*
 !.context/phase2/
+!.context/phase3/
