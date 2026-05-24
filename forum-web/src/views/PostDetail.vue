@@ -1,5 +1,10 @@
 <template>
   <div class="post-detail-page" v-loading="loading">
+    <div class="three-col-layout">
+      <aside class="left-col">
+        <UnifiedSidebar />
+      </aside>
+      <main class="main-col">
     <!-- 面包屑：首页 > 板块名 > 帖子标题 -->
     <el-breadcrumb v-if="post" separator="/" class="breadcrumb">
       <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
@@ -100,6 +105,11 @@
         @refresh="loadComments"
       />
     </el-card>
+      </main>
+      <aside class="right-col">
+        <AnnouncementSidebar v-if="post?.board?.id" scope="board" :board-id="post.board.id" />
+      </aside>
+    </div>
   </div>
 </template>
 
@@ -115,6 +125,8 @@ import { listComments } from '@/api/comment';
 import { useUserStore } from '@/stores/user';
 import CommentForm from '@/components/comment/CommentForm.vue';
 import CommentTree from '@/components/comment/CommentTree.vue';
+import UnifiedSidebar from '@/components/layout/UnifiedSidebar.vue';
+import AnnouncementSidebar from '@/components/announcement/AnnouncementSidebar.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -241,6 +253,28 @@ onMounted(load);
 <style scoped>
 .post-detail-page {
   width: 100%;
+}
+.three-col-layout {
+  display: flex;
+  gap: 16px;
+}
+.left-col {
+  width: 240px;
+  flex-shrink: 0;
+}
+.main-col {
+  flex: 1;
+  min-width: 0;
+}
+.right-col {
+  width: 260px;
+  flex-shrink: 0;
+}
+@media (max-width: 768px) {
+  .left-col,
+  .right-col {
+    display: none;
+  }
 }
 .breadcrumb {
   margin-bottom: 16px;
