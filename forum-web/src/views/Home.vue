@@ -14,10 +14,7 @@
         <PostList mode="feed" />
       </main>
       <aside class="right-col">
-        <div class="right-placeholder">
-          <h4>· 公告 ·</h4>
-          <p class="hint-text">这里将来会显示热门话题 / 站点公告</p>
-        </div>
+        <AnnouncementSidebar scope="site" />
       </aside>
     </div>
   </div>
@@ -33,6 +30,7 @@
  * 注：P2-M5 会把中间区域换为 /feed 接口。本模块仅 UI 重构，数据来源不变。
  */
 import UnifiedSidebar from '@/components/layout/UnifiedSidebar.vue';
+import AnnouncementSidebar from '@/components/announcement/AnnouncementSidebar.vue';
 import PostList from '@/components/post/PostList.vue';
 import { useUserStore } from '@/stores/user';
 import { usePostEditorStore } from '@/stores/postEditor';

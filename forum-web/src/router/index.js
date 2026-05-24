@@ -28,7 +28,8 @@ const routes = [
       { path: 'boards',    name: 'admin-boards',    component: () => import('@/views/admin/AdminBoards.vue'),    meta: { title: '版块管理' } },
       { path: 'board-applications', name: 'admin-board-applications', component: () => import('@/views/admin/AdminBoardApplications.vue'), meta: { title: '板块申请审核' } },
       { path: 'posts',     name: 'admin-posts',     component: () => import('@/views/admin/AdminPosts.vue'),     meta: { title: '帖子管理' } },
-      { path: 'comments',  name: 'admin-comments',  component: () => import('@/views/admin/AdminComments.vue'),  meta: { title: '评论管理' } }
+      { path: 'comments',  name: 'admin-comments',  component: () => import('@/views/admin/AdminComments.vue'),  meta: { title: '评论管理' } },
+      { path: 'announcements', name: 'admin-announcements', component: () => import('@/views/admin/AdminAnnouncements.vue'), meta: { title: '公告管理' } }
     ]
   },
 

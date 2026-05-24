@@ -57,8 +57,9 @@ public class AdminAnnouncementController {
         String content = (String) body.get("content");
         Integer pinned = body.get("pinned") instanceof Number ? ((Number) body.get("pinned")).intValue() : null;
         Integer sortWeight = body.get("sortWeight") instanceof Number ? ((Number) body.get("sortWeight")).intValue() : null;
+        Integer status = body.get("status") instanceof Number ? ((Number) body.get("status")).intValue() : null;
 
-        announcementService.update(id, title, content, pinned, sortWeight, userId, true);
+        announcementService.update(id, title, content, pinned, sortWeight, status, userId, true);
         return Result.success();
     }
 

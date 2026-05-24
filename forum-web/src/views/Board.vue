@@ -28,7 +28,13 @@
           @close="showEdit = false"
           @saved="onEditSaved"
         />
+
+        <!-- 吧主公告管理面板 -->
+        <BoardOwnerAnnouncementPanel v-if="isOwnerOrAdmin && board" :board-id="boardId" style="margin-top:24px;" />
       </main>
+      <aside class="right-col">
+        <AnnouncementSidebar v-if="board" scope="board" :board-id="boardId" />
+      </aside>
     </div>
   </div>
 </template>
@@ -37,6 +43,8 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import UnifiedSidebar from '@/components/layout/UnifiedSidebar.vue';
+import AnnouncementSidebar from '@/components/announcement/AnnouncementSidebar.vue';
+import BoardOwnerAnnouncementPanel from '@/components/announcement/BoardOwnerAnnouncementPanel.vue';
 import PostList from '@/components/post/PostList.vue';
 import BoardFollowButton from '@/components/board/BoardFollowButton.vue';
 import BoardEditForm from '@/components/board/BoardEditForm.vue';
@@ -117,8 +125,13 @@ async function onEditSaved() {
   gap: 8px;
   flex-shrink: 0;
 }
+.right-col {
+  width: 260px;
+  flex-shrink: 0;
+}
 @media (max-width: 768px) {
-  .left-col {
+  .left-col,
+  .right-col {
     display: none;
   }
 }

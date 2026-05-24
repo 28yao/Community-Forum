@@ -33,6 +33,10 @@
           <el-icon><ChatDotRound /></el-icon>
           <span>评论管理</span>
         </el-menu-item>
+        <el-menu-item index="/admin/announcements">
+          <el-icon><Bell /></el-icon>
+          <span>公告管理</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 
@@ -58,7 +62,7 @@
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { Odometer, User, Grid, Document, ChatDotRound, Promotion } from '@element-plus/icons-vue';
+import { Odometer, User, Grid, Document, ChatDotRound, Promotion, Bell } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/user';
 
 const route = useRoute();

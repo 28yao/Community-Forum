@@ -63,7 +63,7 @@ public class AnnouncementService {
 
     /** 编辑公告 */
     @Transactional(rollbackFor = Exception.class)
-    public void update(Long id, String title, String content, Integer pinned, Integer sortWeight,
+    public void update(Long id, String title, String content, Integer pinned, Integer sortWeight, Integer status,
                         Long currentUserId, boolean isAdmin) {
         Announcement a = mustFind(id);
         assertCanManage(a.getScope(), a.getBoardId(), currentUserId, isAdmin);
@@ -72,6 +72,7 @@ public class AnnouncementService {
         if (content != null) a.setContent(content);
         if (pinned != null) a.setPinned(pinned);
         if (sortWeight != null) a.setSortWeight(sortWeight);
+        if (status != null) a.setStatus(status);
         announcementMapper.updateById(a);
         log.info("[ANNOUNCEMENT] updated id={} by={}", id, currentUserId);
     }

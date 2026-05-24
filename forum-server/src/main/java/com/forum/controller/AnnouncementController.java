@@ -58,4 +58,32 @@ public class AnnouncementController {
         Announcement a = announcementService.create("board", boardId, title, content, pinned, sortWeight, userId, isAdmin);
         return Result.success(Map.of("id", a.getId()));
     }
+
+    /** 吧主/管理员编辑公告（需登录） */
+    @PutMapping("/api/announcements/{id}")
+    public Result<Void> update(@PathVariable Long id, @RequestBody Map<String, Object> body, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        String role = (String) request.getAttribute("role");
+        boolean isAdmin = "admin".equals(role);
+
+        String title = (String) body.get("title");
+        String content = (String) body.get("content");
+        Integer pinned = body.get("pinned") instanceof Number ? ((Number) body.get("pinned")).intValue() : null;
+        Integer sortWeight = body.get("sortWeight") instanceof Number ? ((Number) body.get("sortWeight")).intValue() : null;
+        Integer status = body.get("status") instanceof Number ? ((Number) body.get("status")).intValue() : null;
+
+        announcementService.update(id, title, content, pinned, sortWeight, status, userId, isAdmin);
+        return Result.success();
+    }
+
+    /** 吧主/管理员删除公告（需登录） */
+    @DeleteMapping("/api/announcements/{id}")
+    public Result<Void> delete(@PathVariable Long id, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        String role = (String) request.getAttribute("role");
+        boolean isAdmin = "admin".equals(role);
+
+        announcementService.delete(id, userId, isAdmin);
+        return Result.success();
+    }
 }
