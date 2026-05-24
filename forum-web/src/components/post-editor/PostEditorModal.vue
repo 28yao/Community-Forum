@@ -387,7 +387,7 @@ function plainToHtml(text) {
   position: relative;
   width: 72px;
   height: 72px;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
   background: #f5f6f7;
 }

@@ -57,7 +57,7 @@ function preview(idx) {
   display: grid;
   gap: 4px;
   margin-top: 8px;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
 }
 .grid-1 {

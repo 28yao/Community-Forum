@@ -290,7 +290,7 @@ onMounted(load);
 .post-img {
   width: 100%;
   max-width: 800px;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 .post-footer {
   display: flex;
