@@ -211,10 +211,14 @@ public class UserService {
         userMapper.resetLoginFailCount(u.getId());
         // 6. 签发 JWT
         String token = jwtUtil.generateToken(u.getId(), u.getRole());
-        // 7. 存 Redis（便于踢人/登出）
+        // 7. 存 Redis（便于踢人/登出）。Redis 不可用时降级：只记 warn，不影响登录
         long expireDays = 7;
-        redisTemplate.opsForValue().set(TOKEN_REDIS_PREFIX + u.getId(), token,
-                expireDays, java.util.concurrent.TimeUnit.DAYS);
+        try {
+            redisTemplate.opsForValue().set(TOKEN_REDIS_PREFIX + u.getId(), token,
+                    expireDays, java.util.concurrent.TimeUnit.DAYS);
+        } catch (Exception e) {
+            log.warn("[LOGIN] redis unavailable, kick-out feature degraded. userId={} err={}", u.getId(), e.getMessage());
+        }
         log.info("[LOGIN] user id={} email={}", u.getId(), u.getEmail());
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);

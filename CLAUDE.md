@@ -172,6 +172,9 @@ npm run build
   - 检查方法：`SHOW INDEX FROM post` **不会**告诉你 parser；必须 `SHOW CREATE TABLE post\G`，找到 `FULLTEXT KEY idx_search ... /*!50100 WITH PARSER ngram */`，没看到 `WITH PARSER ngram` 就是丢了。
   - 修复：`ALTER TABLE post DROP INDEX idx_search; ALTER TABLE post ADD FULLTEXT INDEX idx_search (title,content) WITH PARSER ngram;` 不影响数据，立刻生效。
   - 部署新环境后**第一件事**就该跑 `SHOW CREATE TABLE post\G` 验证 ngram 是否落上了。
+- **注册接口同步发 SMTP 邮件会触发前端 15s 超时**：UserService.register 默认调用 mailService.sendVerificationMail 是同步阻塞；QQ SMTP 在网络抖动时可能跑 6-15s+，前端 axios 默认 15s timeout，用户看到"请求超时，请重试"。已修复：MailService.sendVerificationMail 加 `@Async` + `ForumApplication` 加 `@EnableAsync`，发送失败 try/catch 仅记 log 不回滚事务（用户可通过 resendVerification 兜底）。
+- **登录写 Redis token 失败会被全局兜底成 9999"系统异常"**：UserService.login 把 JWT 写 Redis 用于踢人/登出；如果 Redis 没启动（Connection refused），整个登录返回 9999。开发环境**必须先启动 Redis** 才能登录；为防 Redis 偶发故障，登录 redis 写入已加 try/catch 降级（只 warn，不阻塞登录），代价是踢人功能在 Redis 挂时失效。
+- **9999 系统异常排查标准动作**：GlobalExceptionHandler 默认只对前端返回固定文案"系统异常"，看不到真实异常。排查时临时改 handleThrowable 把 `root.getClass().getSimpleName() + ": " + root.getMessage()` 附在 message 后回传，定位完恢复。常见 9999 来源：Redis 不可用、SMTP 失败、Jackson 反序列化（charset 问题）、DataIntegrityViolation（字符集 / 唯一键冲突）。
 
 ### 重要决策记录
 
