@@ -1,16 +1,18 @@
 <template>
   <div class="emoji-picker-wrapper">
     <el-popover
-      placement="bottom-start"
+      placement="top-start"
       :width="350"
       trigger="click"
       :visible="show"
       @update:visible="show = $event"
     >
       <template #reference>
-        <el-button text size="small" @click="show = !show" title="表情">
-          <span style="font-size: 18px;">&#x1F600;</span>
-        </el-button>
+        <slot :toggle="toggle" :show="show">
+          <el-button text size="small" @click="toggle" title="表情">
+            <span style="font-size: 18px;">&#x1F600;</span>
+          </el-button>
+        </slot>
       </template>
       <Picker
         :native="true"
@@ -29,6 +31,10 @@ import 'vue3-emoji-picker/css';
 
 const emit = defineEmits(['select']);
 const show = ref(false);
+
+function toggle() {
+  show.value = !show.value;
+}
 
 function onSelect(emoji) {
   emit('select', emoji.i);
