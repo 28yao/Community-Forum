@@ -7,11 +7,11 @@ const routes = [
   { path: '/board/:id', name: 'board',    component: () => import('@/views/Board.vue'),  meta: { title: '版块' } },
   { path: '/post/create',   name: 'post-create', component: () => import('@/views/PostCreate.vue'), meta: { title: '发帖', requiresAuth: true } },
   { path: '/post/:id',      name: 'post-detail', component: () => import('@/views/PostDetail.vue'), meta: { title: '帖子详情' } },
-  { path: '/post/:id/edit', name: 'post-edit',   component: () => import('@/views/PostEdit.vue'),   meta: { title: '编辑帖子', requiresAuth: true } },
+  { path: '/post/:id/edit', redirect: (to) => ({ path: `/post/${to.params.id}`, query: { edit: '1' } }) },
   { path: '/login',     name: 'login',    component: () => import('@/views/Login.vue'),     meta: { title: '登录', guest: true } },
   { path: '/register',  name: 'register', component: () => import('@/views/Register.vue'),  meta: { title: '注册', guest: true } },
   { path: '/verify-email', name: 'verify-email', component: () => import('@/views/VerifyEmail.vue'), meta: { title: '邮箱验证' } },
-  { path: '/settings',  name: 'settings', component: () => import('@/views/Settings.vue'),   meta: { title: '个人设置', requiresAuth: true } },
+  { path: '/settings', name: 'settings', component: () => import('@/views/SettingsRedirect.vue'), meta: { title: '个人中心' } },
   { path: '/me/applications', name: 'my-applications', component: () => import('@/views/user/MyApplications.vue'), meta: { title: '我的板块申请', requiresAuth: true } },
   { path: '/search',    name: 'search',   component: () => import('@/views/Search.vue'),     meta: { title: '搜索' } },
 

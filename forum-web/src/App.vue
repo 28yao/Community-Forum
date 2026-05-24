@@ -10,6 +10,7 @@
     </main>
     <AppFooter />
     <PostEditorModal />
+    <SettingsModal />
   </div>
 </template>
 
@@ -19,6 +20,7 @@ import { useRoute } from 'vue-router';
 import AppHeader from '@/components/layout/AppHeader.vue';
 import AppFooter from '@/components/layout/AppFooter.vue';
 import PostEditorModal from '@/components/post-editor/PostEditorModal.vue';
+import SettingsModal from '@/components/user/SettingsModal.vue';
 
 const route = useRoute();
 const isAdminLayout = computed(() => !!route.meta?.adminLayout);

@@ -16,3 +16,8 @@ export function uploadAvatar(file) {
   formData.append('file', file);
   return request.post('/users/avatar', formData);
 }
+
+/** 修改密码 */
+export function changePassword(data) {
+  return request.put('/users/password', data);
+}

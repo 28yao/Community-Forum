@@ -318,6 +318,28 @@ public class UserService {
         log.info("[UPDATE_AVATAR] user id={}", userId);
     }
 
+    /**
+     * 用户修改密码（需验证原密码）
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void changePassword(Long userId, String oldPassword, String newPassword) {
+        User u = userMapper.selectById(userId);
+        if (u == null) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "用户不存在");
+        }
+        if (!passwordEncoder.matches(oldPassword, u.getPassword())) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "原密码不正确");
+        }
+        if (passwordEncoder.matches(newPassword, u.getPassword())) {
+            throw new BizException(ErrorCode.PARAM_INVALID, "新密码不能与原密码相同");
+        }
+        u.setPassword(passwordEncoder.encode(newPassword));
+        u.setLoginFailCount(0);
+        u.setLockedUntil(null);
+        userMapper.updateById(u);
+        log.info("[CHANGE_PASSWORD] user id={}", userId);
+    }
+
     // ========== M6 后台管理 ==========
 
     /** 封禁用户（M6-T5）。同时清除 Redis 中的 Token（C5）。 */

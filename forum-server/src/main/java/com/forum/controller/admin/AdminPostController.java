@@ -47,7 +47,7 @@ public class AdminPostController {
     public Result<Void> pin(@PathVariable Long id, @RequestBody Map<String, Object> body, HttpServletRequest request) {
         Long operatorId = (Long) request.getAttribute("userId");
         boolean pin = Boolean.TRUE.equals(body.get("pinned"));
-        postService.pinPost(id, pin, operatorId);
+        postService.pinPost(id, pin, operatorId, true);
         return Result.success(pin ? "已置顶" : "已取消置顶", null);
     }
 }

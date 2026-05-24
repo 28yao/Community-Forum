@@ -31,7 +31,7 @@
             </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item command="settings">个人设置</el-dropdown-item>
+                <el-dropdown-item command="settings">个人中心</el-dropdown-item>
                 <el-dropdown-item command="my-applications">我的板块申请</el-dropdown-item>
                 <el-dropdown-item v-if="userStore.isAdmin" command="admin" divided>进入后台</el-dropdown-item>
                 <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
@@ -56,12 +56,14 @@ import { ElMessage } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/user';
 import { usePostEditorStore } from '@/stores/postEditor';
+import { useUserSettingsStore } from '@/stores/userSettings';
 import BoardApplicationDialog from '@/components/board-application/BoardApplicationDialog.vue';
 
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 const postEditorStore = usePostEditorStore();
+const settingsStore = useUserSettingsStore();
 
 const showApplicationDialog = ref(false);
 
@@ -87,7 +89,7 @@ function handleSearch() {
 
 async function handleCommand(cmd) {
   if (cmd === 'settings') {
-    router.push('/settings');
+    settingsStore.open();
   } else if (cmd === 'my-applications') {
     showApplicationDialog.value = true;
   } else if (cmd === 'admin') {

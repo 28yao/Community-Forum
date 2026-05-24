@@ -30,6 +30,11 @@ export function deletePost(id) {
   return request.delete(`/posts/${id}`);
 }
 
+/** 置顶/取消置顶（管理员或本吧吧主） */
+export function pinPost(id, pinned) {
+  return request.post(`/posts/${id}/pin`, { pinned });
+}
+
 /** 上传帖子图片 */
 export function uploadPostImage(file) {
   const formData = new FormData();

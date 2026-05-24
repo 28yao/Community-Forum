@@ -143,4 +143,32 @@ class UserServiceLoginTest {
                 () -> userService.login(loginReq("no-such@example.com", "abc")));
         assertEquals(ErrorCode.PARAM_INVALID.getCode(), ex.getCode());
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    void changePassword_happyPath_shouldAllowNewPasswordLogin() {
+        Long id = userService.register(regReq("pwd-change@example.com", "改密用户"));
+        User u = userMapper.selectById(id);
+        u.setEmailVerified(1);
+        userMapper.updateById(u);
+
+        userService.changePassword(id, "abc123", "xyz789");
+
+        assertThrows(BizException.class,
+                () -> userService.login(loginReq("pwd-change@example.com", "abc123")));
+        Map<String, Object> result = userService.login(loginReq("pwd-change@example.com", "xyz789"));
+        assertNotNull(result.get("token"));
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void changePassword_wrongOld_shouldThrow() {
+        Long id = userService.register(regReq("pwd-wrong@example.com", "原密错"));
+        BizException ex = assertThrows(BizException.class,
+                () -> userService.changePassword(id, "wrong", "xyz789"));
+        assertEquals(ErrorCode.PARAM_INVALID.getCode(), ex.getCode());
+        assertTrue(ex.getMessage().contains("原密码"));
+    }
 }

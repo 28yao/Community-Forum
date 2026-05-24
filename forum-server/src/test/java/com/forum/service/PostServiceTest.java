@@ -5,6 +5,7 @@ import com.forum.common.PageResult;
 import com.forum.common.exception.BizException;
 import com.forum.entity.Post;
 import com.forum.entity.PostImage;
+import com.forum.mapper.BoardMapper;
 import com.forum.mapper.PostImageMapper;
 import com.forum.mapper.PostMapper;
 import com.forum.mapper.UserMapper;
@@ -47,6 +48,9 @@ class PostServiceTest {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private BoardMapper boardMapper;
 
     @MockBean
     private MailService mailService;
@@ -212,6 +216,37 @@ class PostServiceTest {
 
         BizException ex = assertThrows(BizException.class,
                 () -> postService.deletePost(pid, other, false));
+        assertEquals(ErrorCode.FORBIDDEN.getCode(), ex.getCode());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void pinPost_byBoardOwner_shouldToggle() {
+        Long owner = ensureUser("p-owner@example.com", "吧主");
+        boardMapper.updateOwner(2L, owner);
+        Long author = ensureUser("p-pin-author@example.com", "发帖人");
+        Long pid = postService.createPost(author, req(2L, "吧主置顶", "内容", null));
+
+        postService.pinPost(pid, true, owner, false);
+        assertEquals(1, postMapper.selectById(pid).getIsPinned());
+        postService.pinPost(pid, false, owner, false);
+        assertEquals(0, postMapper.selectById(pid).getIsPinned());
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void pinPost_byOtherBoardOwner_shouldThrow1002() {
+        Long owner = ensureUser("p-owner2@example.com", "吧主2");
+        boardMapper.updateOwner(2L, owner);
+        Long otherOwner = ensureUser("p-owner3@example.com", "吧主3");
+        boardMapper.updateOwner(3L, otherOwner);
+        Long author = ensureUser("p-pin-other@example.com", "发帖人2");
+        Long pid = postService.createPost(author, req(2L, "跨吧置顶", "内容", null));
+
+        BizException ex = assertThrows(BizException.class,
+                () -> postService.pinPost(pid, true, otherOwner, false));
         assertEquals(ErrorCode.FORBIDDEN.getCode(), ex.getCode());
     }
 }

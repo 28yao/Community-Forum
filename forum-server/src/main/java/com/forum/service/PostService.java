@@ -190,6 +190,7 @@ public class PostService {
         if (b != null) {
             board.put("id", b.getId());
             board.put("name", b.getName());
+            board.put("ownerUserId", b.getOwnerUserId());
         }
         m.put("board", board);
 
@@ -327,14 +328,20 @@ public class PostService {
         log.info("[ADMIN] op=RESTORE_POST by={} post={}", operatorId, postId);
     }
 
-    /** 置顶切换（M6） */
+    /** 置顶切换（M6 + P2-M8 吧主权限） */
     @Transactional(rollbackFor = Exception.class)
-    public void pinPost(Long postId, boolean pin, Long operatorId) {
+    public void pinPost(Long postId, boolean pin, Long operatorId, boolean isAdmin) {
         Post post = postMapper.selectById(postId);
         if (post == null) {
             throw new BizException(ErrorCode.POST_NOT_FOUND);
         }
+        if (!isAdmin) {
+            Board board = boardMapper.selectById(post.getBoardId());
+            if (board == null || !operatorId.equals(board.getOwnerUserId())) {
+                throw new BizException(ErrorCode.FORBIDDEN);
+            }
+        }
         postMapper.setPinned(postId, pin ? 1 : 0);
-        log.info("[ADMIN] op={} by={} post={}", pin ? "PIN_POST" : "UNPIN_POST", operatorId, postId);
+        log.info("[{}] op={} by={} post={}", isAdmin ? "ADMIN" : "OWNER", pin ? "PIN_POST" : "UNPIN_POST", operatorId, postId);
     }
 }

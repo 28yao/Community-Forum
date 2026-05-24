@@ -3,21 +3,21 @@
 > 在一期 MVP + 二期 P2-M1~M8 基础上的扩展期规划
 > 文档创建：2026-05-24
 > 最后更新：2026-05-24
-> 状态：**已确认，执行中**
+> 状态：**执行中（R1–R7 + 热修 H1–H7 已落地）**
 
 ---
 
 ## 一、本期需求清单（来源用户原话）
 
-| # | 需求 | 用户原话 |
-|---|------|---------|
-| R1 | 图片圆角 8px | 发布的帖子中 图片要有 8% 比例圆角 |
-| R2 | 三栏布局加宽 | 中间列太窄、网页两边太空，参考贴吧布局 |
-| R3 | 双层公告系统 | 管理员发全站公告 + 吧主在自己板块发板块公告 |
-| R4 | 帖子详情页加侧边栏 | 详情页左侧也显示板块列表、右侧显示该板块公告 |
-| R5 | 主页侧边栏顶部加入口 | 我的关注板块上方加"主页"和"个人中心"两个入口 |
-| R6 | 公告显示内容预览+日期 | 板块公告列表显示标题+4行内容预览+更新时间 |
-| R7 | 板块删除功能 | 编辑板块弹窗增加删除按钮，吧主/管理员可删除 |
+| # | 需求 | 用户原话 | 状态 |
+|---|------|---------|------|
+| R1 | 图片圆角 8px | 发布的帖子中 图片要有 8% 比例圆角 | ✅ 已完成 |
+| R2 | 三栏布局加宽 | 中间列太窄、网页两边太空，参考贴吧布局 | ✅ 已完成 |
+| R3 | 双层公告系统 | 管理员发全站公告 + 吧主在自己板块发板块公告 | ✅ 已完成 |
+| R4 | 帖子详情页加侧边栏 | 详情页左侧也显示板块列表、右侧显示该板块公告 | ✅ 已完成 |
+| R5 | 主页侧边栏顶部加入口 | 我的关注板块上方加"主页"和"个人中心"两个入口 | ✅ 已完成 |
+| R6 | 公告显示内容预览+日期 | 板块公告列表显示标题+4行内容预览+更新时间 | ✅ 已完成 |
+| R7 | 板块删除功能 | 编辑板块弹窗增加删除按钮，吧主/管理员可删除 | ✅ 已完成 |
 
 ---
 
@@ -30,39 +30,49 @@
 | 用户认证、登录态、Token | 一期 M1 + 二期热修 | 三期所有接口直接复用 AuthInterceptor |
 | 板块表 board + 板块申请 + 关注 | 一期 M2 + 二期 P2-M1/M2/M3 | 三期公告依附于 board 表 |
 | 帖子表 post / 图片 post_image | 一期 M3 | 不动 |
-| 点赞 / 评论 / 收藏 | 一期 M4 | 不动 |
+| 点赞 / 收藏 | 一期 M4 | 不动 |
 | FULLTEXT 搜索（含 ngram） | 一期 M5 + 二期 P2-M7 | 不动 |
 | 后台管理（用户/版块/帖子/评论） | 一期 M6 | 三期复用后台框架加 announcement 管理页 |
-| 板块管理（吧主权限） | 二期 P2-M8 | 三期"吧主发板块公告"权限校验复用 board.owner_user_id 字段 |
-| 发帖弹窗（贴吧风） | 二期 P2-M6 + 最新热修 | 不动 |
-| App.vue 容器：`max-width: 1200px` | 一期 M0 已设定 | 不动 |
-| BoardSidebar / AppSidebar 框架 | 一期 M2 + 二期 P2-M4 | 三期"统一侧边栏"在此之上扩展 |
-| 图片网格 PostImageGrid | 一期 M3 + 二期 P2-M4 | R1 只调圆角值 |
+| 板块管理（吧主权限） | 二期 P2-M8 | 三期公告、置顶等权限校验复用 `board.owner_user_id` |
+| 发帖/编辑弹窗（贴吧风） | 二期 P2-M6 | 发帖与编辑共用 `PostEditorModal`（见 H4） |
+| 评论两层楼中楼 | 一期 M4 | 后端逻辑不动；三期重做前台 UI（见 H5） |
 
 ### B. 已有 — 需扩展（在原有基础上调字段 / 加分支）
 
-| 能力 | 现状 | 三期扩展点 |
+| 能力 | 原状 | 三期扩展点（实际落地） |
 |---|---|---|
-| **PostImageGrid 圆角** | 6px | 改 8px（R1）|
-| **PostDetail.vue 图片** | 6px | 改 8px（R1）|
-| **Home.vue 中列宽** | `max-width: 900px` | 加宽至 1100px 或去掉中列限制，让中列吃满三栏剩余空间（R2）|
-| **PostDetail.vue 中列宽** | `max-width: 900px` | 加宽至 1100px 或改为三栏布局（R2 + R4）|
-| **AppSidebar / BoardSidebar** | 各页面用法不一 | 统一为 `UnifiedSidebar`：顶部"主页/个人中心"入口 + 我的关注 + 推荐板块 + 全部板块（R5）|
-| **PostDetail.vue 页面结构** | 单栏中间 + 右侧无内容 | 改为三栏：左 UnifiedSidebar + 中正文 + 右板块公告（R4）|
-| **board 表字段** | 已扩展 icon/slogan/tags/owner_user_id/follower_count | **不再扩展**（公告走独立表，避免单表字段膨胀）|
+| **PostImageGrid** | 6px 圆角、固定 grid | **8px 圆角** + `variant="list\|detail"`；单图原比例、多图 1:1 横排最多 3 张；flex 左对齐（见 H2） |
+| **PostDetail.vue 图片** | 内联样式 | 改用 `PostImageGrid variant="detail"`；正文内嵌图 `max-width: calc(100%/3)` |
+| **全局布局** | 各页 `max-width: 900px`、App 1200px | `global.css`：`--page-max-width: 1600px` + `.three-col-layout` 公共类（R2） |
+| **AppSidebar / BoardSidebar** | 各页面用法不一 | 统一为 `UnifiedSidebar`（R5） |
+| **PostDetail.vue 页面结构** | 单栏 | 三栏：左 UnifiedSidebar + 中正文 + 右板块公告（R4） |
+| **个人中心** | `/settings` 独立页 | **弹窗** `SettingsModal` + `userSettings` store（见 H6） |
+| **帖子置顶** | 仅后台 AdminPosts | 前台吧主/管理员快捷置顶（见 H3）；二期 P2-M8 帖子操作已部分落地 |
+| **board 表字段** | 已有 owner 等 | **不再扩展**（公告走独立表） |
 
-### C. 全新 — 要从零新建
+### C. 全新 — 要从零新建（R1–R7 规划项）
 
 | 新增能力 | 形态 | 依赖 |
 |---|---|---|
-| **announcement 表** | 新建数据库表（公告内容、发布人、作用域 site/board、关联 board_id） | 依赖 B 中 board 表的 owner_user_id 做吧主权限校验 |
-| **AnnouncementService** | 新 Service：CRUD + 权限校验（site 仅 admin / board 仅 admin+吧主） | 依赖现有 BoardService |
-| **AnnouncementController（前台）** | GET /api/announcements?scope=site / GET /api/boards/{id}/announcements | 独立 |
-| **AnnouncementController（后台）** | POST/PUT/DELETE /api/admin/announcements + 板块管理路径下吧主接口 | 复用 AdminAuthInterceptor + 新的"吧主或admin"判断器 |
-| **AdminAnnouncements.vue** | 后台公告管理页（admin 视角） | 复用 AdminLayout |
-| **BoardOwnerAnnouncementPanel.vue** | 板块详情页里给吧主用的"我管理的板块公告"面板 | 依赖 P2-M8 吧主管理入口 |
-| **AnnouncementSidebar.vue** | 帖子详情页右侧的"本板块公告"小卡片（前台只读展示） | 独立 |
-| **UnifiedSidebar.vue** | 顶部"主页/个人中心"快捷入口 + 我的关注 + 推荐板块（合并 AppSidebar / BoardSidebar 的现有结构） | 替换 Home/Board/PostDetail 三个页面里现有的侧边栏用法 |
+| **announcement 表** | 新建数据库表 | `board.owner_user_id` 权限校验 |
+| **AnnouncementService** | CRUD + 权限 | BoardService |
+| **AnnouncementController（前台/后台）** | 见 §三 R3、§十一 | — |
+| **AdminAnnouncements.vue** | 后台公告管理 | AdminLayout |
+| **BoardOwnerAnnouncementPanel.vue** | 吧主管理面板 | P2-M8 |
+| **AnnouncementSidebar.vue** | 前台只读展示 | — |
+| **AnnouncementDetailDialog.vue** | 公告只读详情弹窗 | H1 |
+| **UnifiedSidebar.vue** | 主页/个人中心 + 关注/推荐/全部 | 替换原侧栏 |
+
+### C+. 执行期新增（热修 H1–H7，见 §九）
+
+| 新增能力 | 形态 |
+|---|---|
+| `utils/richText.js` | 公告/富文本展示、纯文本预览 |
+| `stores/userSettings.js` + `SettingsModal.vue` | 个人中心弹窗 |
+| `ChangePasswordModal.vue` | 改密二级弹窗 |
+| `SettingsRedirect.vue` | `/settings` 兼容路由 |
+| `ChangePasswordRequest` + `PUT /api/users/password` | 用户改密 |
+| `POST /api/posts/{id}/pin` | 前台置顶（吧主/管理员） |
 
 ---
 
@@ -70,44 +80,34 @@
 
 ### R1 — 图片 8px 圆角
 
-**变更范围**：列表卡片 + 帖子详情页
+**变更范围**：列表卡片 + 帖子详情 + 发帖弹窗缩略图
 
-| 文件 | 现状 | 目标 |
-|---|---|---|
-| `forum-web/src/components/post/PostImageGrid.vue` 第 60 行 `border-radius: 6px` | 6px | **8px** |
-| `forum-web/src/views/PostDetail.vue` 第 293 行 `border-radius: 6px` | 6px | **8px** |
-| `forum-web/src/components/post-editor/PostEditorModal.vue` `.upload-thumb` | 6px | **8px**（保持视觉一致）|
+| 文件 | 目标 |
+|---|---|
+| `PostImageGrid.vue` | `border-radius: 8px`；支持 `variant`（见 H2） |
+| `PostEditorModal.vue` `.upload-thumb` | **8px** |
+| `PostDetail.vue` | 详情区由 `PostImageGrid` 承担圆角 |
 
-**工作量**：3 处 CSS 修改，约 5 分钟。
-
-> 注：原话"8% 比例圆角"无法直接落地（CSS border-radius 不支持百分比的统一直觉值，使用 % 会得到椭圆）。采纳 **8px** 作为约 8% 视觉等价值。
+> 注：原话「8% 比例圆角」采纳 **8px** 作为视觉等价值。
 
 ---
 
 ### R2 — 三栏总宽与中列加宽
 
-**当前布局诊断**：
+**实际落地**（与初稿「保持 1200px」不同，见 §十）：
 
-- App.vue 容器：`max-width: 1200px` ✅ 已经够宽
-- Home.vue 中列：`max-width: 900px` ❌ 太窄，三栏总和才约 1130px
-- PostDetail.vue 主体：`max-width: 900px` ❌ 同上
-
-**真正问题不是外层窄，而是内层中列被人为限定 900px**。
-
-**变更范围**：
-
-| 文件 | 现状 | 目标 |
-|---|---|---|
-| `forum-web/src/views/Home.vue` 中列 max-width | 900px | **去掉 max-width**，让中列吃满 `flex: 1`（左右栏定宽，中列自适应） |
-| `forum-web/src/views/Board.vue` 中列 | 同上 | 同上 |
-| `forum-web/src/views/PostDetail.vue` 主体容器 | 900px | 同上 |
-| `forum-web/src/App.vue` `max-width: 1200px` | 1200px | **保持**（视用户反馈，必要时调到 1280px）|
+| 文件 | 目标 |
+|---|---|
+| `forum-web/src/styles/global.css` | `--page-max-width: 1600px`；`.three-col-layout` 三栏 flex |
+| `App.vue` / `AppHeader` / `AppFooter` | 使用 `var(--page-max-width)` |
+| `Home.vue` / `Board.vue` / `PostDetail.vue` | 去掉中列 `max-width: 900px`，使用 `.three-col-layout` |
 
 **侧边栏宽度约定**：
 
-- 左侧 UnifiedSidebar：240px
-- 右侧栏（公告 / 推荐 / 热门）：260px
-- 中间列：剩余空间（约 660~720px 不等，取决于视口）
+- 左侧 UnifiedSidebar：**240px**，`margin-right: 100px`（与 `gap: 16px` 合计左–中间距约 **116px**）
+- 右侧栏：**260px**
+- 中间列：`flex: 1`，随 `--page-max-width` 自适应
+- 移动端：`@media (max-width: 768px)` 隐藏左右栏
 
 ---
 
@@ -136,10 +136,6 @@ CREATE TABLE announcement (
   COMMENT='公告（站点级 / 板块级双层）';
 ```
 
-**约束说明**：
-- `scope='site'` 时 `board_id` 必须为 NULL；`scope='board'` 时必填
-- Service 层做这层校验，不依赖 DB 触发器
-
 **落地文件**：`forum-server/src/main/resources/db/schema.v3.sql`
 
 #### 3.2 权限矩阵
@@ -148,172 +144,115 @@ CREATE TABLE announcement (
 |---|---|---|
 | 查看 | 所有人 | 所有人 |
 | 新建/编辑/删除 | **仅 admin** | **admin 或 该板块吧主** |
-| 查看作用域 | 全站可见 | 仅限对应板块页 |
 
-**新增权限判断工具**：`@RequireBoardOwnerOrAdmin` 注解 + Aspect，或在 Service 层做 `assertIsBoardOwnerOrAdmin(userId, boardId)`。**优先在 Service 层手动调用**，避免引入 Aspect 复杂度（参考 CLAUDE.md "简单优先"）。
+**权限实现**：Service 层 `assertIsBoardOwnerOrAdmin()` 手动校验（无 Aspect）。
 
 #### 3.3 后端 API
 
 **前台（只读）**：
-- `GET /api/announcements?scope=site&page=1&size=10` — 站点公告列表
-- `GET /api/boards/{boardId}/announcements?page=1&size=10` — 板块公告列表
+- `GET /api/announcements?scope=site&page=1&size=10`
+- `GET /api/boards/{boardId}/announcements?page=1&size=10`
 
 **后台（admin）**：
-- `POST /api/admin/announcements` — 新建站点公告
-- `PUT /api/admin/announcements/{id}` — 编辑（admin 可改任意，吧主仅可改自己板块的）
-- `DELETE /api/admin/announcements/{id}` — 删除（同上）
-- `GET /api/admin/announcements?scope=&boardId=&page=&size=` — 列表查询
+- `GET/POST/PUT/DELETE /api/admin/announcements`
 
 **吧主管理（认证态前台）**：
-- `POST /api/boards/{boardId}/announcements` — 吧主在自己板块发公告
-- 共用 `PUT /api/admin/announcements/{id}` 和 `DELETE`，由 Service 层判断当前用户是否吧主
+- `POST /api/boards/{boardId}/announcements`
+- `PUT/DELETE /api/announcements/{id}`（Service 判断吧主）
 
 #### 3.4 前端落地
 
-| 组件/页面 | 角色 | 位置 |
-|---|---|---|
-| `AnnouncementSidebar.vue` | 公共展示组件 | `forum-web/src/components/announcement/` |
-| `BoardOwnerAnnouncementPanel.vue` | 吧主管理面板 | `forum-web/src/components/announcement/` |
-| `AdminAnnouncements.vue` | 后台公告管理页 | `forum-web/src/views/admin/` |
-| 接入点 | Home.vue 右栏（site）、Board.vue 右栏（board）、PostDetail.vue 右栏（board）| — |
-| 路由 | `/admin/announcements` | 后台菜单加入口 |
+| 组件/页面 | 角色 |
+|---|---|
+| `AnnouncementSidebar.vue` | 列表展示（Home 右栏 site / Board、PostDetail 右栏 board） |
+| `AnnouncementDetailDialog.vue` | 只读详情（H1：普通用户可点击查看） |
+| `BoardOwnerAnnouncementPanel.vue` | 吧主管理 |
+| `AdminAnnouncements.vue` | 后台管理 |
+| `Board.vue` | 板块页公告 widget + 预览/日期（R6） |
+
+**字数上限（热修后）**：title 50 字；content **1000 字**（见 §七 #12、H1）。
 
 ---
 
-### R4 — 帖子详情页加左侧 SideNav + 右侧板块公告
-
-**现状**：PostDetail.vue 是单栏（max-width: 900px 居中）。
-
-**目标**：改为三栏（左 SideNav / 中正文 / 右板块公告）
-
-**变更范围**：
+### R4 — 帖子详情页三栏
 
 | 文件 | 改动 |
 |---|---|
-| `forum-web/src/views/PostDetail.vue` | 外层 wrap 改为 3 列布局；左侧用 UnifiedSidebar；右侧用 AnnouncementSidebar（scope=board, boardId=post.boardId）|
-
-**布局示意**：
-
-```
-┌─────────────────────────────────────────┐
-│ AppHeader                               │
-├──────┬──────────────────────────┬───────┤
-│ 240  │  Post 正文 + 评论树       │ 260   │
-│ 左栏 │  （flex:1，吃满中间）     │ 右栏  │
-│ 板块 │                          │ 板块  │
-│ 导航 │                          │ 公告  │
-└──────┴──────────────────────────┴───────┘
-```
+| `PostDetail.vue` | `.three-col-layout`；左 `UnifiedSidebar`；右 `AnnouncementSidebar(scope=board)` |
 
 ---
 
-### R5 — 主页侧边栏顶部加"主页/个人中心"入口
+### R5 — 主页侧边栏「主页 / 个人中心」
 
-**现状**：
-- `AppSidebar.vue`：只有"版块导航"标题 + 板块列表
-- `BoardSidebar.vue`（二期 P2-M4 引入）：包含"我关注的"、"推荐板块"、"全部板块"三段（参考 image-4.png 现状）
+**入口行为（热修后）**：
 
-**目标**：合并为 `UnifiedSidebar.vue`，结构（从上至下）：
-
-```
-┌─────────────────────┐
-│ 🏠 主页              │  ← 新增（R5）
-│ 👤 个人中心          │  ← 新增（R5）
-├─────────────────────┤
-│ ⭐ 我关注的          │  ← 现有 BoardSidebar
-│  └ 板块卡片列表       │
-├─────────────────────┤
-│ 📈 推荐板块          │  ← 现有
-│  └ ...               │
-├─────────────────────┤
-│ 📋 全部板块          │  ← 现有
-│  └ ...               │
-└─────────────────────┘
-```
-
-**变更范围**：
-
-| 文件 | 改动 |
+| 入口 | 行为 |
 |---|---|
-| `forum-web/src/components/layout/UnifiedSidebar.vue` | **新建**，包含顶部"主页/个人中心"区块 + 现有 BoardSidebar 三段 |
-| `forum-web/src/components/layout/BoardSidebar.vue` | 内容迁移到 UnifiedSidebar 后**删除** 或保留为内部子组件 |
-| `forum-web/src/components/layout/AppSidebar.vue` | 同上判断（推荐删除，因为 P2-M4 已实质替代）|
-| `Home.vue` / `Board.vue` / `PostDetail.vue` | 引用从 AppSidebar/BoardSidebar 切换为 UnifiedSidebar |
+| 主页 | `router.push('/')` |
+| 个人中心 | `useUserSettingsStore().open()` 打开 **SettingsModal**（非跳转独立页） |
+| `/settings` | `SettingsRedirect.vue`：打开弹窗后 `replace('/')`（兼容旧链接） |
 
-**入口跳转**：
-- "主页" → router.push('/')
-- "个人中心" → router.push(`/users/${userStore.id}`)（注：当前用户主页路由可能未实现，需确认路由表）
+侧栏「个人中心」高亮：`settingsStore.visible === true`。
 
 ---
 
-### R6 — 公告显示内容预览+日期
-
-**现状**：板块公告列表仅显示标题，用户需点击才能查看内容。
-
-**目标**：每条公告显示标题 + 4行内容预览 + 相对更新时间。
-
-**变更范围**：
+### R6 — 公告显示内容预览 + 日期
 
 | 文件 | 改动 |
 |---|---|
-| `forum-web/src/views/Board.vue` | 公告列表模板增加 content 预览和 updatedAt 显示 |
-| `forum-web/src/views/Board.vue` | 新增 `formatDate()` 相对时间函数（刚刚/X分钟前/X小时前/X天前/日期） |
-
-**CSS**：
-- `.announcement-content`：`-webkit-line-clamp: 4` 限制4行，`font-size: 12px`，`color: #888`
-- `.announcement-date`：`font-size: 11px`，`color: #bbb`
+| `Board.vue` / `AnnouncementSidebar.vue` | 标题 + 内容预览（`toPlainTextPreview`）+ 相对时间 |
+| `utils/richText.js` | `formatRichContent` / `toPlainTextPreview` |
 
 ---
 
 ### R7 — 板块删除功能
 
-**现状**：板块只能禁用（admin 后台 setBoardStatus），无删除入口。
-
-**目标**：编辑板块弹窗增加"删除板块"按钮，吧主或管理员可删除（软删除）。
-
-**权限**：系统板块（id=1）不可删除。吧主仅可删除自己管理的板块。
-
-**变更范围**：
-
 | 文件 | 改动 |
 |---|---|
-| `forum-server/.../BoardService.java` | 新增 `deleteBoard(boardId, userId, isAdmin)` |
-| `forum-server/.../BoardController.java` | 新增 `DELETE /api/boards/{id}` |
-| `forum-web/src/api/board.js` | 新增 `deleteBoard(id)` |
-| `forum-web/src/components/board/BoardEditForm.vue` | footer 左侧增加红色"删除板块"按钮，二次确认后删除并跳转首页 |
+| `BoardService.deleteBoard` | 软删除；系统板块 id=1 不可删 |
+| `DELETE /api/boards/{id}` | 吧主或 admin |
+| `BoardEditForm.vue` | 红色「删除板块」+ 二次确认 |
 
 ---
 
-## 四、任务拆解（建议执行顺序）
+## 四、任务拆解与完成状态
 
-> 按"先简后繁、先 UI 后接口"的顺序，可独立交付、可独立验收。
+### 4.1 原计划（P3-M1 ~ P3-M10）
 
-| ID | 任务 | 类别 | 文件数 | 预估 | 依赖 |
-|---|---|---|---|---|---|
-| **P3-M1** | R1 图片圆角 8px | B 类（CSS 微调）| 3 | 5 分钟 | 无 |
-| **P3-M2** | R2 中列加宽 + 整体布局调整 | B 类 | 4-5 | 30 分钟 | 无 |
-| **P3-M3** | R5 UnifiedSidebar 新建 + Home/Board/PostDetail 接入 | B 类（重构） | 5-8 | 60-90 分钟 | 无 |
-| **P3-M4** | R3.1 announcement 表 + Entity + Mapper | C 类 | 4 | 30 分钟 | 无 |
-| **P3-M5** | R3.2 AnnouncementService + 权限判断 + 单元测试 | C 类 | 3 | 60 分钟 | M4 |
-| **P3-M6** | R3.3 前台 + 后台 AnnouncementController + 集成测试 | C 类 | 3 | 45 分钟 | M5 |
-| **P3-M7** | R3.4 AnnouncementSidebar + BoardOwnerPanel + AdminAnnouncements 页 | C 类 | 4-6 | 90 分钟 | M4, M6 |
-| **P3-M8** | R4 PostDetail 改三栏 + 接入 UnifiedSidebar + AnnouncementSidebar | B 类 | 1 | 30 分钟 | M3, M7 |
-| **P3-M9** | R6 公告内容预览+更新日期 | B 类 | 1 | 15 分钟 | M7 |
-| **P3-M10** | R7 板块删除功能（后端+前端） | C 类 | 4 | 30 分钟 | 无 |
+| ID | 任务 | 类别 | 状态 |
+|---|---|---|---|
+| **P3-M1** | R1 图片圆角 8px | B | ✅ 已完成 |
+| **P3-M2** | R2 全局三栏 + 1600px 加宽 | B | ✅ 已完成 |
+| **P3-M3** | R5 UnifiedSidebar + 三页接入 | B | ✅ 已完成 |
+| **P3-M4** | R3.1 announcement 表 + Entity + Mapper | C | ✅ 已完成 |
+| **P3-M5** | R3.2 AnnouncementService + 单测 | C | ✅ 已完成 |
+| **P3-M6** | R3.3 AnnouncementController | C | ✅ 已完成 |
+| **P3-M7** | R3.4 公告前端组件 + Admin 页 | C | ✅ 已完成 |
+| **P3-M8** | R4 PostDetail 三栏 | B | ✅ 已完成 |
+| **P3-M9** | R6 公告预览 + 日期 | B | ✅ 已完成 |
+| **P3-M10** | R7 板块删除 | C | ✅ 已完成 |
 
-**预估总时长**：约 7 小时（实际可能 5-9 小时）
+### 4.2 执行期热修（H1 ~ H7）
+
+| ID | 任务 | 要点 | 主要文件 | 状态 |
+|---|---|---|---|---|
+| **H1** | 公告修复与增强 | 普通用户只读详情；API `res.records`；content **1000 字** | `AnnouncementDetailDialog.vue`、`AnnouncementService.java`、`richText.js` | ✅ |
+| **H2** | 帖子图片展示规则 | `variant`；单图/多图布局；flex 紧挨 | `PostImageGrid.vue`、`PostDetail.vue` | ✅ |
+| **H3** | 前台帖子置顶 | 吧主本吧 / 管理员全站；详情页按钮 | `PostService.pinPost`、`PostController`、`PostDetail.vue` | ✅ |
+| **H4** | 编辑帖与发帖统一 | 删除 `PostEdit.vue`；`openForEdit` | `PostEditorModal.vue`、`postEditor.js` | ✅ |
+| **H5** | 评论修复 + 贴吧 UI | 补 `CommentForm` import；两层；展开回复 | `CommentTree.vue`、`CommentItem.vue`、`PostDetail.vue` | ✅ |
+| **H6** | 个人中心弹窗 | 替代独立设置页 | `SettingsModal.vue`、`userSettings.js` | ✅ |
+| **H7** | 修改密码 | 入口 + 二级弹窗 | `ChangePasswordModal.vue`、`PUT /api/users/password` | ✅ |
 
 ---
 
 ## 五、冲突自检清单
 
-- [x] announcement 表名 — 与现有 10 表无重复 ✅
-- [x] 新建接口 `/api/announcements`、`/api/admin/announcements` — 与现有路径无重复 ✅
-- [x] AnnouncementService / AnnouncementController — 与现有 Service/Controller 无重名 ✅
-- [x] UnifiedSidebar.vue / AnnouncementSidebar.vue — 与 components/ 现有组件无重名 ✅
-- [x] AdminAnnouncements.vue — 与 views/admin/ 现有页面无重名 ✅
-- [x] 所有"全新建"项都能在盘点表 C 类找到对应行 ✅
-- [x] B 类扩展全部走 ALTER / CSS 调整 / 重构，不破坏一期接口语义 ✅
+- [x] announcement 表名 — 与现有表无重复 ✅
+- [x] `/api/announcements`、`/api/admin/announcements` — 路径无重复 ✅
+- [x] `PUT /api/users/password`、`POST /api/posts/{id}/pin` — 与现有路径无冲突 ✅
+- [x] 组件命名无冲突 ✅
+- [x] B 类扩展不破坏一期接口语义 ✅
 
 ---
 
@@ -321,39 +260,153 @@ CREATE TABLE announcement (
 
 | 二期任务 | 覆盖状态 | 三期对应 |
 |---|---|---|
-| 二期 BoardSidebar / AppSidebar | 重构合并 | **P3-M3** UnifiedSidebar |
-| 二期 P2-M4 贴吧风 UI | 继续沿用，仅微调 | P3-M1 图片圆角、P3-M2 宽度调整 |
-| 一期 PostDetail.vue 单栏 | 重写为三栏 | **P3-M8** |
-| 其余二期任务 | 不动 | — |
+| BoardSidebar / AppSidebar | 重构合并 | **P3-M3** UnifiedSidebar |
+| P2-M4 贴吧风 UI | 沿用 + 微调 | P3-M1、P3-M2、H2 |
+| PostDetail 单栏 | 三栏 | **P3-M8** |
+| **P2-M8 吧主本吧置顶** | 二期标注暂缓 | **H3 已在前台落地**（删帖/加精仍暂缓） |
+| P2-M6 发帖弹窗 | 沿用 | H4 扩展为编辑共用 |
 
 ---
 
 ## 七、用户已拍板的决策点（2026-05-24 确认）
 
-| # | 决策 | 选择 |
-|---|---|---|
-| 1 | 图片圆角值 | **8px** |
-| 2 | 中列宽度策略 | **去掉中列 max-width，flex 自适应吃满** |
-| 3 | 公告权限判断 | **Service 层手动校验** `assertIsBoardOwnerOrAdmin()` |
-| 4 | 吧主公告入口 | 板块管理页面加"公告管理" tab（待 P3-M7 落地时再细化）|
-| 5 | 个人中心路由 | **复用现有路由**（点"个人中心"跳到已有的 /settings 或 /users/{id}，按当前路由表实际情况决定）|
-| 6 | 执行顺序 | **P3-M1 → M8 逐模块 commit + push**（沿用二期质量标准）|
-| 7 | 公告正文格式 | **沿用帖子 HTML 存储**（plainToHtml 转换，v-html 渲染）|
-| 8 | 公告数量上限 | **不限数量**，靠分页控制 |
-| 9 | PostDetail 右栏内容 | **仅放板块公告**，不混入推荐/热门 |
-| 10 | Home 右栏内容 | **仅放站点公告**（scope=site）|
-| 11 | 公告 title 字数上限 | **50 字** |
-| 12 | 公告 content 字数上限 | **500 字** |
+| # | 决策 | 选择 | 备注 |
+|---|---|---|---|
+| 1 | 图片圆角值 | **8px** | — |
+| 2 | 中列宽度策略 | **去掉中列 max-width，flex 自适应** | 外层 **1600px**（见 §十） |
+| 3 | 公告权限判断 | **Service 层手动校验** | — |
+| 4 | 吧主公告入口 | 板块页公告 widget + 吧主点击管理 | 已落地 |
+| 5 | 个人中心 | **弹窗 SettingsModal** | ~~独立 /settings 页~~ 已废弃；`/settings` 仅兼容 |
+| 6 | 执行顺序 | P3-M1 → M10 + 热修 | 逐模块 commit |
+| 7 | 公告正文格式 | HTML 存储 + v-html / richText 展示 | — |
+| 8 | 公告数量上限 | 分页，不限条数 | — |
+| 9 | PostDetail 右栏 | 仅板块公告 | — |
+| 10 | Home 右栏 | 仅站点公告 | — |
+| 11 | 公告 title 上限 | **50 字** | — |
+| 12 | 公告 content 上限 | **1000 字** | ~~500 字~~ 热修 H1 调整 |
 
 ---
 
 ## 八、风险与注意事项
 
-- **公告作为"独立表"而非 board 字段**：避免 board 表字段膨胀；未来若有公告评论、阅读统计等扩展，独立表更友好。
-- **PostDetail 改三栏对移动端的影响**：移动端可能需要保留单栏。建议加 `@media (max-width: 768px)` 媒体查询，侧边栏在小屏隐藏。
-- **吧主权限的"是否本板块"校验**：必须每个吧主接口都校验 `board.owner_user_id == currentUserId`，避免越权管理其他板块的公告。
-- **announcement.deleted 软删除字段保留**：与一期所有业务表风格保持一致。
+- **公告独立表**：便于后续扩展，避免 board 字段膨胀。
+- **三栏移动端**：768px 以下隐藏侧栏，中栏全宽。
+- **吧主越权**：置顶、公告、删板块等须校验 `owner_user_id`。
+- **评论点赞/等级/IP 属地**：贴吧截图中的能力**未实现**（H5 仅 UI 与两层回复）。
+- **测试数据清理**：`db/cleanup-test-data.sql` 仅开发用，见 README / CLAUDE.md。
 
 ---
 
-> **请逐项确认上方"七、需用户拍板的决策点"。我会在你确认后开始按 P3-M1 → M8 顺序逐个实施 + 单模块 commit/push。**
+## 九、执行期追加交付说明（H1–H7）
+
+### H1 — 公告系统修复与增强
+
+- 普通用户点击板块公告 → 只读 `AnnouncementDetailDialog`（吧主/管理员仍进编辑）
+- `AnnouncementSidebar` 列表解析 `res?.records`（非 `res.data.records`）
+- `append-to-body` 避免弹窗被裁剪
+- 正文字数：前后端 **1000** 字
+
+**验收**：未登录可浏览公告详情；超长正文弹窗内滚动。
+
+### H2 — 帖子图片展示
+
+- `PostImageGrid`：`variant="list"`（列表）/ `"detail"`（详情）
+- 单图（=1）：原比例，最大宽 ≈ 容器 1/3
+- 多图（>1）：1:1 方格横排，最多 3 张，flex 左对齐 gap 4px
+- 详情正文内嵌 `<img>`：`max-width: calc(100% / 3)`
+
+### H3 — 吧主/管理员前台置顶
+
+- `PostService.pinPost(postId, pin, operatorId, isAdmin)`：非 admin 须为帖子所在吧吧主
+- `POST /api/posts/{id}/pin` body `{ pinned: true|false }`
+- `GET /api/posts/{id}` 的 `board.ownerUserId` 供前端判断
+- `PostDetail`：置顶 / 取消置顶按钮；后台 `AdminPosts` 逻辑不变
+
+**验收**：吧主仅本吧可置顶；其他吧无按钮；强行调 API 返回 1002。
+
+### H4 — 编辑帖子与发帖统一
+
+- `postEditor.openForEdit(post, onSaved)` 预填数据
+- `PostEditorModal`：Tab「编辑」、按钮「保存」、`toPlainTextPreview` 回填正文
+- `/post/:id/edit` → 详情页 + 自动打开编辑弹窗
+
+### H5 — 评论修复与贴吧式 UI
+
+- **Bug**：`PostDetail` 未 import `CommentForm` 导致评论区不可用 → 已修复
+- 一级评论大头像（40px）；楼中楼小头像（32px）+ 灰底区块
+- 二级文案：`回复 {nickname} : {content}`
+- 底部：相对时间 + 回复 + ··· 删除
+- 回复超过 2 条：**展开 N 条回复** / 收起
+
+**未做**：评论点赞、用户等级、IP 属地。
+
+### H6 — 个人中心弹窗
+
+- `App.vue` 挂载 `SettingsModal`
+- 顶栏下拉、左侧栏「个人中心」→ `userSettings.open()`
+- 资料：头像、昵称、简介
+
+### H7 — 修改密码
+
+- `PUT /api/users/password`：`oldPassword` + `newPassword`（6–50 位，含字母数字）
+- 个人中心「账号安全」→ `ChangePasswordModal` 二级弹窗
+- 改密后**保持当前登录态**（不踢 Redis token）
+
+---
+
+## 十、与原文档差异说明
+
+| 项 | 原文档 | 实际落地 |
+|---|---|---|
+| App 最大宽度 | 1200px 保持 | **1600px**（`global.css`） |
+| 三栏 CSS | 各页分散 | **抽离 `global.css`** |
+| 个人中心 | `/settings` 页面 | **弹窗** + `/settings` 重定向 |
+| 公告 content 上限 | 500 字 | **1000 字** |
+| PostImageGrid | 仅改圆角 | **variant + 布局规则**（H2） |
+| P2-M8 吧主置顶 | 暂缓 | **H3 已完成** |
+| PostEdit 独立页 | 一期遗留 | **已删除**，合并发帖弹窗 |
+
+---
+
+## 十一、三期新增/扩展 API 汇总
+
+| 方法 | 路径 | 说明 | 权限 |
+|---|---|---|---|
+| GET | `/api/announcements` | 站点公告列表 | 公开 |
+| GET | `/api/boards/{id}/announcements` | 板块公告列表 | 公开 |
+| POST | `/api/boards/{id}/announcements` | 发板块公告 | 登录 + 吧主/admin |
+| PUT/DELETE | `/api/announcements/{id}` | 编辑/删公告 | 登录 + 权限 |
+| GET/POST/PUT/DELETE | `/api/admin/announcements` | 后台公告 CRUD | admin |
+| DELETE | `/api/boards/{id}` | 软删板块 | 吧主/admin |
+| POST | `/api/posts/{id}/pin` | 置顶切换 | 登录 + 吧主本吧或 admin |
+| PUT | `/api/users/password` | 修改密码 | 登录 + 原密码校验 |
+| GET | `/api/posts/{id}` | 帖子详情 | 响应含 **`board.ownerUserId`**（H3） |
+
+后台置顶仍用：`POST /api/admin/posts/{id}/pin`。
+
+---
+
+## 十二、验收清单（文档与交付对照）
+
+- [x] R1–R7 各模块
+- [x] 公告 1000 字、只读详情、点击行为
+- [x] 布局 1600px + `global.css` 三栏
+- [x] PostImageGrid 列表/详情规则
+- [x] 前台置顶（吧主/管理员）
+- [x] 编辑帖子弹窗
+- [x] 评论可用 + 贴吧式 UI
+- [x] 个人中心弹窗 + 改密二级弹窗
+- [x] 新增 API 已上线
+- [x] 二期 P2-M8 置顶项 closure 说明
+
+---
+
+## 十三、交叉引用
+
+- 项目总览与运行方式：`README.md`（含三期完成摘要）
+- 开发陷阱（MySQL 字符集、Redis、FULLTEXT 等）：`CLAUDE.md`
+- 测试数据清理脚本：`forum-server/src/main/resources/db/cleanup-test-data.sql`（仅开发环境）
+
+---
+
+> **维护说明**：后续若仅做小改动，请同步更新 §四 状态表、§九 热修说明及 §十二 验收项，避免与代码漂移。

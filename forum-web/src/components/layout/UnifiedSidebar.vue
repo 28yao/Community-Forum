@@ -6,10 +6,15 @@
         <el-icon><HomeFilled /></el-icon>
         <span>主页</span>
       </router-link>
-      <router-link v-if="userStore.isLoggedIn" to="/settings" class="quick-link" :class="{ active: route.path === '/settings' }">
+      <span
+        v-if="userStore.isLoggedIn"
+        class="quick-link"
+        :class="{ active: settingsStore.visible }"
+        @click="settingsStore.open()"
+      >
         <el-icon><User /></el-icon>
         <span>个人中心</span>
-      </router-link>
+      </span>
     </section>
 
     <el-divider class="sidebar-divider" />
@@ -88,10 +93,12 @@ import BoardCard from '@/components/board/BoardCard.vue';
 import { useAppStore } from '@/stores/app';
 import { useUserStore } from '@/stores/user';
 import { useBoardFollowStore } from '@/stores/boardFollow';
+import { useUserSettingsStore } from '@/stores/userSettings';
 
 const appStore = useAppStore();
 const userStore = useUserStore();
 const followStore = useBoardFollowStore();
+const settingsStore = useUserSettingsStore();
 const router = useRouter();
 const route = useRoute();
 
@@ -148,6 +155,12 @@ onMounted(() => {
   font-size: 15px;
   font-weight: 500;
   transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  box-sizing: border-box;
 }
 .quick-link:hover {
   background: #f0f6ff;

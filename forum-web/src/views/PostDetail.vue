@@ -33,9 +33,18 @@
           <span class="meta-sep">·</span>
           <span>{{ post.viewCount }} 浏览</span>
         </div>
-        <div v-if="isAuthor" class="post-actions">
-          <el-button size="small" @click="$router.push(`/post/${post.id}/edit`)">编辑</el-button>
-          <el-button size="small" type="danger" @click="handleDelete">删除</el-button>
+        <div v-if="isAuthor || canManagePin" class="post-actions">
+          <template v-if="isAuthor">
+            <el-button size="small" @click="handleEdit">编辑</el-button>
+            <el-button size="small" type="danger" @click="handleDelete">删除</el-button>
+          </template>
+          <el-button
+            v-if="canManagePin"
+            size="small"
+            type="warning"
+            :loading="pinLoading"
+            @click="handlePinToggle"
+          >{{ post.isPinned ? '取消置顶' : '置顶' }}</el-button>
         </div>
       </div>
 
@@ -43,17 +52,7 @@
 
       <div class="post-content" v-html="post.content"></div>
 
-      <div v-if="post.images?.length" class="post-images">
-        <el-image
-          v-for="(url, idx) in post.images"
-          :key="idx"
-          :src="url"
-          fit="cover"
-          :preview-src-list="post.images"
-          :initial-index="idx"
-          class="post-img"
-        />
-      </div>
+      <PostImageGrid v-if="post.images?.length" :images="post.images" variant="detail" />
 
       <el-divider />
 
@@ -118,11 +117,13 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Pointer, Star } from '@element-plus/icons-vue';
-import { getPostById, deletePost } from '@/api/post';
+import { getPostById, deletePost, pinPost } from '@/api/post';
 import { like, unlike } from '@/api/like';
 import { favorite, unfavorite } from '@/api/favorite';
 import { listComments } from '@/api/comment';
 import { useUserStore } from '@/stores/user';
+import { usePostEditorStore } from '@/stores/postEditor';
+import PostImageGrid from '@/components/post/PostImageGrid.vue';
 import CommentForm from '@/components/comment/CommentForm.vue';
 import CommentTree from '@/components/comment/CommentTree.vue';
 import UnifiedSidebar from '@/components/layout/UnifiedSidebar.vue';
@@ -131,12 +132,14 @@ import AnnouncementSidebar from '@/components/announcement/AnnouncementSidebar.v
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const postEditorStore = usePostEditorStore();
 
 const postId = computed(() => Number(route.params.id));
 const post = ref(null);
 const loading = ref(true);
 const likeLoading = ref(false);
 const favLoading = ref(false);
+const pinLoading = ref(false);
 
 const comments = ref([]);
 const commentsLoading = ref(false);
@@ -148,17 +151,45 @@ const isAuthor = computed(() =>
   post.value.author.id === userStore.info?.id
 );
 
+const canManagePin = computed(() => {
+  if (!userStore.isLoggedIn || !post.value) return false;
+  if (userStore.isAdmin) return true;
+  return post.value.board?.ownerUserId === userStore.info?.id;
+});
+
 async function load() {
   loading.value = true;
   try {
     post.value = await getPostById(postId.value);
     loadComments();
+    if (route.query.edit === '1' && isAuthor.value) {
+      openEditModal();
+      router.replace({ path: route.path });
+    }
   } catch (e) {
     ElMessage.error(e.message || '帖子不存在');
     router.replace('/');
   } finally {
     loading.value = false;
   }
+}
+
+function openEditModal() {
+  if (!post.value) return;
+  postEditorStore.openForEdit(
+    {
+      id: post.value.id,
+      boardId: post.value.board?.id,
+      title: post.value.title,
+      content: post.value.content,
+      images: post.value.images || []
+    },
+    load
+  );
+}
+
+function handleEdit() {
+  openEditModal();
 }
 
 async function loadComments() {
@@ -172,6 +203,7 @@ async function loadComments() {
     }
   } catch (e) {
     comments.value = [];
+    ElMessage.error(e.message || '评论加载失败');
   } finally {
     commentsLoading.value = false;
   }
@@ -240,6 +272,21 @@ async function handleDelete() {
   }
 }
 
+async function handlePinToggle() {
+  if (!requireLogin() || pinLoading.value || !post.value) return;
+  const pinned = !post.value.isPinned;
+  pinLoading.value = true;
+  try {
+    await pinPost(postId.value, pinned);
+    post.value.isPinned = pinned;
+    ElMessage.success(pinned ? '已置顶' : '已取消置顶');
+  } catch (e) {
+    ElMessage.error(e.message || '操作失败');
+  } finally {
+    pinLoading.value = false;
+  }
+}
+
 function formatTime(t) {
   if (!t) return '';
   const d = new Date(typeof t === 'string' ? t.replace(' ', 'T') : t);
@@ -290,18 +337,8 @@ onMounted(load);
   word-break: break-word;
 }
 .post-content :deep(img) {
-  max-width: 100%;
-}
-.post-images {
-  margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.post-img {
-  width: 100%;
-  max-width: 800px;
-  border-radius: 8px;
+  max-width: calc(100% / 3);
+  height: auto;
 }
 .post-footer {
   display: flex;

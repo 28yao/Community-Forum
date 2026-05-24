@@ -4,6 +4,7 @@ import com.forum.common.Result;
 import com.forum.entity.User;
 import com.forum.service.FileService;
 import com.forum.service.UserService;
+import com.forum.service.dto.ChangePasswordRequest;
 import com.forum.service.dto.UpdateProfileRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -68,5 +69,17 @@ public class UserController {
         Map<String, String> data = new HashMap<>();
         data.put("avatar", url);
         return Result.success(data);
+    }
+
+    /**
+     * PUT /api/users/password
+     * 修改密码（需登录，校验原密码）
+     */
+    @PutMapping("/password")
+    public Result<Void> changePassword(@RequestBody @Valid ChangePasswordRequest req,
+                                       HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        userService.changePassword(userId, req.getOldPassword(), req.getNewPassword());
+        return Result.success("密码修改成功", null);
     }
 }

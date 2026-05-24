@@ -88,4 +88,17 @@ public class PostController {
         postService.deletePost(id, userId, isAdmin);
         return Result.success("帖子已删除", null);
     }
+
+    /** POST /api/posts/{id}/pin - 置顶/取消置顶（管理员或本吧吧主） */
+    @PostMapping("/{id}/pin")
+    public Result<Void> pin(@PathVariable Long id,
+                            @RequestBody Map<String, Object> body,
+                            HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        String role = (String) request.getAttribute("role");
+        boolean isAdmin = "admin".equals(role);
+        boolean pin = Boolean.TRUE.equals(body.get("pinned"));
+        postService.pinPost(id, pin, userId, isAdmin);
+        return Result.success(pin ? "已置顶" : "已取消置顶", null);
+    }
 }

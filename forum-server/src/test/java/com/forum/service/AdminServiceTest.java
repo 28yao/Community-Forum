@@ -163,9 +163,9 @@ class AdminServiceTest {
         r.setBoardId(1L); r.setTitle("待置顶"); r.setContent("body");
         Long pid = postService.createPost(uid, r);
 
-        postService.pinPost(pid, true, opId);
+        postService.pinPost(pid, true, opId, true);
         assertEquals(1, postMapper.selectById(pid).getIsPinned());
-        postService.pinPost(pid, false, opId);
+        postService.pinPost(pid, false, opId, true);
         assertEquals(0, postMapper.selectById(pid).getIsPinned());
     }
 

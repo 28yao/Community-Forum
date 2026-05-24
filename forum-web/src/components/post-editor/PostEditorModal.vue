@@ -11,7 +11,7 @@
     <template #header>
       <div class="modal-header">
         <div class="modal-tabs">
-          <span class="tab-item active">发贴</span>
+          <span class="tab-item active">{{ isEditMode ? '编辑' : '发贴' }}</span>
         </div>
         <el-button :icon="Close" circle text @click="handleClose" />
       </div>
@@ -95,7 +95,7 @@
       <div class="bottom-right">
         <el-button @click="handleClose">取消</el-button>
         <el-button type="primary" :loading="submitting" @click="handleSubmit" class="publish-btn">
-          发布
+          {{ isEditMode ? '保存' : '发布' }}
         </el-button>
       </div>
     </div>
@@ -103,7 +103,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, nextTick } from 'vue';
+import { ref, reactive, watch, nextTick, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Close, Picture } from '@element-plus/icons-vue';
@@ -111,7 +111,8 @@ import BoardSelectDropdown from '@/components/board/BoardSelectDropdown.vue';
 import EmojiPicker from './EmojiPicker.vue';
 import { usePostEditorStore } from '@/stores/postEditor';
 import { useUserStore } from '@/stores/user';
-import { createPost, uploadPostImage } from '@/api/post';
+import { createPost, getPostById, updatePost, uploadPostImage } from '@/api/post';
+import { toPlainTextPreview } from '@/utils/richText';
 
 const router = useRouter();
 const editorStore = usePostEditorStore();
@@ -120,6 +121,9 @@ const userStore = useUserStore();
 const formRef = ref(null);
 const contentRef = ref(null);
 const submitting = ref(false);
+const initialSnapshot = ref('');
+
+const isEditMode = computed(() => !!editorStore.editingPostId);
 
 const form = reactive({
   boardId: null,
@@ -141,16 +145,52 @@ watch(() => editorStore.lockedBoardId, (id) => {
   if (id) form.boardId = id;
 }, { immediate: true });
 
-watch(() => editorStore.visible, (v) => {
-  if (v) {
-    form.boardId = editorStore.lockedBoardId || null;
-    form.title = '';
-    form.content = '';
-    form.imageUrls = [];
+watch(() => editorStore.visible, async (v) => {
+  if (!v) {
+    initialSnapshot.value = '';
+    return;
   }
+  if (editorStore.editingPostId) {
+    await loadEditForm();
+    return;
+  }
+  form.boardId = editorStore.lockedBoardId || null;
+  form.title = '';
+  form.content = '';
+  form.imageUrls = [];
+  initialSnapshot.value = '';
 });
 
+async function loadEditForm() {
+  let data = editorStore.editDraft;
+  if (!data) {
+    try {
+      data = await getPostById(editorStore.editingPostId);
+    } catch (e) {
+      ElMessage.error(e.message || '帖子不存在');
+      editorStore.close();
+      return;
+    }
+  }
+  form.boardId = data.boardId ?? data.board?.id ?? editorStore.lockedBoardId;
+  form.title = data.title || '';
+  form.content = toPlainTextPreview(data.content || '');
+  form.imageUrls = [...(data.images || [])];
+  initialSnapshot.value = snapshotForm();
+}
+
+function snapshotForm() {
+  return JSON.stringify({
+    title: form.title.trim(),
+    content: form.content.trim(),
+    imageUrls: form.imageUrls
+  });
+}
+
 function isDirty() {
+  if (editorStore.editingPostId) {
+    return snapshotForm() !== initialSnapshot.value;
+  }
   return form.title.trim() || form.content.trim() || form.imageUrls.length;
 }
 
@@ -227,18 +267,29 @@ async function handleSubmit() {
     return;
   }
   submitting.value = true;
+  const payload = {
+    title: form.title,
+    content: plainToHtml(form.content),
+    imageUrls: form.imageUrls
+  };
   try {
-    const data = await createPost({
-      boardId: form.boardId,
-      title: form.title,
-      content: plainToHtml(form.content),
-      imageUrls: form.imageUrls
-    });
-    ElMessage.success('发布成功');
-    editorStore.close();
-    router.push(`/post/${data.id}`);
+    if (editorStore.editingPostId) {
+      await updatePost(editorStore.editingPostId, payload);
+      ElMessage.success('保存成功');
+      const onSaved = editorStore.onSaved;
+      editorStore.close();
+      onSaved?.();
+    } else {
+      const data = await createPost({
+        boardId: form.boardId,
+        ...payload
+      });
+      ElMessage.success('发布成功');
+      editorStore.close();
+      router.push(`/post/${data.id}`);
+    }
   } catch (e) {
-    ElMessage.error(e.message || '发布失败');
+    ElMessage.error(e.message || (editorStore.editingPostId ? '保存失败' : '发布失败'));
   } finally {
     submitting.value = false;
   }
