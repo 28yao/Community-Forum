@@ -37,6 +37,7 @@ public enum ErrorCode {
     POST_NOT_FOUND(3001, "帖子不存在"),
     COMMENT_NOT_FOUND(3002, "评论不存在"),
     BOARD_NOT_FOUND(3003, "版块不存在"),
+    ANNOUNCEMENT_NOT_FOUND(3004, "公告不存在"),
 
     // ===== 4xxx 文件上传 =====
     UPLOAD_TYPE_INVALID(4001, "图片格式不支持"),
